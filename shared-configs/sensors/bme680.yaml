@@ -1,0 +1,138 @@
+i2c:
+  frequency: 400kHz  # Optimal frequency for BME680
+
+# User configurable offsets and radar configuration parameters
+number:
+  - platform: template
+    name: "Temperature Offset"
+    id: temperature_offset
+    optimistic: true
+    min_value: -30
+    max_value: 30
+    step: 0.1
+    restore_value: true
+    initial_value: 0
+    entity_category: "config"
+
+  - platform: template
+    name: "Humidity Offset"
+    id: humidity_offset
+    optimistic: true
+    min_value: -30
+    max_value: 30
+    step: 0.1
+    restore_value: true
+    initial_value: 0
+    entity_category: "config"
+
+# BME680 configuration using BSEC2
+# Ensure that the sensor is properly wired and powered (3.3V)
+bme68x_bsec2_i2c:
+  id: bme68x_sensor
+  model: bme680
+  operating_age: 28d
+  sample_rate: LP
+  supply_voltage: 3.3V
+  address: 0x77  # Verify this address with your hardware (common alternatives: 0x76)
+  state_save_interval: 6h
+
+sensor:
+  # BME680 Sensors using BSEC2 (raw sensor readings)
+  - platform: bme68x_bsec2
+    bme68x_bsec2_id: bme68x_sensor
+    temperature:
+      name: "Temperature"
+      id: raw_temperature
+    pressure:
+      name: "Pressure"
+      filters:
+        - sliding_window_moving_average:
+            window_size: 3
+            send_every: 3
+    humidity:
+      name: "Humidity"
+      id: raw_humidity
+    gas_resistance:
+      name: "Gas Resistance"
+      filters:
+        - sliding_window_moving_average:
+            window_size: 3
+            send_every: 3
+    iaq:
+      name: "IAQ"
+      id: iaq
+      filters:
+        - sliding_window_moving_average:
+            window_size: 3
+            send_every: 3
+    co2_equivalent:
+      name: "CO2 Equivalent"
+      filters:
+        - sliding_window_moving_average:
+            window_size: 3
+            send_every: 3
+    breath_voc_equivalent:
+      name: "Breath VOC Equivalent"
+      filters:
+        - sliding_window_moving_average:
+            window_size: 3
+            send_every: 3
+
+  # Compensated temperature sensor (update interval now 15s for more frequent updates)
+  - platform: template
+    name: "Temperature Compensated"
+    id: compensated_temperature
+    unit_of_measurement: "°C"
+    device_class: "temperature"
+    state_class: "measurement"
+    accuracy_decimals: 1
+    lambda: |-
+      return id(raw_temperature).state + id(temperature_offset).state;
+    update_interval: 15s
+
+  # Compensated humidity sensor (update interval now 15s)
+  - platform: template
+    name: "Humidity Compensated"
+    id: compensated_humidity
+    unit_of_measurement: "%"
+    device_class: "humidity"
+    state_class: "measurement"
+    accuracy_decimals: 1
+    lambda: |-
+      return id(raw_humidity).state + id(humidity_offset).state;
+    update_interval: 15s
+
+text_sensor:
+  - platform: bme68x_bsec2
+    bme68x_bsec2_id: bme68x_sensor
+    iaq_accuracy:
+      name: "IAQ Accuracy"
+
+  - platform: template
+    name: "IAQ Classification"
+    lambda: |-
+      if (int(id(iaq).state) <= 50) {
+        return {"Excellent"};
+      }
+      else if (int(id(iaq).state) >= 51 && int(id(iaq).state) <= 100) {
+        return {"Good"};
+      }
+      else if (int(id(iaq).state) >= 101 && int(id(iaq).state) <= 150) {
+        return {"Lightly polluted"};
+      }
+      else if (int(id(iaq).state) >= 151 && int(id(iaq).state) <= 200) {
+        return {"Moderately polluted"};
+      }
+      else if (int(id(iaq).state) >= 201 && int(id(iaq).state) <= 250) {
+        return {"Heavily polluted"};
+      }
+      else if (int(id(iaq).state) >= 251 && int(id(iaq).state) <= 350) {
+        return {"Severely polluted"};
+      }
+      else if (int(id(iaq).state) >= 351) {
+        return {"Extremely polluted"};
+      }
+      else {
+        return {"error"};
+      }
+

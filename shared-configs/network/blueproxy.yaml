@@ -1,0 +1,4 @@
+bluetooth_proxy:
+  # Allows outbound connections from HA to devices.
+  active: true
+

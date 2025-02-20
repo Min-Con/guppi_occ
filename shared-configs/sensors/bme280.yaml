@@ -1,0 +1,60 @@
+number:
+  - platform: template
+    name: "Temperature OffSet"
+    id: temperature_offset
+    unit_of_measurement: "ºC"
+    min_value: -50
+    max_value: 0
+    step: 0.1
+    update_interval: never
+    optimistic: true
+    restore_value: true
+    initial_value: 0
+  - platform: template
+    name: "Humidity OffSet"
+    id: humidity_offset
+    unit_of_measurement: "%"
+    min_value: 0
+    max_value: 50
+    step: 0.1
+    update_interval: never
+    optimistic: true
+    restore_value: true
+    initial_value: 0
+  - platform: template
+    name: "Pressure OffSet"
+    id: pressure_offset
+    unit_of_measurement: "hPa"
+    min_value: -50
+    max_value: 0
+    step: 0.01
+    update_interval: never
+    optimistic: true
+    restore_value: true
+    initial_value: 0
+
+sensor:
+  - platform: bme280_i2c
+    id: bme280_sensor
+    address: 0x76
+    update_interval: 30s
+    temperature:
+      name: "BME280 Temperature"
+      id: bme280_temperature_sensor
+      oversampling: 2x
+      filters:
+        - lambda: |-
+            return x + id(temperature_offset).state;
+    pressure:
+      name: "BME280 Pressure"
+      id: bme280_pressure_sensor
+      filters:
+        - lambda: |-
+            return x + id(pressure_offset).state;
+    humidity:
+      name: "BME280 Humidity"
+      id: bme280_humidity_sensor
+      filters:
+        - lambda: |-
+            return x + id(humidity_offset).state;
+
