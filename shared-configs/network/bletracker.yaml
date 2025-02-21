@@ -10,6 +10,21 @@ esp32:
       # Extend the watchdog timeout, so the device reboots if the device appears locked up for over 10 seconds.
       CONFIG_ESP_TASK_WDT_TIMEOUT_S: "10"
 
+api:
+  # Only enable BLE tracking when wifi is up and api is connected
+  # Gives single-core ESP32-C3 devices time to manage wifi and authenticate with api
+  on_client_connected:
+     - esp32_ble_tracker.start_scan:
+        continuous: true
+  # Disable BLE tracking when there are no api connections live
+  on_client_disconnected:
+    if:
+      condition:
+        not:
+          api.connected:
+      then:
+        - esp32_ble_tracker.stop_scan:
+
 # Bluetooth Tracker & Proxy configuration
 # Use esp-idf platform if possible - not arduino - for better memory management
 esp32_ble_tracker:
@@ -24,3 +39,6 @@ esp32_ble_tracker:
     # If the device cannot keep up or becomes unstable, reduce the "window" setting. This may be
     # required if your device is controlling other sensors or doing PWM for lights etc.
 
+bluetooth_proxy:
+  # Allows outbound connections from HA to devices.
+  active: true

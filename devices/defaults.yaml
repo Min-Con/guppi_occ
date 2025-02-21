@@ -1,0 +1,42 @@
+####################################
+# Start Substitutions
+####################################
+
+substitutions:
+# Replace name with you sensor name
+  name: st-occ-2410
+  friendly_name: "ST Occ 2410"
+
+# **IMPORTANT** - Add API key here for copy/paste convenience
+  api_key: "abcxyz123="
+# **IMPORTANT**
+
+# Specify below pin numbers for UART, GPIO, and I2C connections
+# Delete if not needed
+  tx_pin_uart: GPIO21
+  rx_pin_uart: GPIO20
+  light_gpio: GPIO2
+  motion_gpio: GPIO4
+  sda_pin_i2c: GPIO6
+  scl_pin_i2c: GPIO7
+
+####################################
+# End Substitutions
+####################################
+
+# Define external packages that ESPHome will fetch at compile time.
+# Uncomment the dependencies you need, and add any additional ones you require.
+packages:
+  MyProjectDefault: github://AdmiralArgyle/guppi_occ/defaults.yaml
+  BoardConfig: github://AdmiralArgyle/guppi_occ/shared-configs/boards/esp32dev.yaml
+  WiFiConfig: github://AdmiralArgyle/guppi_occ/shared-configs/network/wifi.yaml
+#  BLETracker: github://AdmiralArgyle/guppi_occ/shared-configs/network/bletracker.yaml
+#  BLEProxy: github://AdmiralArgyle/guppi_occ/shared-configs/network/bleproxy.yaml #Only needed if BLE Tracker isn't already enabled
+#  LD2410: github://AdmiralArgyle/guppi_occ/shared-configs/sensors/ld2410.yaml
+#  LD2450: github://AdmiralArgyle/guppi_occ/shared-configs/sensors/ld2450.yaml
+#  BME680: github://AdmiralArgyle/guppi_occ/shared-configs/sensors/bme680.yaml
+#  BME280: github://AdmiralArgyle/guppi_occ/shared-configs/sensors/bme280.yaml
+#  BMP280: github://AdmiralArgyle/guppi_occ/shared-configs/sensors/bmp280.yaml
+#  BH1750: github://AdmiralArgyle/guppi_occ/shared-configs/sensors/bh1750.yaml
+#  SCD41: github://AdmiralArgyle/guppi_occ/shared-configs/sensors/scd41.yaml
+
