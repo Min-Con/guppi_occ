@@ -7,7 +7,7 @@ substitutions:
   name: st-occ-2410
   friendly_name: "ST Occ 2410"
 
-# **IMPORTANT** - Add API key here for copy/paste convenience
+# **IMPORTANT** - Move API key here
   api_key: "abcxyz123="
 # **IMPORTANT**
 
@@ -26,9 +26,18 @@ substitutions:
 
 # Define external packages that ESPHome will fetch at compile time.
 # Uncomment the dependencies you need, and add any additional ones you require.
+# Delete any dependencies you don't need.
 packages:
   MyProjectDefault: github://AdmiralArgyle/guppi_occ/defaults.yaml
-  BoardConfig: github://AdmiralArgyle/guppi_occ/shared-configs/boards/esp32dev.yaml
+#  MyProjectDefault: github://AdmiralArgyle/guppi_occ/st-occ-2410-ble-defaults.yaml
+#  MyProjectDefault: github://AdmiralArgyle/guppi_occ/st-occ-gp-2410-ble-defaults.yaml
+#  MyProjectDefault: github://AdmiralArgyle/guppi_occ/mt-occ-2450-defaults.yaml
+#  MyProjectDefault: github://AdmiralArgyle/guppi_occ/mt-occ-2450-28-defaults.yaml
+#  MyProjectDefault: github://AdmiralArgyle/guppi_occ/mt-occ-2450-2817-defaults.yaml
+  BoardConfig: github://AdmiralArgyle/guppi_occ/shared-configs/boards/esp32dev-esp-idf.yaml
+#  BoardConfig: github://AdmiralArgyle/guppi_occ/shared-configs/boards/esp32-s3-devkitc-1-esp-idf.yaml
+#  BoardConfig: github://AdmiralArgyle/guppi_occ/shared-configs/boards/esp32-c3-devkitm-1-esp-idf.yaml
+#  BoardConfig: github://AdmiralArgyle/guppi_occ/shared-configs/boards/esp32-c3-devkitm-1-arduino.yaml
   WiFiConfig: github://AdmiralArgyle/guppi_occ/shared-configs/network/wifi.yaml
 #  BLETracker: github://AdmiralArgyle/guppi_occ/shared-configs/network/bletracker.yaml
 #  BLEProxy: github://AdmiralArgyle/guppi_occ/shared-configs/network/bleproxy.yaml #Only needed if BLE Tracker isn't already enabled

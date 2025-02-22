@@ -1,0 +1,28 @@
+esphome:
+  platformio_options:
+    board_build.flash_mode: dio
+    board_build.flash_size: 4MB
+    board_build.f_flash: 40000000L
+
+esp32:
+  # Because the ESP32‑S3 Zero/Mini isn’t yet defined as its own board,
+  # many users have successfully used the esp32‑s3‑devkitc‑1 profile.
+  board: esp32-s3-devkitc-1
+  variant: esp32s3
+  flash_size: 4MB
+  framework:
+    type: esp-idf
+    version: recommended
+    sdkconfig_options:
+      CONFIG_ESPTOOLPY_FLASHSIZE_4MB: y
+      # BLE 4.2 is supported by ALL ESP32 boards that have bluetooth, the original and derivatives.
+      CONFIG_BT_BLE_42_FEATURES_SUPPORTED: y
+      # Also enable this on any derivative boards (S2, C3 etc) but not the original ESP32.
+      CONFIG_BT_BLE_50_FEATURES_SUPPORTED: y
+      # Extend the watchdog timeout, so the device reboots if the device appears locked up for over 10 seconds.
+      CONFIG_ESP_TASK_WDT_TIMEOUT_S: "10"
+
+psram:
+  mode: quad
+  speed: 80MHz
+    
