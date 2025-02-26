@@ -1,0 +1,34 @@
+####################################
+# Start Substitutions
+####################################
+
+substitutions:
+# Replace name with you sensor name
+#  name: st-occ-2410
+#  friendly_name: "ST Occ 2410"
+  comment_text: "Generally Unstable and Poorly Produced Inventions - Single-target Human Presence and Occupancy Sensor (ESP32/LD2410) with Bluetooth Tracker"
+  project_name: "GUPPI.ST-OCC-2410-BLE"
+  project_version: "25.2.19.1"
+# **IMPORTANT** - Add API key here for copy/paste convenience
+#  api_key: "abcxyz123="
+# Specify below pin numbers for UART, GPIO, and I2C connections
+# Delete if not needed
+#  tx_pin_uart: GPIO21
+#  rx_pin_uart: GPIO20
+#  light_gpio: GPIO2
+#  motion_gpio: GPIO4
+#  sda_pin_i2c: GPIO6
+#  scl_pin_i2c: GPIO7
+
+####################################
+# End Substitutions
+####################################
+
+
+substitutions:
+  name: "seeedstudio-mr60bha2-kit"
+  friendly_name: "Seeed Studio MR60BHA2 Kit"
+
+  comment_text: "Generally Unstable and Poorly Produced Inventions - Single-target Human Presence and Occupancy Sensor (ESP32/LD2410) with Bluetooth Tracker"
+  project_name: "GUPPI.ST-OCC-2410-BLE"
+  project_version: "25.2.19.1"
