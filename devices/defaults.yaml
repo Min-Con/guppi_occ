@@ -86,6 +86,13 @@ text_sensor:
       return {buffer};
     update_interval: 60s
 
+  - platform: debug
+    device:
+      name: "Device Info"
+    reset_reason:
+      name: "Reset Reason"
+
+
 button:
   - platform: factory_reset
     disabled_by_default: True
