@@ -16,8 +16,8 @@ packages:
   WiFiConfig: github://AdmiralArgyle/guppi_occ/shared-configs/network/wifi.yaml
   BLETracker: github://AdmiralArgyle/guppi_occ/shared-configs/network/bletracker.yaml
 #  BLEProxy: github://AdmiralArgyle/guppi_occ/shared-configs/network/bleproxy.yaml #Only needed if BLE Tracker isn't already enabled
-#  LD2410: github://AdmiralArgyle/guppi_occ/shared-configs/sensors/ld2410.yaml
-  LD2410: github://AdmiralArgyle/guppi_occ/shared-configs/sensors/ld2410-gp.yaml
+  LD2410: github://AdmiralArgyle/guppi_occ/shared-configs/sensors/ld2410.yaml
+  LD2410-GP: github://AdmiralArgyle/guppi_occ/shared-configs/sensors/ld2410-gp.yaml
 #  LD2450: github://AdmiralArgyle/guppi_occ/shared-configs/sensors/ld2450.yaml
 #  BME680: github://AdmiralArgyle/guppi_occ/shared-configs/sensors/bme680.yaml
 #  BME280: github://AdmiralArgyle/guppi_occ/shared-configs/sensors/bme280.yaml
