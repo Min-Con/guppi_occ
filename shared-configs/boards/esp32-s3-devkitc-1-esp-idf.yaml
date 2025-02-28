@@ -1,3 +1,21 @@
+####################################
+# Start Substitutions
+####################################
+
+substitutions:
+# Specify below pin numbers for UART, GPIO, and I2C connections
+# Delete if not needed
+  tx_pin_uart: GPIO43
+  rx_pin_uart: GPIO44
+#  light_gpio: GPIO2
+  motion_gpio: GPIO2
+#  sda_pin_i2c: GPIO6
+#  scl_pin_i2c: GPIO7
+
+####################################
+# End Substitutions
+####################################
+
 esphome:
   platformio_options:
     board_build.flash_mode: dio
@@ -14,6 +32,9 @@ esp32:
     type: esp-idf
     version: recommended
     sdkconfig_options:
+      # Performance optimizations
+      CONFIG_COMPILER_OPTIMIZATION_PERF: y
+      CONFIG_COMPILER_OPTIMIZATION_SIZE: y
       CONFIG_ESPTOOLPY_FLASHSIZE_4MB: y
       # BLE 4.2 is supported by ALL ESP32 boards that have bluetooth, the original and derivatives.
       CONFIG_BT_BLE_42_FEATURES_SUPPORTED: y

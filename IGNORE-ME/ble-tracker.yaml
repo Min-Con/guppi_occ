@@ -1,24 +1,18 @@
-substitutions:
-  name: dungeon-ble-tracker
-  friendly_name: "Dungeon BLE Tracker"
-
-esphome:
-  name: "${name}"
-  friendly_name: "${friendly_name}"
-
-esp32:
-  board: esp32-c3-devkitm-1
-  framework:
-    type: esp-idf
-
-# Enable logging at DEBUG level for detailed output during development
-logger:
-
-
 # Enable Home Assistant API
 api:
-  encryption:
-    key: "nPEAm2spqeEMTOr7zi7UMUrXrhE9DLnmmySuHxHym2U="
+  # Only enable BLE tracking when wifi is up and api is connected
+  # Gives single-core ESP32-C3 devices time to manage wifi and authenticate with api
+  on_client_connected:
+     - esp32_ble_tracker.start_scan:
+        continuous: true
+  # Disable BLE tracking when there are no api connections live
+  on_client_disconnected:
+    if:
+      condition:
+        not:
+          api.connected:
+      then:
+        - esp32_ble_tracker.stop_scan:
 
 ota:
   - platform: esphome
@@ -32,7 +26,6 @@ wifi:
     password: !secret wifi_2_password
   - ssid: !secret wifi_3_ssid
     password: !secret wifi_3_password
-  #power_save_mode: none
   output_power: 8.5dB
 
   # Enable fallback hotspot (captive portal) in case wifi connection fails
@@ -49,50 +42,14 @@ wifi:
 # Disable web server - don't use both at the same time
 esp32_ble_tracker:
   scan_parameters:
-    interval: 1100ms
-    window: 1100ms
-    active: true
+    # Don't auto start BLE scanning, we control it in the `api` block's automation.
+    continuous: False
+    # required if your device is controlling other sensors or doing PWM for lights etc.
+    active: True  # send scan-request packets to gather more info, like device name for some devices.
+    # If the device cannot keep up or becomes unstable, reduce the "window" setting. This may be
+    interval: 320ms
+    window: 100ms
 
 bluetooth_proxy:
   active: true
 
-captive_portal:
-
-
-################################################################################
-# Basic diagnostic sensors
-################################################################################
-
-sensor:
-  # Standard Diagnostic Sensors
-  - platform: uptime
-    name: "Device Uptime"
-    id: sys_uptime
-    update_interval: 60s
-    entity_category: "diagnostic"
-  - platform: wifi_signal
-    name: "WiFi Signal Strength"
-    id: wifi_signal_db
-    update_interval: 60s
-    entity_category: "diagnostic"
-
-
-################################################################################
-# Text Sensors for Diagnostics and Derived Information
-################################################################################
-text_sensor:
-  # Device IP Address
-  - platform: wifi_info
-    ip_address:
-      name: "Device IP Address"
-  # Firmware Version (optional)
-  - platform: version
-    name: "Firmware Version"
-
-################################################################################
-# Button Component to Restart the Device
-################################################################################
-button:
-  - platform: restart
-    icon: mdi:power-cycle
-    name: "Reboot Sensor"

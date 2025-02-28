@@ -1,3 +1,20 @@
+####################################
+# Start Substitutions
+####################################
+
+substitutions:
+# Specify below pin numbers for UART, GPIO
+# Delete if not needed
+  tx_pin_uart: GPIO43
+  rx_pin_uart: GPIO44
+#  light_gpio: GPIO2
+  motion_gpio: GPIO2
+
+####################################
+# End Substitutions
+####################################
+
+
 # LD2410 Radar Configuration
 ld2410:
   throttle: 500ms
@@ -12,51 +29,6 @@ number:
       name: Radar Max Move Distance
     max_still_distance_gate:
       name: Radar Max Still Distance
-    g0:
-      move_threshold:
-        name: g0 move threshold
-      still_threshold:
-        name: g0 still threshold
-    g1:
-      move_threshold:
-        name: g1 move threshold
-      still_threshold:
-        name: g1 still threshold
-    g2:
-      move_threshold:
-        name: g2 move threshold
-      still_threshold:
-        name: g2 still threshold
-    g3:
-      move_threshold:
-        name: g3 move threshold
-      still_threshold:
-        name: g3 still threshold
-    g4:
-      move_threshold:
-        name: g4 move threshold
-      still_threshold:
-        name: g4 still threshold
-    g5:
-      move_threshold:
-        name: g5 move threshold
-      still_threshold:
-        name: g5 still threshold
-    g6:
-      move_threshold:
-        name: g6 move threshold
-      still_threshold:
-        name: g6 still threshold
-    g7:
-      move_threshold:
-        name: g7 move threshold
-      still_threshold:
-        name: g7 still threshold
-    g8:
-      move_threshold:
-        name: g8 move threshold
-      still_threshold:
-        name: g8 still threshold
 
   - platform: template
     name: "Radar Zone 1 Start"
@@ -140,94 +112,13 @@ sensor:
     detection_distance:
       name: "Radar Detection Distance"
       id: radar_detection_distance
-    g0:
-      move_energy:
-        name: "g0 move energy"
-        id: g0_move_energy
-        state_class: measurement
-      still_energy:
-        name: "g0 still energy"
-        id: g0_still_energy
-        state_class: measurement
-    g1:
-      move_energy:
-        name: "g1 move energy"
-        id: g1_move_energy
-        state_class: measurement
-      still_energy:
-        name: "g1 still energy"
-        id: g1_still_energy
-        state_class: measurement
-    g2:
-      move_energy:
-        name: "g2 move energy"
-        id: g2_move_energy
-        state_class: measurement
-      still_energy:
-        name: "g2 still energy"
-        id: g2_still_energy
-        state_class: measurement
-    g3:
-      move_energy:
-        name: "g3 move energy"
-        id: g3_move_energy
-        state_class: measurement
-      still_energy:
-        name: "g3 still energy"
-        id: g3_still_energy
-        state_class: measurement
-    g4:
-      move_energy:
-        name: "g4 move energy"
-        id: g4_move_energy
-        state_class: measurement
-      still_energy:
-        name: "g4 still energy"
-        id: g4_still_energy
-        state_class: measurement
-    g5:
-      move_energy:
-        name: "g5 move energy"
-        id: g5_move_energy
-        state_class: measurement
-      still_energy:
-        name: "g5 still energy"
-        id: g5_still_energy
-        state_class: measurement
-    g6:
-      move_energy:
-        name: "g6 move energy"
-        id: g6_move_energy
-        state_class: measurement
-      still_energy:
-        name: "g6 still energy"
-        id: g6_still_energy
-        state_class: measurement
-    g7:
-      move_energy:
-        name: "g7 move energy"
-        id: g7_move_energy
-        state_class: measurement
-      still_energy:
-        name: "g7 still energy"
-        id: g7_still_energy
-        state_class: measurement
-    g8:
-      move_energy:
-        name: "g8 move energy"
-        id: g8_move_energy
-        state_class: measurement
-      still_energy:
-        name: "g8 still energy"
-        id: g8_still_energy
-        state_class: measurement
 
   # Uptime sensor
   - platform: uptime
     id: uptime_sensor
     internal: true
     entity_category: "diagnostic"
-    update_interval: 30s
+    update_interval: 1s
 
   # WiFi signal strength sensor
   - platform: wifi_signal
@@ -259,20 +150,28 @@ binary_sensor:
       name: Radar Still Target
       id: radar_has_still_target
 
-   # LD2410 radar binary sensors
-  - platform: gpio
-    pin: 
-      number: "${motion_gpio}"  # OUT pin of LD2410 connected here
-      mode: INPUT_PULLUP
-    name: "Motion Detected"
-    id": motion_detected
-    device_class: motion
-    filters:
-      - delayed_on: 10ms  # Optional: Debounce filter to avoid false triggers.
-      - delayed_off: 10ms
+  #  # LD2410 radar binary sensors
+  # - platform: gpio
+  #   pin: 
+  #     number: "${motion_gpio}"  # OUT pin of LD2410 connected here
+  #     mode: INPUT_PULLUP
+  #   name: "Motion Detected"
+  #   id: motion_detected
+  #   device_class: motion
+  #   filters:
+  #     - delayed_on: 10ms  # Optional: Debounce filter to avoid false triggers.
+  #     - delayed_off: 10ms
 
+  # - platform: template
+  #   name: "Occupancy Detected"
+  #   device_class: occupancy
+  #   lambda: |-
+  #     return id(radar_has_target).state ||
+  #            id(radar_has_moving_target).state ||
+  #            id(radar_has_still_target).state ||
+  #            id(motion_detected).state;
 
- # Radar zone occupancy based on detection distance and configured zone boundaries
+  # Radar zone occupancy based on detection distance and configured zone boundaries
   - platform: template
     name: "Radar Zone 1 Occupancy"
     id: radar_zone_1_occupancy
@@ -311,6 +210,7 @@ binary_sensor:
 text_sensor:
   - platform: template
     name: "Formatted Uptime"
+    entity_category: "diagnostic"
     lambda: |-
       uint32_t dur = id(uptime_sensor).state;
       int days = dur / 86400;
@@ -334,7 +234,7 @@ text_sensor:
     version:
       name: "Radar Firmware Version"
     mac_address:
-      name: "Radar BT MAC"
+      name: "LD2410 BT MAC"
 
   - platform: debug
     device:
@@ -342,15 +242,7 @@ text_sensor:
     reset_reason:
       name: "Reset Reason"
 
-debug:
-  update_interval: 30s
-
 button:
-  - platform: restart
-    icon: mdi:power-cycle
-    name: "ESP Reboot"
-    id: reboot_esp
-
   - platform: factory_reset
     disabled_by_default: True
     name: "Factory Reset ESP"
@@ -367,7 +259,7 @@ button:
 switch:
   - platform: ld2410
     bluetooth:
-      name: "Radar Bluetooth"
+      name: "ld2410 Bluetooth"
       id: radar_bluetooth
     engineering_mode:
       name: "Radar Engineering Mode"
@@ -385,7 +277,7 @@ switch:
 select:
   - platform: ld2410
     distance_resolution:
-      name: "Radar Gate Size"
+      name: "ld2410 Gate Size"
       disabled_by_default: true
     baud_rate:
       name: baud rate

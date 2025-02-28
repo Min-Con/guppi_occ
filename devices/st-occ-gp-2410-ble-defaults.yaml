@@ -31,43 +31,14 @@ logger:
   #  Disable DEBUG after testing
   #level: INFO
 
-debug:
-  update_interval: 30s
-
-ota:
-  - platform: esphome
-
-uart:
-  id: uart_bus
-  tx_pin: 
-    number: ${tx_pin_uart}
-#    mode:
-#      input: true
-#      pullup: true
-  rx_pin: 
-    number: ${rx_pin_uart}
-#    mode:
-#      input: true
-#      pullup: true
-  baud_rate: 256000
-  parity: NONE
-  stop_bits: 1
-#  data_bits: 8
-
-button:
-  - platform: restart
-    icon: mdi:power-cycle
-    name: "ESP Reboot"
-    id: reboot_esp
-
 
 # Define external packages that ESPHome will fetch at compile time.
 # Uncomment the dependencies you need, and add any additional ones you require.
 # Delete any dependencies you don't need.
 packages:
-  MyProjectDefault: github://AdmiralArgyle/guppi_occ/defaults.yaml
+#  MyProjectDefault: github://AdmiralArgyle/guppi_occ/defaults.yaml
 #  MyProjectDefault: github://AdmiralArgyle/guppi_occ/st-occ-2410-ble-defaults.yaml
-#  MyProjectDefault: github://AdmiralArgyle/guppi_occ/st-occ-gp-2410-ble-defaults.yaml
+  MyProjectDefault: github://AdmiralArgyle/guppi_occ/st-occ-gp-2410-ble-defaults.yaml
 #  MyProjectDefault: github://AdmiralArgyle/guppi_occ/mt-occ-2450-defaults.yaml
 #  MyProjectDefault: github://AdmiralArgyle/guppi_occ/mt-occ-2450-28-defaults.yaml
 #  MyProjectDefault: github://AdmiralArgyle/guppi_occ/mt-occ-2450-2817-defaults.yaml
@@ -86,3 +57,41 @@ packages:
 #  BH1750: github://AdmiralArgyle/guppi_occ/shared-configs/sensors/bh1750.yaml
 #  SCD41: github://AdmiralArgyle/guppi_occ/shared-configs/sensors/scd41.yaml
 
+
+################################################################################
+# Basic diagnostic sensors
+################################################################################
+
+sensor:
+  # Standard Diagnostic Sensors
+  - platform: uptime
+    name: "Device Uptime"
+    id: sys_uptime
+    update_interval: 60s
+    entity_category: "diagnostic"
+  - platform: wifi_signal
+    name: "WiFi Signal Strength"
+    id: wifi_signal_db
+    update_interval: 60s
+    entity_category: "diagnostic"
+
+
+################################################################################
+# Text Sensors for Diagnostics and Derived Information
+################################################################################
+text_sensor:
+  # Device IP Address
+  - platform: wifi_info
+    ip_address:
+      name: "Device IP Address"
+  # Firmware Version (optional)
+  - platform: version
+    name: "Firmware Version"
+
+################################################################################
+# Button Component to Restart the Device
+################################################################################
+button:
+  - platform: restart
+    icon: mdi:power-cycle
+    name: "Reboot Sensor"
