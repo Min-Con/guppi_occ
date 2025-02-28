@@ -1,6 +1,149 @@
-# LD2410 GPIO Configuration
+# LD2410 Radar Configuration
+ld2410:
+  throttle: 500ms
+  id: ld2410_radar
+
+# User configurable radar configuration parameters
+number:
+  - platform: ld2410
+    timeout:
+      name: Radar Timeout
+    max_move_distance_gate:
+      name: Radar Max Move Distance
+    max_still_distance_gate:
+      name: Radar Max Still Distance
+
+  - platform: template
+    name: "Radar Zone 1 Start"
+    id: radar_z1_start
+    device_class: distance
+    min_value: 0
+    max_value: 800
+    step: 1
+    mode: box
+    update_interval: never
+    optimistic: true
+    restore_value: true
+    initial_value: 0
+    icon: "mdi:arrow-collapse-right"
+    entity_category: CONFIG
+    unit_of_measurement: "cm"
+
+  - platform: template
+    name: "Radar End Zone 1"
+    id: radar_z1_end
+    device_class: distance
+    min_value: 0
+    max_value: 800
+    step: 1
+    mode: box
+    update_interval: never
+    optimistic: true
+    restore_value: true
+    initial_value: 50
+    icon: "mdi:arrow-collapse-right"
+    entity_category: CONFIG
+    unit_of_measurement: "cm"
+
+  - platform: template
+    name: "Radar End Zone 2"
+    id: radar_z2_end
+    device_class: distance
+    min_value: 0
+    max_value: 800
+    step: 1
+    mode: box
+    update_interval: never
+    optimistic: true
+    restore_value: true
+    initial_value: 150
+    icon: "mdi:arrow-collapse-right"
+    entity_category: CONFIG
+    unit_of_measurement: "cm"
+
+  - platform: template
+    name: "Radar End Zone 3"
+    id: radar_z3_end
+    device_class: distance
+    min_value: 0
+    max_value: 800
+    step: 1
+    mode: box
+    update_interval: never
+    optimistic: true
+    restore_value: true
+    initial_value: 250
+    icon: "mdi:arrow-collapse-right"
+    entity_category: CONFIG
+    unit_of_measurement: "cm"
+
+sensor:
+   # LD2410 radar sensor readings
+  - platform: ld2410
+    moving_distance:
+      name: "Radar Moving Distance"
+      id: moving_distance
+    still_distance:
+      name: "Radar Still Distance"
+      id: still_distance
+    moving_energy:
+      name: "Radar Move Energy"
+      id: radar_moving_energy
+    still_energy:
+      name: "Radar Still Energy"
+      id: radar_still_energy
+    detection_distance:
+      name: "Radar Detection Distance"
+      id: radar_detection_distance
+
 binary_sensor:
-   # LD2410 radar binary sensors
+  # LD2410 radar binary sensors
+  - platform: ld2410
+    has_target:
+      name: Radar Target
+      id: radar_has_target
+    has_moving_target:
+      name: Radar Moving Target
+      id: radar_has_moving_target
+    has_still_target:
+      name: Radar Still Target
+      id: radar_has_still_target
+
+  # Radar zone occupancy based on detection distance and configured zone boundaries
+  - platform: template
+    name: "Radar Zone 1 Occupancy"
+    id: radar_zone_1_occupancy
+    device_class: occupancy
+    icon: mdi:motion-sensor
+    lambda: |-
+      if ((id(radar_has_target).state) && ((id(radar_detection_distance).state < id(radar_z1_end).state) && (id(radar_detection_distance).state > id(radar_z1_start).state))) {
+        return true;
+      } else {
+        return false;
+      }
+  - platform: template
+    name: "Radar Zone 2 Occupancy"
+    id: radar_zone_2_occupancy
+    device_class: occupancy
+    icon: mdi:motion-sensor
+    lambda: |-
+      if ((id(radar_has_target).state) && ((id(radar_z1_end).state < id(radar_detection_distance).state) && (id(radar_detection_distance).state < id(radar_z2_end).state))) {
+        return true;
+      } else {
+        return false;
+      }
+  - platform: template
+    name: "Radar Zone 3 Occupancy"
+    id: radar_zone_3_occupancy
+    device_class: occupancy
+    icon: mdi:motion-sensor
+    lambda: |-
+      if ((id(radar_has_target).state) && ((id(radar_z2_end).state < id(radar_detection_distance).state) && (id(radar_detection_distance).state < id(radar_z3_end).state))) {
+        return true;
+      } else {
+        return false;
+      }
+
   - platform: gpio
     pin: 
       number: "${motion_gpio}"  # OUT pin of LD2410 connected here
@@ -21,6 +164,44 @@ binary_sensor:
              id(radar_has_still_target).state ||
              id(motion_detected).state;
 
+text_sensor:
+  - platform: ld2410
+    version:
+      name: "Radar Firmware Version"
+    mac_address:
+      name: "LD2410 BT MAC"
+
+  - platform: debug
+    device:
+      name: "Device Info"
+    reset_reason:
+      name: "Reset Reason"
+
+button:
+  - platform: ld2410
+    factory_reset:
+      name: "Factory Reset Radar"
+    restart:
+      name: "Restart Radar"
+    query_params:
+      name: query params
+
+switch:
+  - platform: ld2410
+    bluetooth:
+      name: "ld2410 Bluetooth"
+      id: radar_bluetooth
+    engineering_mode:
+      name: "Radar Engineering Mode"
+
 select:
+  - platform: ld2410
+    distance_resolution:
+      name: "ld2410 Gate Size"
+      disabled_by_default: true
+    baud_rate:
+      name: baud rate
+    light_function:
+      name: light function
     out_pin_level:
       name: out pin level
