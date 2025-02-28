@@ -1,20 +1,3 @@
-####################################
-# Start Substitutions
-####################################
-
-substitutions:
-# Specify below pin numbers for UART, GPIO
-# Delete if not needed
-  tx_pin_uart: GPIO43
-  rx_pin_uart: GPIO44
-#  light_gpio: GPIO2
-  motion_gpio: GPIO2
-
-####################################
-# End Substitutions
-####################################
-
-
 # LD2410 Radar Configuration
 ld2410:
   throttle: 500ms

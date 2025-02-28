@@ -13,10 +13,10 @@ substitutions:
 #  api_key: "abcxyz123="
 # Specify below pin numbers for UART, GPIO, and I2C connections
 # Delete if not needed
-  tx_pin_uart: GPIO43
-  rx_pin_uart: GPIO44
+#  tx_pin_uart: GPIO43
+#  rx_pin_uart: GPIO44
 #  light_gpio: GPIO2
-  motion_gpio: GPIO2
+#  motion_gpio: GPIO2
 #  sda_pin_i2c: GPIO6
 #  scl_pin_i2c: GPIO7
 
