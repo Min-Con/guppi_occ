@@ -17,10 +17,6 @@ substitutions:
 ####################################
 
 esphome:
-  # comment: "${comment_text}"
-  # project: 
-  #   name: "${project_name}"
-  #   version: "${project_version}"
   platformio_options:
     board_build.flash_mode: dio
     board_build.flash_size: 4MB

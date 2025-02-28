@@ -171,12 +171,6 @@ text_sensor:
     mac_address:
       name: "LD2410 BT MAC"
 
-  # - platform: debug
-  #   device:
-  #     name: "Device Info"
-  #   reset_reason:
-  #     name: "Reset Reason"
-
 button:
   - platform: ld2410
     factory_reset:
