@@ -1,8 +1,16 @@
-esphome:
-  comment: "Generally Unstable and Poorly Produced Inventions - Single-target Human Presence and Occupancy Sensor with AQI, climate, and lux"
-  project: 
-    name: "GUPPI.ST-OCC-GP-2410-AQI"
-    version: "25.3.1.1"
+####################################
+# Start Substitutions
+####################################
+
+substitutions:
+  # Update the comment_text, project_name, and project_version information to match the device
+  comment_text: "Generally Unstable and Poorly Produced Inventions - Single-target Human Presence and Occupancy Sensor with AQI, climate, and lux"
+  project_name: "GUPPI.ST-OCC-GP-2410-AQI"
+  project_version: "25.3.1.1"
+
+####################################
+# End Substitutions
+####################################
 
 # Enable logging at DEBUG level for detailed output during development
 logger:
@@ -23,7 +31,7 @@ sensor:
     id: uptime_sensor
     internal: true
     entity_category: "diagnostic"
-    update_interval: 1s
+    update_interval: 60s
 
   # WiFi signal strength sensor
   - platform: wifi_signal

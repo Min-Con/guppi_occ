@@ -31,7 +31,7 @@ bme68x_bsec2_i2c:
   sample_rate: LP
   supply_voltage: 3.3V
   address: 0x77  # Verify this address with your hardware (common alternatives: 0x76)
-  state_save_interval: 6h
+  state_save_interval: 24h
 
 sensor:
   # BME680 Sensors using BSEC2 (raw sensor readings)
@@ -85,7 +85,7 @@ sensor:
     accuracy_decimals: 1
     lambda: |-
       return id(raw_temperature).state + id(temperature_offset).state;
-    update_interval: 15s
+    update_interval: 60s
 
   # Compensated humidity sensor (update interval now 15s)
   - platform: template
@@ -97,7 +97,7 @@ sensor:
     accuracy_decimals: 1
     lambda: |-
       return id(raw_humidity).state + id(humidity_offset).state;
-    update_interval: 15s
+    update_interval: 60s
 
 text_sensor:
   - platform: bme68x_bsec2
