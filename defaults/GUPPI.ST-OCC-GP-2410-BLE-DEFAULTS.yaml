@@ -17,7 +17,7 @@ debug:
 ota:
   - platform: esphome
 
-number:
+sensor:
   # Uptime sensor
   - platform: uptime
     id: uptime_sensor
