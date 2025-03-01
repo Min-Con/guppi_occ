@@ -1,17 +1,3 @@
-####################################
-# Start Substitutions
-####################################
-
-substitutions:
-  # Update the comment_text, project_name, and project_version information to match the device
-  comment_text: "Generally Unstable and Poorly Produced Inventions - Single-target Human Presence and Occupancy Sensor with AQI, climate, and lux"
-  project_name: "GUPPI.ST-OCC-GP-2410-BLE"
-  project_version: "25.3.1.1"
-
-####################################
-# End Substitutions
-####################################
-
 # Define external packages that ESPHome will fetch at compile time.
 # Add/change the dependencies you need.
 # Delete any dependencies you don't need.
@@ -34,7 +20,4 @@ esphome:
 api:
   encryption:
     key: "SMMvzPVNVuzOUH5Yss9Ys6wSK10qsDHDhkYsiaDfOug="
-
-ota:
-  - platform: esphome
 
