@@ -1,27 +1,41 @@
 
 # Define external packages that ESPHome will fetch at compile time.
-# Uncomment the dependencies you need, and add any additional ones you require.
-# Delete any dependencies you don't need.
+# Replace the files as appropriate, and add any additional ones you require.
 packages:
-#  MyProjectDefault: "github://AdmiralArgyle/guppi_occ/defaults/defaults.yaml"
-  MyProjectDefault: "github://AdmiralArgyle/guppi_occ/defaults/GUPPI.ST-OCC-GP-2410-BLE-DEFAULTS.yaml"
-#  MyProjectDefault: github://AdmiralArgyle/guppi_occ/defaults/st-occ-2410-ble-defaults.yaml
-#  MyProjectDefault: github://AdmiralArgyle/guppi_occ/defaults/st-occ-gp-2410-ble-defaults.yaml
-#  MyProjectDefault: github://AdmiralArgyle/guppi_occ/defaults/mt-occ-2450-defaults.yaml
-#  MyProjectDefault: github://AdmiralArgyle/guppi_occ/defaults/mt-occ-2450-28-defaults.yaml
-#  MyProjectDefault: github://AdmiralArgyle/guppi_occ/defaults/mt-occ-2450-2817-defaults.yaml
-#  BoardConfig: github://AdmiralArgyle/guppi_occ/shared-configs/boards/esp32dev-esp-idf.yaml
-  BoardConfig: github://AdmiralArgyle/guppi_occ/shared-configs/boards/esp32-s3-devkitc-1-esp-idf.yaml
-#  BoardConfig: github://AdmiralArgyle/guppi_occ/shared-configs/boards/esp32-c3-devkitm-1-esp-idf.yaml
-#  BoardConfig: github://AdmiralArgyle/guppi_occ/shared-configs/boards/esp32-c3-devkitm-1-arduino.yaml
-  WiFiConfig: github://AdmiralArgyle/guppi_occ/shared-configs/network/wifi.yaml
-  BLETracker: github://AdmiralArgyle/guppi_occ/shared-configs/network/bletracker.yaml
-#  BLEProxy: github://AdmiralArgyle/guppi_occ/shared-configs/network/bleproxy.yaml #Only needed if BLE Tracker isn't already enabled
-  LD2410: github://AdmiralArgyle/guppi_occ/shared-configs/sensors/ld2410.yaml
-#  LD2410-NO-GP: github://AdmiralArgyle/guppi_occ/shared-configs/sensors/ld2410-no-gp.yaml
-#  LD2450: github://AdmiralArgyle/guppi_occ/shared-configs/sensors/ld2450.yaml
-#  BME680: github://AdmiralArgyle/guppi_occ/shared-configs/sensors/bme680.yaml
-#  BME280: github://AdmiralArgyle/guppi_occ/shared-configs/sensors/bme280.yaml
-#  BMP280: github://AdmiralArgyle/guppi_occ/shared-configs/sensors/bmp280.yaml
-#  BH1750: github://AdmiralArgyle/guppi_occ/shared-configs/sensors/bh1750.yaml
-#  SCD41: github://AdmiralArgyle/guppi_occ/shared-configs/sensors/scd41.yaml
+  project_configs: 
+#    url: github://AdmiralArgyle/guppi_occ
+    url: https://github.com/AdmiralArgyle/guppi_occ
+    files: [defaults/GUPPI.ST-OCC-GP-2410-BLE-DEFAULTS.yaml, shared-configs/boards/esp32-s3-devkitc-1-esp-idf.yaml, shared-configs/network/wifi.yaml, shared-configs/network/bletracker.yaml, shared-configs/sensors/ld2410.yaml]
+    ref: main
+    refresh: 1s
+
+
+# ** Project specific defaults **
+# defaults/GUPPI.ST-OCC-GP-2410-BLE-DEFAULTS.yaml
+# defaults/st-occ-2410-ble-defaults.yaml
+# defaults/st-occ-gp-2410-ble-defaults.yaml
+# defaults/mt-occ-2450-defaults.yaml
+# defaults/mt-occ-2450-28-defaults.yaml
+# defaults/mt-occ-2450-2817-defaults.yaml
+
+# ** Board specific configurations **
+# shared-configs/boards/esp32dev-esp-idf.yaml
+# shared-configs/boards/esp32-s3-devkitc-1-esp-idf.yaml
+# shared-configs/boards/esp32-c3-devkitm-1-esp-idf.yaml
+# shared-configs/boards/esp32-c3-devkitm-1-arduino.yaml
+
+# ** Network options **
+# shared-configs/network/wifi.yaml
+# shared-configs/network/bletracker.yaml
+# shared-configs/network/bleproxy.yaml #Only needed if BLE Tracker isn't already enabled
+
+# ** Sensor specific configurations **
+# shared-configs/sensors/ld2410.yaml
+# shared-configs/sensors/ld2410-no-gp.yaml
+# shared-configs/sensors/ld2450.yaml
+# shared-configs/sensors/bme680.yaml
+# shared-configs/sensors/bme280.yaml
+# shared-configs/sensors/bmp280.yaml
+# shared-configs/sensors/bh1750.yaml
+# shared-configs/sensors/scd41.yaml
+
