@@ -1,0 +1,71 @@
+####################################
+# Start Substitutions
+####################################
+
+substitutions:
+# Specify below pin numbers for UART, GPIO, and I2C connections
+# Delete if not needed
+  tx_pin_uart: GPIO43
+  rx_pin_uart: GPIO44
+  light_gpio: GPIO21
+  motion_gpio: GPIO2
+  sda_pin_i2c: GPIO6
+  scl_pin_i2c: GPIO7
+
+####################################
+# End Substitutions
+####################################
+
+esphome:
+  platformio_options:
+    build_flags: -DBOARD_HAS_PSRAM
+    board_build.arduino.memory_type: qio_opi
+    board_build.f_flash: 80000000L
+    board_build.flash_mode: qio
+  on_boot:
+    priority: 600
+    then:
+      - delay: 500ms  # Boot delay for sensor stabilization
+
+esp32:
+  board: seeed_xiao_esp32s3
+  variant: esp32s3
+  framework:
+    type: arduino
+    version: latest
+    # Optionally, you can lock the platform version:
+    # platform_version: 6.4.0
+
+# Enable logging at DEBUG level for detailed output during development
+logger:
+  # 0 Enables logging, but disables serial-port logging to free CPU and memory
+  baud_rate: 0
+
+# Using recommended GPIO pins for XIAO ESP32-S3
+i2c:
+  sda: "${sda_pin_i2c}"
+  scl: "${scl_pin_i2c}"
+  scan: true
+  frequency: 400kHz  # Optimal frequency for BME680
+
+uart:
+  id: uart_bus
+  tx_pin: 
+    number: ${tx_pin_uart}
+  rx_pin: 
+    number: ${rx_pin_uart}
+  baud_rate: 256000
+  parity: NONE
+  stop_bits: 1
+
+light:
+  - platform: binary
+    name: "Blue Status Light"
+    output: light_output
+    id: led_light
+    restore_mode: ALWAYS_OFF
+ 
+output:
+  - platform: gpio
+    pin: ${light_gpio}
+    id: light_output

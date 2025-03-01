@@ -1,6 +1,3 @@
-i2c:
-  frequency: 400kHz  # Optimal frequency for BME680
-
 # User configurable offsets and radar configuration parameters
 number:
   - platform: template

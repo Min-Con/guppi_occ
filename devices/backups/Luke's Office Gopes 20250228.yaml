@@ -1,0 +1,690 @@
+# GOPES (GUPPI Occupancy and Presence Enhancement System)
+# This configuration is for a sensor device using a XIAO ESP32-S3,
+# an LD2410C radar sensor, a BME680 environmental sensor (using the bme68x_bsec2_i2c library),
+# and a BH1750 ambient light sensor.
+# It integrates with Home Assistant (v2025.1.4) via the ESPHome API (v2024.12.4).
+# If the BME680 is recognized but not reporting data, verify wiring, sensor health, and voltage.
+# Note: Future improvements could include file splitting for maintainability.
+####################################
+# Start Substitutions
+####################################
+
+substitutions:
+# Replace name with you sensor name
+  name: gopes-occupancy-xiao-s3-1
+  friendly_name: "Luke's Office Gopes"
+  comment_text: "Generally Unstable and Poorly Produced Inventions - Single-target Human Presence and Occupancy Sensor (ESP32/LD2410) with AQI, climate, and lux"
+  project_name: "GUPPI.ST-OCC-2410-680-1750"
+  project_version: "25.2.25.1"
+# **IMPORTANT** - Add API key here for copy/paste convenience
+  api_key: "SMMvzPVNVuzOUH5Yss9Ys6wSK10qsDHDhkYsiaDfOug="
+# Specify below pin numbers for UART, GPIO, and I2C connections
+# Delete if not needed
+  tx_pin_uart: GPIO43
+  rx_pin_uart: GPIO44
+  motion_gpio: GPIO3
+  sda_pin_i2c: GPIO5
+  scl_pin_i2c: GPIO6
+
+####################################
+# End Substitutions
+####################################
+
+
+esphome:
+  name: "${name}"
+  friendly_name: "${friendly_name}"
+  comment: "${comment_text}"
+  project: 
+    name: "${project_name}"
+    version: "${project_version}"
+  platformio_options:
+    build_flags: -DBOARD_HAS_PSRAM
+    board_build.arduino.memory_type: qio_opi
+    board_build.f_flash: 80000000L
+    board_build.flash_mode: qio
+  on_boot:
+    priority: 600
+    then:
+      - delay:
+          500ms  # Increased boot delay for sensor stabilization
+
+esp32:
+  board: esp32-s3-devkitc-1
+  framework:
+    type: arduino
+    version: latest
+
+# Enable logging at DEBUG level for detailed output during development
+# Enable logging at DEBUG level for detailed output during development
+logger:
+  # 0 Enables logging, but disables serial-port logging to free CPU and memory
+  baud_rate: 0
+  #  Disable DEBUG after testing
+#  level: DEBUG
+
+# Enable Home Assistant API
+api:
+  encryption:
+    key: "${api_key}"
+
+ota:
+  - platform: esphome
+
+wifi:
+  networks:
+  - ssid: !secret wifi_ssid
+    password: !secret wifi_password
+  - ssid: !secret wifi_2_ssid
+    password: !secret wifi_2_password
+  - ssid: !secret wifi_3_ssid
+    password: !secret wifi_3_password
+  output_power: 8.5dB
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "${friendly_name}"
+    password: !secret fallback_ap_password
+
+captive_portal:
+
+# I2C Configuration for BME680 and BH1750
+# Using recommended GPIO pins for XIAO ESP32-S3
+i2c:
+  sda: "${sda_pin_i2c}"
+  scl: "${scl_pin_i2c}"
+  scan: true
+  frequency: 400kHz  # Optimal frequency for BME680
+
+# UART Configuration for LD2410
+uart:
+  id: uart_bus
+  tx_pin: 
+    number: ${tx_pin_uart}
+#    mode:
+#      input: true
+#      pullup: true
+  rx_pin: 
+    number: ${rx_pin_uart}
+#    mode:
+#      input: true
+#      pullup: true
+  baud_rate: 256000
+  parity: NONE
+  stop_bits: 1
+#  data_bits: 8
+
+# LD2410 Radar Configuration
+ld2410:
+  throttle: 500ms
+  id: ld2410_radar
+
+# User configurable offsets and radar configuration parameters
+number:
+  - platform: template
+    name: "Temperature Offset"
+    id: temperature_offset
+    optimistic: true
+    min_value: -30
+    max_value: 30
+    step: 0.1
+    restore_value: true
+    initial_value: 0
+    entity_category: "config"
+
+  - platform: template
+    name: "Humidity Offset"
+    id: humidity_offset
+    optimistic: true
+    min_value: -30
+    max_value: 30
+    step: 0.1
+    restore_value: true
+    initial_value: 0
+    entity_category: "config"
+
+  - platform: template
+    name: "Actual Light Level (Real Lux)"
+    id: real_lux_setting
+    icon: "mdi:brightness-6"
+    unit_of_measurement: "lux"
+    min_value: 0
+    max_value: 5000
+    step: 1
+    restore_value: true
+    optimistic: true
+
+  - platform: ld2410
+    timeout:
+      name: Radar Timeout
+    max_move_distance_gate:
+      name: Radar Max Move Distance
+    max_still_distance_gate:
+      name: Radar Max Still Distance
+    g0:
+      move_threshold:
+        name: g0 move threshold
+      still_threshold:
+        name: g0 still threshold
+    g1:
+      move_threshold:
+        name: g1 move threshold
+      still_threshold:
+        name: g1 still threshold
+    g2:
+      move_threshold:
+        name: g2 move threshold
+      still_threshold:
+        name: g2 still threshold
+    g3:
+      move_threshold:
+        name: g3 move threshold
+      still_threshold:
+        name: g3 still threshold
+    g4:
+      move_threshold:
+        name: g4 move threshold
+      still_threshold:
+        name: g4 still threshold
+    g5:
+      move_threshold:
+        name: g5 move threshold
+      still_threshold:
+        name: g5 still threshold
+    g6:
+      move_threshold:
+        name: g6 move threshold
+      still_threshold:
+        name: g6 still threshold
+    g7:
+      move_threshold:
+        name: g7 move threshold
+      still_threshold:
+        name: g7 still threshold
+    g8:
+      move_threshold:
+        name: g8 move threshold
+      still_threshold:
+        name: g8 still threshold
+
+  - platform: template
+    name: "Radar Zone 1 Start"
+    id: radar_z1_start
+    device_class: distance
+    min_value: 0
+    max_value: 800
+    step: 1
+    mode: box
+    update_interval: never
+    optimistic: true
+    restore_value: true
+    initial_value: 0
+    icon: "mdi:arrow-collapse-right"
+    entity_category: CONFIG
+    unit_of_measurement: "cm"
+
+  - platform: template
+    name: "Radar End Zone 1"
+    id: radar_z1_end
+    device_class: distance
+    min_value: 0
+    max_value: 800
+    step: 1
+    mode: box
+    update_interval: never
+    optimistic: true
+    restore_value: true
+    initial_value: 50
+    icon: "mdi:arrow-collapse-right"
+    entity_category: CONFIG
+    unit_of_measurement: "cm"
+
+  - platform: template
+    name: "Radar End Zone 2"
+    id: radar_z2_end
+    device_class: distance
+    min_value: 0
+    max_value: 800
+    step: 1
+    mode: box
+    update_interval: never
+    optimistic: true
+    restore_value: true
+    initial_value: 150
+    icon: "mdi:arrow-collapse-right"
+    entity_category: CONFIG
+    unit_of_measurement: "cm"
+
+  - platform: template
+    name: "Radar End Zone 3"
+    id: radar_z3_end
+    device_class: distance
+    min_value: 0
+    max_value: 800
+    step: 1
+    mode: box
+    update_interval: never
+    optimistic: true
+    restore_value: true
+    initial_value: 250
+    icon: "mdi:arrow-collapse-right"
+    entity_category: CONFIG
+    unit_of_measurement: "cm"
+
+# BME680 configuration using BSEC2
+# Ensure that the sensor is properly wired and powered (3.3V)
+bme68x_bsec2_i2c:
+  id: bme68x_sensor
+  model: bme680
+  operating_age: 28d
+  sample_rate: LP
+  supply_voltage: 3.3V
+  address: 0x77  # Verify this address with your hardware (common alternatives: 0x76)
+  state_save_interval: 6h
+
+sensor:
+  # BME680 Sensors using BSEC2 (raw sensor readings)
+  - platform: bme68x_bsec2
+    bme68x_bsec2_id: bme68x_sensor
+    temperature:
+      name: "Temperature"
+      id: raw_temperature
+    pressure:
+      name: "Pressure"
+      filters:
+        - sliding_window_moving_average:
+            window_size: 3
+            send_every: 3
+    humidity:
+      name: "Humidity"
+      id: raw_humidity
+    gas_resistance:
+      name: "Gas Resistance"
+      filters:
+        - sliding_window_moving_average:
+            window_size: 3
+            send_every: 3
+    iaq:
+      name: "IAQ"
+      id: iaq
+      filters:
+        - sliding_window_moving_average:
+            window_size: 3
+            send_every: 3
+    co2_equivalent:
+      name: "CO2 Equivalent"
+      filters:
+        - sliding_window_moving_average:
+            window_size: 3
+            send_every: 3
+    breath_voc_equivalent:
+      name: "Breath VOC Equivalent"
+      filters:
+        - sliding_window_moving_average:
+            window_size: 3
+            send_every: 3
+
+  # Compensated temperature sensor (update interval now 15s for more frequent updates)
+  - platform: template
+    name: "Temperature Compensated"
+    id: compensated_temperature
+    unit_of_measurement: "°C"
+    device_class: "temperature"
+    state_class: "measurement"
+    accuracy_decimals: 1
+    lambda: |-
+      return id(raw_temperature).state + id(temperature_offset).state;
+    update_interval: 15s
+
+  # Compensated humidity sensor (update interval now 15s)
+  - platform: template
+    name: "Humidity Compensated"
+    id: compensated_humidity
+    unit_of_measurement: "%"
+    device_class: "humidity"
+    state_class: "measurement"
+    accuracy_decimals: 1
+    lambda: |-
+      return id(raw_humidity).state + id(humidity_offset).state;
+    update_interval: 15s
+
+   # LD2410 radar sensor readings
+  - platform: ld2410
+    moving_distance:
+      name: "Radar Moving Distance"
+      id: moving_distance
+    still_distance:
+      name: "Radar Still Distance"
+      id: still_distance
+    moving_energy:
+      name: "Radar Move Energy"
+      id: radar_moving_energy
+    still_energy:
+      name: "Radar Still Energy"
+      id: radar_still_energy
+    detection_distance:
+      name: "Radar Detection Distance"
+      id: radar_detection_distance
+    g0:
+      move_energy:
+        name: "g0 move energy"
+        id: g0_move_energy
+        state_class: measurement
+      still_energy:
+        name: "g0 still energy"
+        id: g0_still_energy
+        state_class: measurement
+    g1:
+      move_energy:
+        name: "g1 move energy"
+        id: g1_move_energy
+        state_class: measurement
+      still_energy:
+        name: "g1 still energy"
+        id: g1_still_energy
+        state_class: measurement
+    g2:
+      move_energy:
+        name: "g2 move energy"
+        id: g2_move_energy
+        state_class: measurement
+      still_energy:
+        name: "g2 still energy"
+        id: g2_still_energy
+        state_class: measurement
+    g3:
+      move_energy:
+        name: "g3 move energy"
+        id: g3_move_energy
+        state_class: measurement
+      still_energy:
+        name: "g3 still energy"
+        id: g3_still_energy
+        state_class: measurement
+    g4:
+      move_energy:
+        name: "g4 move energy"
+        id: g4_move_energy
+        state_class: measurement
+      still_energy:
+        name: "g4 still energy"
+        id: g4_still_energy
+        state_class: measurement
+    g5:
+      move_energy:
+        name: "g5 move energy"
+        id: g5_move_energy
+        state_class: measurement
+      still_energy:
+        name: "g5 still energy"
+        id: g5_still_energy
+        state_class: measurement
+    g6:
+      move_energy:
+        name: "g6 move energy"
+        id: g6_move_energy
+        state_class: measurement
+      still_energy:
+        name: "g6 still energy"
+        id: g6_still_energy
+        state_class: measurement
+    g7:
+      move_energy:
+        name: "g7 move energy"
+        id: g7_move_energy
+        state_class: measurement
+      still_energy:
+        name: "g7 still energy"
+        id: g7_still_energy
+        state_class: measurement
+    g8:
+      move_energy:
+        name: "g8 move energy"
+        id: g8_move_energy
+        state_class: measurement
+      still_energy:
+        name: "g8 still energy"
+        id: g8_still_energy
+        state_class: measurement
+
+  # BH1750 Ambient Light Sensor
+  - platform: bh1750
+    name: "Raw Light Level"
+    id: raw_light_level
+    address: 0x23  # Can be 0x23 or 0x5C depending on ADDR pin
+    update_interval: 60s
+#    resolution: 1.0  # Options: 0.5 or 1.0
+#    measurement_duration: 120ms
+#    internal: true  # Hide raw value; compensated sensor will be used
+
+#   # Compensated light level sensor
+  - platform: template
+    name: "Light Level Compensated"
+    id: compensated_light_level
+    unit_of_measurement: "lx"
+    device_class: illuminance
+    state_class: measurement
+    accuracy_decimals: 1
+    lambda: |-
+      // Get the raw reading from the BH1750 sensor
+      float L = id(raw_light_level).state;
+      // Get the user-provided actual light level (measured with a lux meter)
+      float real_L = id(real_lux_setting).state;
+      
+      // If both values are zero, or if the raw sensor reading is zero,
+      // avoid division by zero and simply return raw value (or real_L as appropriate)
+      if (L <= 0.0) {
+        return real_L;  // Alternatively, you might want to return 0.0 here.
+      }
+      
+      // Calculate the ratio between the actual measured lux and the raw sensor reading.
+      float ratio = real_L / L;
+      
+      // Apply a nonlinear (exponential) weighting function.
+      // The term (1 - exp(-real_L / 100.0)) ramps from 0 (at low light) toward 1 (at higher light).
+      // This makes the compensation factor approach the full ratio when the actual light level is high.
+      float factor = 1.0 + (ratio - 1.0) * (1.0 - exp(-real_L / 100.0));
+      
+      // Calculate the compensated lux value
+      float compensated = L * factor;
+      return compensated;
+    update_interval: 60s
+
+  # Uptime sensor
+  - platform: uptime
+    id: uptime_sensor
+    internal: true
+    entity_category: "diagnostic"
+    update_interval: 30s
+
+  # WiFi signal strength sensor
+  - platform: wifi_signal
+    name: RSSI
+    id: wifi_signal_db
+    update_interval: 30s
+    entity_category: "diagnostic"
+
+  # Internal ESP temperature sensor
+  - platform: internal_temperature
+    name: "ESP Temperature"
+    id: sys_esp_temperature
+    entity_category: "diagnostic"
+
+binary_sensor:
+  - platform: status
+    name: Online
+    id: ink_ha_connected
+
+  # LD2410 radar binary sensors
+  - platform: ld2410
+    has_target:
+      name: Radar Target
+      id: radar_has_target
+    has_moving_target:
+      name: Radar Moving Target
+      id: radar_has_moving_target
+    has_still_target:
+      name: Radar Still Target
+      id: radar_has_still_target
+
+  # Radar zone occupancy based on detection distance and configured zone boundaries
+  - platform: template
+    name: "Radar Zone 1 Occupancy"
+    id: radar_zone_1_occupancy
+    device_class: occupancy
+    icon: mdi:motion-sensor
+    lambda: |-
+      if ((id(radar_has_target).state) && ((id(radar_detection_distance).state < id(radar_z1_end).state) && (id(radar_detection_distance).state > id(radar_z1_start).state))) {
+        return true;
+      } else {
+        return false;
+      }
+  - platform: template
+    name: "Radar Zone 2 Occupancy"
+    id: radar_zone_2_occupancy
+    device_class: occupancy
+    icon: mdi:motion-sensor
+    lambda: |-
+      if ((id(radar_has_target).state) && ((id(radar_z1_end).state < id(radar_detection_distance).state) && (id(radar_detection_distance).state < id(radar_z2_end).state))) {
+        return true;
+      } else {
+        return false;
+      }
+  - platform: template
+    name: "Radar Zone 3 Occupancy"
+    id: radar_zone_3_occupancy
+    device_class: occupancy
+    icon: mdi:motion-sensor
+    lambda: |-
+      if ((id(radar_has_target).state) && ((id(radar_z2_end).state < id(radar_detection_distance).state) && (id(radar_detection_distance).state < id(radar_z3_end).state))) {
+        return true;
+      } else {
+        return false;
+      }
+
+  # Binary sensor for LD2410 OUT pin
+  - platform: gpio
+    name: "Motion Detected"
+    id: motion_detected
+    pin:
+      number: "${motion_gpio}"
+      mode: INPUT_PULLUP  # Use INPUT if sensor output is push-pull; use INPUT_PULLUP if it's open-drain.
+      inverted: false     # Adjust based on the logic level (true if the sensor output is active low)
+    device_class: motion  # This assigns a motion sensor icon in Home Assistant; adjust if needed.
+    filters:
+      - delayed_on: 10ms  # Optional: Debounce filter to avoid false triggers.
+      - delayed_off: 10ms
+
+
+text_sensor:
+  - platform: bme68x_bsec2
+    bme68x_bsec2_id: bme68x_sensor
+    iaq_accuracy:
+      name: "IAQ Accuracy"
+
+  - platform: template
+    name: "IAQ Classification"
+    lambda: |-
+      if (int(id(iaq).state) <= 50) {
+        return {"Excellent"};
+      }
+      else if (int(id(iaq).state) >= 51 && int(id(iaq).state) <= 100) {
+        return {"Good"};
+      }
+      else if (int(id(iaq).state) >= 101 && int(id(iaq).state) <= 150) {
+        return {"Lightly polluted"};
+      }
+      else if (int(id(iaq).state) >= 151 && int(id(iaq).state) <= 200) {
+        return {"Moderately polluted"};
+      }
+      else if (int(id(iaq).state) >= 201 && int(id(iaq).state) <= 250) {
+        return {"Heavily polluted"};
+      }
+      else if (int(id(iaq).state) >= 251 && int(id(iaq).state) <= 350) {
+        return {"Severely polluted"};
+      }
+      else if (int(id(iaq).state) >= 351) {
+        return {"Extremely polluted"};
+      }
+      else {
+        return {"error"};
+      }
+
+  - platform: template
+    name: "Formatted Uptime"
+    lambda: |-
+      uint32_t dur = id(uptime_sensor).state;
+      int days = dur / 86400;
+      int hours = (dur % 86400) / 3600;
+      int minutes = (dur % 3600) / 60;
+      int seconds = dur % 60;
+      char buffer[50];
+      if (days > 0) {
+        sprintf(buffer, "%dd %02dh %02dm %02ds", days, hours, minutes, seconds);
+      } else if (hours > 0) {
+        sprintf(buffer, "%02dh %02dm %02ds", hours, minutes, seconds);
+      } else if (minutes > 0) {
+        sprintf(buffer, "%02dm %02ds", minutes, seconds);
+      } else {
+        sprintf(buffer, "%02ds", seconds);
+      }
+      return {buffer};
+    update_interval: 60s
+
+  - platform: ld2410
+    version:
+      name: "Radar Firmware Version"
+    mac_address:
+      name: "Radar BT MAC"
+
+  - platform: debug
+    device:
+      name: "Device Info"
+    reset_reason:
+      name: "Reset Reason"
+
+debug:
+  update_interval: 30s
+
+button:
+  - platform: restart
+    icon: mdi:power-cycle
+    name: "ESP Reboot"
+    id: reboot_esp
+
+  - platform: factory_reset
+    disabled_by_default: True
+    name: "Factory Reset ESP"
+    id: factory_reset_all
+
+  - platform: ld2410
+    factory_reset:
+      name: "Factory Reset Radar"
+    restart:
+      name: "Restart Radar"
+    query_params:
+      name: query params
+
+switch:
+  - platform: ld2410
+    bluetooth:
+      name: "Radar Bluetooth"
+      id: radar_bluetooth
+    engineering_mode:
+      name: "Radar Engineering Mode"
+  - platform: template
+    name: "Startup Light Blink"
+    id: startup_light_blink
+    icon: mdi:lightbulb
+    restore_mode: RESTORE_DEFAULT_ON
+    optimistic: true
+    entity_category: "config"
+  - platform: factory_reset
+    id: factory_reset_switch
+    internal: true
+
+select:
+  - platform: ld2410
+    distance_resolution:
+      name: "Radar Gate Size"
+      disabled_by_default: true
