@@ -23,6 +23,7 @@ packages:
 # shared-configs/boards/esp32-s3-devkitc-1-esp-idf.yaml
 # shared-configs/boards/esp32-c3-devkitm-1-esp-idf.yaml
 # shared-configs/boards/esp32-c3-devkitm-1-arduino.yaml
+# shared-configs/boards/seeed_xiao_esp32s3-arduino.yaml
 
 # ** Network options **
 # shared-configs/network/wifi.yaml
