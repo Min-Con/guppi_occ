@@ -1,0 +1,40 @@
+####################################
+# Start Substitutions
+####################################
+
+substitutions:
+# Specify below pin numbers for UART, GPIO, and I2C connections
+# Delete if not needed
+  tx_pin_uart: GPIO21
+  rx_pin_uart: GPIO20
+  light_gpio: GPIO8
+  motion_gpio: GPIO4
+  sda_pin_i2c: GPIO6
+  scl_pin_i2c: GPIO7
+
+####################################
+# End Substitutions
+####################################
+# Define external packages that ESPHome will fetch at compile time.
+# Add/change the dependencies you need.
+# Delete any dependencies you don't need.
+packages:
+  project_configs: 
+    url: https://github.com/AdmiralArgyle/guppi_occ
+    files: [defaults/GUPPI.ST-OCC-GP-2410-BLE-DEFAULTS.yaml, shared-configs/boards/esp32-c3-devkitm-1-esp-idf.yaml, shared-configs/network/wifi.yaml, shared-configs/network/bletracker.yaml, shared-configs/sensors/ld2410.yaml]
+    ref: main
+    refresh: 60s
+
+esphome:
+  name: dining-room-occupancy
+  friendly_name: "Dining Room Occupancy"
+  # comment: "${comment_text}"
+  # project: 
+  #   name: "${project_name}"
+  #   version: "${project_version}"
+
+# Enable Home Assistant API
+api:
+  encryption:
+    key: "lEyVSwoGZLL3j0JmntM4kFLC66nCZ8GdXmeoKG+q74M="
+
