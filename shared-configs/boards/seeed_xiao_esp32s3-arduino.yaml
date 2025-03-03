@@ -31,10 +31,10 @@ esp32:
 #  board: seeed_xiao_esp32s3
 #  variant: esp32s3
   board: esp32-s3-devkitc-1
-  variant: ESP32S3
+#  variant: ESP32S3
   framework:
     type: arduino
-    version: latest
+#    version: latest
     # Optionally, you can lock the platform version:
     # platform_version: 6.4.0
 
