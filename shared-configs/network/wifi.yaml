@@ -3,9 +3,6 @@ wifi:
   password: !secret wifi_password
   power_save_mode: LIGHT
   reboot_timeout: 10min
-  ap:
-    ssid: "${devicename} Hotspot"
-    password: !secret hotspot_password
   fast_connect: True
   # manual_ip:
   #   static_ip: !secret static_ip
