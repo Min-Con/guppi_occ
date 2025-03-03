@@ -18,6 +18,8 @@
 
 esphome:
   platformio_options:
+    # Optionally, you can lock the platform version:
+    platform_version: "5.2.0"
 #    platform_packages:
 #      - "espressif/toolchain-riscv32-esp@8.4.0+2021r2-patch5"
     build_flags: -DBOARD_HAS_PSRAM
@@ -40,7 +42,7 @@ esp32:
 #    version: latest
 #    version: "3.20005.220925"     # Locks the Arduino core version
     # Optionally, you can lock the platform version:
-    platform_version: "5.2.0"
+#    platform_version: "5.2.0"
 
 # Enable logging at DEBUG level for detailed output during development
 logger:
