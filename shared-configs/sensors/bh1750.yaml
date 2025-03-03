@@ -1,24 +1,26 @@
+# Alternative compensation method for BH1750 sensor
 number:
   - platform: template
     name: "Actual Light Level (Real Lux)"
     id: real_lux_setting
     icon: "mdi:brightness-6"
     unit_of_measurement: "lux"
-    min_value: 0
-    max_value: 5000
-    step: 1
-    restore_value: true
     optimistic: true
-
+    initial_value: 35.0
+    min_value: 0
+    max_value: 1000
+    step: 0.1
+    restore_value: true
+    
 sensor:
   # BH1750 Ambient Light Sensor
   - platform: bh1750
     name: "Raw Light Level"
     id: raw_light_level
-    address: 0x23  # Can be 0x23 or 0x5C depending on ADDR pin
+    address: 0x23
     update_interval: 60s
 
-   # Compensated light level sensor
+  # Compensated light level sensor
   - platform: template
     name: "Light Level Compensated"
     id: compensated_light_level
@@ -28,26 +30,79 @@ sensor:
     accuracy_decimals: 1
     lambda: |-
       // Get the raw reading from the BH1750 sensor
-      float L = id(raw_light_level).state;
-      // Get the user-provided actual light level (measured with a lux meter)
-      float real_L = id(real_lux_setting).state;
+      float raw = id(raw_light_level).state;
       
-      // If both values are zero, or if the raw sensor reading is zero,
-      // avoid division by zero and simply return raw value (or real_L as appropriate)
-      if (L <= 0.0) {
-        return real_L;  // Alternatively, you might want to return 0.0 here.
+      // Reference values (your calibration point)
+      float raw_reference = 5.0;  // Your sensor reads 5 lux
+      float true_reference = id(calibration_reference).state;  // Actual value is 35 lux
+      
+      // Calculate the calibration factor
+      float calibration_factor = true_reference / raw_reference;
+      
+      // For very low readings (below 0.5 lux), use minimal adjustment
+      if (raw < 0.5) {
+        return raw;
       }
       
-      // Calculate the ratio between the actual measured lux and the raw sensor reading.
-      float ratio = real_L / L;
+      // Apply a non-linear calibration that maintains proper scaling
+      // as light levels change - this approaches the full calibration
+      // factor as light increases but preserves near-zero readings
+      float result = raw * (calibration_factor * (1.0 - exp(-raw / 3.0)) + 1.0);
       
-      // Apply a nonlinear (exponential) weighting function.
-      // The term (1 - exp(-real_L / 100.0)) ramps from 0 (at low light) toward 1 (at higher light).
-      // This makes the compensation factor approach the full ratio when the actual light level is high.
-      float factor = 1.0 + (ratio - 1.0) * (1.0 - exp(-real_L / 100.0));
-      
-      // Calculate the compensated lux value
-      float compensated = L * factor;
-      return compensated;
+      return result;
     update_interval: 60s
+
+
+# number:
+#   - platform: template
+#     name: "Actual Light Level (Real Lux)"
+#     id: real_lux_setting
+#     icon: "mdi:brightness-6"
+#     unit_of_measurement: "lux"
+#     min_value: 0
+#     max_value: 5000
+#     step: 1
+#     restore_value: true
+#     optimistic: true
+
+# sensor:
+#   # BH1750 Ambient Light Sensor
+#   - platform: bh1750
+#     name: "Raw Light Level"
+#     id: raw_light_level
+#     address: 0x23  # Can be 0x23 or 0x5C depending on ADDR pin
+#     update_interval: 60s
+
+#    # Compensated light level sensor
+#   - platform: template
+#     name: "Light Level Compensated"
+#     id: compensated_light_level
+#     unit_of_measurement: "lx"
+#     device_class: illuminance
+#     state_class: measurement
+#     accuracy_decimals: 1
+#     lambda: |-
+#       // Get the raw reading from the BH1750 sensor
+#       float L = id(raw_light_level).state;
+#       // Get the user-provided actual light level (measured with a lux meter)
+#       float real_L = id(real_lux_setting).state;
+      
+#       // If both values are zero, or if the raw sensor reading is zero,
+#       // avoid division by zero and simply return raw value (or real_L as appropriate)
+#       if (L <= 0.0) {
+#         return real_L;  // Alternatively, you might want to return 0.0 here.
+#       }
+      
+#       // Calculate the ratio between the actual measured lux and the raw sensor reading.
+#       float ratio = real_L / L;
+      
+#       // Apply a nonlinear (exponential) weighting function.
+#       // The term (1 - exp(-real_L / 100.0)) ramps from 0 (at low light) toward 1 (at higher light).
+#       // This makes the compensation factor approach the full ratio when the actual light level is high.
+#       float factor = 1.0 + (ratio - 1.0) * (1.0 - exp(-real_L / 100.0));
+      
+#       // Calculate the compensated lux value
+#       float compensated = L * factor;
+#       return compensated;
+#     update_interval: 60s
 
