@@ -18,6 +18,8 @@
 
 esphome:
   platformio_options:
+    platform_packages:
+      - "espressif/toolchain-riscv32-esp@8.4.0+2021r2-patch5"
     build_flags: -DBOARD_HAS_PSRAM
     board_build.arduino.memory_type: qio_opi
     board_build.f_flash: 80000000L
