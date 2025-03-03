@@ -34,7 +34,7 @@ sensor:
       
       // Reference values (your calibration point)
       float raw_reference = 5.0;  // Your sensor reads 5 lux
-      float true_reference = id(calibration_reference).state;  // Actual value is 35 lux
+      float true_reference = id(real_lux_setting).state;  // Actual value is 35 lux
       
       // Calculate the calibration factor
       float calibration_factor = true_reference / raw_reference;
