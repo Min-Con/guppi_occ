@@ -5,7 +5,7 @@ packages:
   project_configs: 
 #    url: github://AdmiralArgyle/guppi_occ
     url: https://github.com/AdmiralArgyle/guppi_occ
-    files: [defaults/GUPPI.ST-OCC-GP-2410-BLE-DEFAULTS.yaml, shared-configs/boards/esp32-s3-devkitc-1-esp-idf.yaml, shared-configs/network/wifi.yaml, shared-configs/network/bletracker.yaml, shared-configs/sensors/ld2410.yaml]
+    files: [defaults/GUPPI.ST-OCC-GP-2410-BLE-DEFAULTS.yaml, shared-configs/boards/esp32-s3-devkitc-1-esp-idf.yaml, shared-configs/network/wifi.yaml, shared-configs/network/bletracker.yaml, shared-configs/components/ld2410.yaml]
     ref: main
     refresh: 1s
 
@@ -31,12 +31,12 @@ packages:
 # shared-configs/network/bleproxy.yaml #Only needed if BLE Tracker isn't already enabled
 
 # ** Sensor specific configurations **
-# shared-configs/sensors/ld2410.yaml
-# shared-configs/sensors/ld2410-no-gp.yaml
-# shared-configs/sensors/ld2450.yaml
-# shared-configs/sensors/bme680.yaml
-# shared-configs/sensors/bme280.yaml
-# shared-configs/sensors/bmp280.yaml
-# shared-configs/sensors/bh1750.yaml
-# shared-configs/sensors/scd41.yaml
+# shared-configs/components/ld2410.yaml
+# shared-configs/components/ld2410-no-gp.yaml
+# shared-configs/components/ld2450.yaml
+# shared-configs/components/bme680.yaml
+# shared-configs/components/bme280.yaml
+# shared-configs/components/bmp280.yaml
+# shared-configs/components/bh1750.yaml
+# shared-configs/components/scd41.yaml
 

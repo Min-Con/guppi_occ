@@ -26,7 +26,7 @@ substitutions:
 packages:
   project_configs: 
     url: https://github.com/AdmiralArgyle/guppi_occ
-    files: [defaults/GUPPI.ST-OCC-GP-2410-BLE-DEFAULTS.yaml, shared-configs/boards/esp32-c3-devkitm-1-esp-idf.yaml, shared-configs/network/wifi.yaml, shared-configs/network/bletracker.yaml, shared-configs/sensors/ld2410.yaml]
+    files: [defaults/GUPPI.ST-OCC-GP-2410-BLE-DEFAULTS.yaml, shared-configs/boards/esp32-c3-devkitm-1-esp-idf.yaml, shared-configs/network/wifi.yaml, shared-configs/network/bletracker.yaml, shared-configs/components/ld2410.yaml]
     ref: main
     refresh: 60s
 

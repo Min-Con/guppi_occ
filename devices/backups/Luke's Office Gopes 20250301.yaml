@@ -15,14 +15,13 @@ substitutions:
 ####################################
 # End Substitutions
 ####################################
-
 # Define external packages that ESPHome will fetch at compile time.
 # Add/change the dependencies you need.
 # Delete any dependencies you don't need.
 packages:
   project_configs: 
     url: https://github.com/AdmiralArgyle/guppi_occ
-    files: [defaults/GUPPI.ST-OCC-GP-2410-AQI-DEFAULTS.yaml, shared-configs/boards/seeed_xiao_esp32s3-arduino.yaml, shared-configs/network/wifi.yaml, shared-configs/sensors/ld2410.yaml, shared-configs/sensors/bme680.yaml, shared-configs/sensors/bh1750.yaml]
+    files: [defaults/GUPPI.ST-OCC-GP-2410-AQI-DEFAULTS.yaml, shared-configs/boards/seeed_xiao_esp32s3-arduino.yaml, shared-configs/network/wifi.yaml, shared-configs/components/ld2410.yaml, shared-configs/components/bme680.yaml,shared-configs/components/bh1750.yaml]
     ref: main
     refresh: 60s
 
