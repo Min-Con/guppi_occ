@@ -21,7 +21,7 @@ packages:
 # ** Board specific configurations **
 # shared-configs/boards/esp32dev-esp-idf.yaml
 # shared-configs/boards/esp32-s3-zero.yaml
-# shared-configs/boards/esp32-c3-devkitm-1-esp-idf.yaml
+# shared-configs/boards/esp32-c-super-mini.yaml
 # shared-configs/boards/esp32-c3-devkitm-1-arduino.yaml
 # shared-configs/boards/seeed_xiao_esp32s3-arduino.yaml
 
