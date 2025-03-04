@@ -1,2 +1,3 @@
 # guppi_occ
-Generally Unstable and Poorly Planned Implementations (GUPPI) - Occupancy and Presence Tracking Devices
+
+Minimum Conatus (Zerø Effort) - Generally Unstable and Poorly Planned Implementations (GUPPI) - Occupancy and Presence Tracking Devices
