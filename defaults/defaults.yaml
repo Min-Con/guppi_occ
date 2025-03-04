@@ -1,6 +1,6 @@
 esphome:
   # Update for the specific project:
-  comment: "Generally Unstable and Poorly Produced Inventions - Project Description Here"
+  comment: "Generally Unstable and Poorly Planned Implementations - Project Description Here"
   project: 
     name: "GUPPI.PROJECT-UNIQUE-NAME-HERE"
     version: "##.##.##.##"

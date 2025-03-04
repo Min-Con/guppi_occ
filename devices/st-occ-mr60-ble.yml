@@ -6,7 +6,7 @@ substitutions:
 # Replace name with you sensor name
 #  name: st-occ-2410
 #  friendly_name: "ST Occ 2410"
-  comment_text: "Generally Unstable and Poorly Produced Inventions - Single-target Human Presence and Occupancy Sensor (ESP32/LD2410) with Bluetooth Tracker"
+  comment_text: "Generally Unstable and Poorly Planned Implementations - Single-target Human Presence and Occupancy Sensor (ESP32/LD2410) with Bluetooth Tracker"
   project_name: "GUPPI.ST-OCC-2410-BLE"
   project_version: "25.2.19.1"
 # **IMPORTANT** - Add API key here for copy/paste convenience
@@ -29,6 +29,6 @@ substitutions:
   name: "seeedstudio-mr60bha2-kit"
   friendly_name: "Seeed Studio MR60BHA2 Kit"
 
-  comment_text: "Generally Unstable and Poorly Produced Inventions - Single-target Human Presence and Occupancy Sensor (ESP32/LD2410) with Bluetooth Tracker"
+  comment_text: "Generally Unstable and Poorly Planned Implementations - Single-target Human Presence and Occupancy Sensor (ESP32/LD2410) with Bluetooth Tracker"
   project_name: "GUPPI.ST-OCC-2410-BLE"
   project_version: "25.2.19.1"

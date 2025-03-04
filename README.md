@@ -1,2 +1,2 @@
 # guppi_occ
-Generally Unstable and Poorly Produced Inventions (GUPPI) - Occupancy and Presence Tracking Devices
+Generally Unstable and Poorly Planned Implementations (GUPPI) - Occupancy and Presence Tracking Devices

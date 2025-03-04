@@ -6,7 +6,7 @@ substitutions:
 # Replace name with you sensor name
   name: "seeedstudio-mr60bha2-kit"
   friendly_name: "Seeed Studio MR60BHA2 Kit"
-  comment_text: "Generally Unstable and Poorly Produced Inventions - Single-target Breath, Heartrate, and Occupancy Sensor with Bluetooth Tracker"
+  comment_text: "Generally Unstable and Poorly Planned Implementations - Single-target Breath, Heartrate, and Occupancy Sensor with Bluetooth Tracker"
   project_name: "GUPPI.ST-OCC-MR60-BLE"
   project_version: "25.2.24.3.5"
 # **IMPORTANT** - Add API key here for copy/paste convenience

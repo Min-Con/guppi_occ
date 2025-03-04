@@ -1,5 +1,5 @@
 esphome:
-  comment: "Generally Unstable and Poorly Produced Inventions - Single-target Human Presence and Occupancy Sensor (ESP32/LD2410) with Bluetooth Tracker"
+  comment: "Generally Unstable and Poorly Planned Implementations - Single-target Human Presence and Occupancy Sensor (ESP32/LD2410) with Bluetooth Tracker"
   project: 
     name: "GUPPI.ST-OCC-GP-2410-BLE"
     version: "25.2.27.1"

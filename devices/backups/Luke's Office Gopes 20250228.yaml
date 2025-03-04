@@ -13,7 +13,7 @@ substitutions:
 # Replace name with you sensor name
   name: gopes-occupancy-xiao-s3-1
   friendly_name: "Luke's Office Gopes"
-  comment_text: "Generally Unstable and Poorly Produced Inventions - Single-target Human Presence and Occupancy Sensor (ESP32/LD2410) with AQI, climate, and lux"
+  comment_text: "Generally Unstable and Poorly Planned Implementations - Single-target Human Presence and Occupancy Sensor (ESP32/LD2410) with AQI, climate, and lux"
   project_name: "GUPPI.ST-OCC-2410-680-1750"
   project_version: "25.2.25.1"
 # **IMPORTANT** - Add API key here for copy/paste convenience
