@@ -43,7 +43,7 @@ packages:
 #  MyProjectDefault: github://AdmiralArgyle/guppi_occ/mt-occ-2450-28-defaults.yaml
 #  MyProjectDefault: github://AdmiralArgyle/guppi_occ/mt-occ-2450-2817-defaults.yaml
 #  BoardConfig: github://AdmiralArgyle/guppi_occ/shared-configs/boards/esp32dev-esp-idf.yaml
-  BoardConfig: github://AdmiralArgyle/guppi_occ/shared-configs/boards/esp32-s3-devkitc-1-esp-idf.yaml
+  BoardConfig: github://AdmiralArgyle/guppi_occ/shared-configs/boards/esp32-s3-zero.yaml
 #  BoardConfig: github://AdmiralArgyle/guppi_occ/shared-configs/boards/esp32-c3-devkitm-1-esp-idf.yaml
 #  BoardConfig: github://AdmiralArgyle/guppi_occ/shared-configs/boards/esp32-c3-devkitm-1-arduino.yaml
   WiFiConfig: github://AdmiralArgyle/guppi_occ/shared-configs/network/wifi.yaml

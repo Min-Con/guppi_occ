@@ -1,0 +1,77 @@
+####################################
+# Start Substitutions
+####################################
+
+substitutions:
+# Specify below pin numbers for UART, GPIO, and I2C connections
+# Delete if not needed
+  tx_pin_uart: GPIO43
+  rx_pin_uart: GPIO44
+  light_gpio: GPIO21
+  motion_gpio: GPIO2
+  sda_pin_i2c: GPIO6
+  scl_pin_i2c: GPIO7
+
+####################################
+# End Substitutions
+####################################
+
+esphome:
+  platformio_options:
+    board_build.flash_mode: dio
+    board_build.flash_size: 4MB
+    board_build.f_flash: 40000000L
+
+esp32:
+  # Because the ESP32‑S3 Zero/Mini isn’t yet defined as its own board,
+  # many users have successfully used the esp32‑s3‑devkitc‑1 profile.
+  board: esp32-s3-devkitc-1
+  variant: esp32s3
+  flash_size: 4MB
+  framework:
+    type: esp-idf
+    version: recommended
+    sdkconfig_options:
+      # Performance optimizations
+      CONFIG_COMPILER_OPTIMIZATION_PERF: y
+      CONFIG_COMPILER_OPTIMIZATION_SIZE: y
+      CONFIG_ESPTOOLPY_FLASHSIZE_4MB: y
+      # BLE 4.2 is supported by ALL ESP32 boards that have bluetooth, the original and derivatives.
+      CONFIG_BT_BLE_42_FEATURES_SUPPORTED: y
+      # Also enable this on any derivative boards (S2, C3 etc) but not the original ESP32.
+      CONFIG_BT_BLE_50_FEATURES_SUPPORTED: y
+      # Extend the watchdog timeout, so the device reboots if the device appears locked up for over 10 seconds.
+      CONFIG_ESP_TASK_WDT_TIMEOUT_S: "10"
+
+psram:
+  mode: quad
+  speed: 80MHz
+    
+uart:
+  id: uart_bus
+  tx_pin: 
+    number: ${tx_pin_uart}
+#    mode:
+#      input: true
+#      pullup: true
+  rx_pin: 
+    number: ${rx_pin_uart}
+#    mode:
+#      input: true
+#      pullup: true
+  baud_rate: 256000
+  parity: NONE
+  stop_bits: 1
+#  data_bits: 8
+
+light:
+  - platform: binary
+    name: "Blue Status Light"
+    output: light_output
+    id: led_light
+    restore_mode: ALWAYS_OFF
+ 
+output:
+  - platform: gpio
+    pin: ${light_gpio}
+    id: light_output
