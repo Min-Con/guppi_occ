@@ -1,28 +1,7 @@
-####################################
-# Start Substitutions
-####################################
-
-# substitutions:
-# # Specify below pin numbers for UART, GPIO, and I2C connections
-# # Delete if not needed
-#   tx_pin_uart: GPIO43
-#   rx_pin_uart: GPIO44
-#   light_gpio: GPIO21
-#   motion_gpio: GPIO2
-#   sda_pin_i2c: GPIO6
-#   scl_pin_i2c: GPIO7
-
-####################################
-# End Substitutions
-####################################
-
+# Configuration for ESPHome settings and options
 esphome:
   platformio_options:
-    # Optionally, you can lock the platform version:
-#    platform_version: "5.2.0"
-#    platform_packages:
-#      - "espressif/toolchain-riscv32-esp@8.4.0+2021r2-patch5"
-    build_flags: -DBOARD_HAS_PSRAM
+    build_flags: -DBOARD_HAS_PSRAM  # Enable PSRAM support for additional memory
     board_build.arduino.memory_type: qio_opi
     board_build.f_flash: 80000000L
     board_build.flash_mode: qio
@@ -32,24 +11,20 @@ esphome:
       - delay: 500ms  # Boot delay for sensor stabilization
 
 esp32:
-#  board: seeed_xiao_esp32s3
-#  variant: esp32s3
   board: esp32-s3-devkitc-1
-#  variant: ESP32S3
   framework:
     type: arduino
-#    version: recommended
     version: latest
-#    version: "3.20005.220925"     # Locks the Arduino core version
-    # Optionally, you can lock the platform version:
-#    platform_version: "5.2.0"
 
 # Enable logging at DEBUG level for detailed output during development
+# Default is INFO
+# To disable logging, set baud_rate to 0
 logger:
-  # 0 Enables logging, but disables serial-port logging to free CPU and memory
+# level: DEBUG
+  baud_rate: 0
 #  baud_rate: 0
 
-# Using recommended GPIO pins for XIAO ESP32-S3
+# Set all GPIO pins substitutions in device configuration
 i2c:
   sda: "${sda_pin_i2c}"
   scl: "${scl_pin_i2c}"
@@ -66,6 +41,7 @@ uart:
   parity: NONE
   stop_bits: 1
 
+# Only enable the following if the device has a light
 # light:
 #   - platform: binary
 #     name: "Blue Status Light"
