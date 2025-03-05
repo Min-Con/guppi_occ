@@ -1,5 +1,0 @@
-esp32:
-  board: seeed_xiao_esp32c3
-  framework:
-    type: esp-idf
-

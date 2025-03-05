@@ -1,0 +1,62 @@
+esphome:
+  platformio_options:
+    board_build.flash_mode: dio
+    board_build.flash_size: 4MB
+    board_build.f_flash: 80000000L  # XIAO ESP32-C3 supports higher flash frequency
+
+esp32:
+  board: seeed_xiao_esp32c3  # Correct board identifier for XIAO ESP32-C3
+  variant: esp32c3
+  flash_size: 4MB
+  framework:
+    type: esp-idf
+    version: recommended
+    sdkconfig_options:
+      # Performance optimizations
+      CONFIG_COMPILER_OPTIMIZATION_PERF: y
+      CONFIG_COMPILER_OPTIMIZATION_SIZE: y
+      CONFIG_ESPTOOLPY_FLASHSIZE_4MB: y
+      # BLE 4.2 is supported by ALL ESP32 boards that have bluetooth, the original and derivatives.
+      CONFIG_BT_BLE_42_FEATURES_SUPPORTED: y
+      # Also enable this on any derivative boards (S2, C3 etc) but not the original ESP32.
+      CONFIG_BT_BLE_50_FEATURES_SUPPORTED: y
+      # Extend the watchdog timeout, so the device reboots if the device appears locked up for over 10 seconds.
+      CONFIG_ESP_TASK_WDT_TIMEOUT_S: "10"
+
+# Enable logging at DEBUG level for detailed output during development
+# Default is INFO
+# To disable logging, set baud_rate to 0
+logger:
+# level: DEBUG
+  baud_rate: 0
+#  baud_rate: 0
+
+# Set all GPIO pins substitutions in device configuration
+i2c:
+  sda: "${sda_pin_i2c}"
+  scl: "${scl_pin_i2c}"
+  scan: true
+  frequency: 400kHz  # Optimal frequency for BME680
+
+uart:
+  id: uart_bus
+  tx_pin: 
+    number: ${tx_pin_uart}
+  rx_pin: 
+    number: ${rx_pin_uart}
+  baud_rate: 256000
+  parity: NONE
+  stop_bits: 1
+
+# Only enable the following if the device has a light
+# light:
+#   - platform: binary
+#     name: "Blue Status Light"
+#     output: light_output
+#     id: led_light
+#     restore_mode: ALWAYS_OFF
+ 
+# output:
+#   - platform: gpio
+#     pin: ${light_gpio}
+#     id: light_output
