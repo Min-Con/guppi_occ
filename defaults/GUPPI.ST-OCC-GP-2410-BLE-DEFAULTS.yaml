@@ -1,8 +1,27 @@
+########################################
+# GUPPI.ST-OCC-GP-2410-BLE-DEFAULTS.yaml
+# Default setting for basic single-target occupancy sensors with BLE tracker capabilities
+########################################
+
+####################################
+# Start Substitutions
+####################################
+
+substitutions:
+  # Update the comment_text, project_name, and project_version information to match the device
+  comment_text: "Generally Unstable and Poorly Planned Implementations - Single-target Human Presence and Occupancy Sensor (ESP32/LD2410) with Bluetooth Tracker"
+  project_name: "GUPPI.ST-OCC-GP-2410-BLE"
+  project_version: "25.2.27.1"
+
+####################################
+# End Substitutions
+####################################
+
 esphome:
-  comment: "Generally Unstable and Poorly Planned Implementations - Single-target Human Presence and Occupancy Sensor (ESP32/LD2410) with Bluetooth Tracker"
+  comment: "${comment_text}"
   project: 
-    name: "GUPPI.ST-OCC-GP-2410-BLE"
-    version: "25.2.27.1"
+    name: "${project_name}"
+    version: "${project_version}"
 
 # Enable logging at DEBUG level for detailed output during development
 logger:

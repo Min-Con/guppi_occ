@@ -1,13 +1,14 @@
+# This file includes definitions for external packages that ESPHome will fetch at compile time.
 
-# Define external packages that ESPHome will fetch at compile time.
 # Replace the files as appropriate, and add any additional ones you require.
+# EXAMPLE:
 packages:
   project_configs: 
 #    url: github://min-con/guppi_occ
     url: https://github.com/min-con/guppi_occ
     files: [defaults/GUPPI.ST-OCC-GP-2410-BLE-DEFAULTS.yaml, shared-configs/boards/esp32-s3-zero.yaml, shared-configs/network/wifi.yaml, shared-configs/network/bletracker.yaml, shared-configs/components/ld2410.yaml]
     ref: main
-    refresh: 1s
+    refresh: 0s
 
 
 # ** Project specific defaults **

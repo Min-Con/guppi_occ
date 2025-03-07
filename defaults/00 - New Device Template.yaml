@@ -1,0 +1,40 @@
+# This is a basic configuration template for a new device.
+# Copy this file to your devices directory and rename it to something useful.
+# For example, if you're configuring a device for your living room, you might call it `living_room_occupancy.yaml`.
+# Then you can add the configuration to your new ESPHome device in ESPHome Builder.
+
+####################################
+# Start Substitutions
+####################################
+
+substitutions:
+# Specify below pin numbers for UART, GPIO, and I2C connections
+# These are device specific and may need to be adjusted
+
+  tx_pin_uart: GPIO21
+  rx_pin_uart: GPIO20
+  light_gpio: GPIO8
+  motion_gpio: GPIO10
+  sda_pin_i2c: GPIO8
+  scl_pin_i2c: GPIO9
+
+# Add comment_text, project_name, and project_version if you don't want to use the defaults
+  # comment_text: "Description of my device"
+  # project_name: "Common name for my project"
+  # project_version: "What version of the project is this?"
+
+####################################
+# End Substitutions
+####################################
+
+# Define external packages that ESPHome will fetch at compile time.
+# Add/change the dependencies you need.
+# Delete any dependencies you don't need.
+# EXAMPLE:
+packages:
+  project_configs: 
+#    url: github://min-con/guppi_occ
+    url: https://github.com/min-con/guppi_occ
+    files: [defaults/GUPPI.ST-OCC-GP-2410-BLE-DEFAULTS.yaml, shared-configs/boards/esp32-s3-zero.yaml, shared-configs/network/wifi.yaml, shared-configs/network/bletracker.yaml, shared-configs/components/ld2410.yaml]
+    ref: main
+    refresh: 0s

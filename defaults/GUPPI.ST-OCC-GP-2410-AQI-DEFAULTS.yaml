@@ -1,3 +1,8 @@
+########################################
+# GUPPI.ST-OCC-GP-2410-AQI-DEFAULTS.yaml
+# Default setting for advanced single-target occupancy sensors with AQI, climate, and lux monitoring capabilities
+########################################
+
 ####################################
 # Start Substitutions
 ####################################
@@ -11,6 +16,12 @@ substitutions:
 ####################################
 # End Substitutions
 ####################################
+
+esphome:
+  comment: "${comment_text}"
+  project: 
+    name: "${project_name}"
+    version: "${project_version}"
 
 # Enable logging at DEBUG level for detailed output during development
 logger:
