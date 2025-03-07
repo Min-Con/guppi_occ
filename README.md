@@ -2,8 +2,6 @@
 
 ## Minimum Conatus
 
----
-
 # Generally Unstable and Poorly Planned Implementations (GUPPI) - Occupancy and Presence Tracking Devices
 
 A DIY home automation project using ESPHome on ESP32 hardware for occupancy and presence detection, with capabilities to monitor air quality, climate, illumination, and more. This project is designed to integrate seamlessly with Home Assistant, enabling users to create custom automations and dashboards based on sensor data.
