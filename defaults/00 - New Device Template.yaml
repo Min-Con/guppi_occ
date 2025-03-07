@@ -19,9 +19,9 @@ substitutions:
   scl_pin_i2c: GPIO9
 
 # Add comment_text, project_name, and project_version if you don't want to use the defaults
-  # comment_text: "Description of my device"
-  # project_name: "Common name for my project"
-  # project_version: "What version of the project is this?"
+  comment_text: "Description of my device"
+  project_name: "Common name for my project"
+  project_version: "What version of the project is this?"
 
 ####################################
 # End Substitutions
