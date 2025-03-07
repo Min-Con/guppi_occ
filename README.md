@@ -1,4 +1,10 @@
-# Minimum Conatus (Zerø Effort) - Generally Unstable and Poorly Planned Implementations (GUPPI) - Occupancy and Presence Tracking Devices
+# Zerø Effort
+
+## Minimum Conatus
+
+---
+
+# Generally Unstable and Poorly Planned Implementations (GUPPI) - Occupancy and Presence Tracking Devices
 
 A DIY home automation project using ESPHome on ESP32 hardware for occupancy and presence detection, with capabilities to monitor air quality, climate, illumination, and more. This project is designed to integrate seamlessly with Home Assistant, enabling users to create custom automations and dashboards based on sensor data.
 
@@ -23,11 +29,11 @@ A DIY home automation project using ESPHome on ESP32 hardware for occupancy and 
   Contains the basic configuration defaults used as a foundation for all devices. This folder is intended to be expanded with additional default configurations over time.
 
 - **devices/**  
-  Contains device-specific configurations. Although existing examples are provided for reference, they are not exhaustive.  
+  Contains various examples of device-specific configurations. Although existing examples are provided for reference, they are not exhaustive.  
   *Note: Instead of focusing on an existing device example, we use the “Entryway Occupancy” example below as a reference.*
 
 - **shared-configs/**  
-  Contains configuration snippets and shared options that can be combined with the defaults to create custom devices. This modular approach allows users to mix and match features (such as different sensors and outputs) to suit specific needs.
+  Contains configurations for commonly re-used sections as well as specific component configurations that can be combined with the defaults to create custom devices. This modular approach allows users to mix and match features (such as different boards, sensors and outputs) to suit specific needs.
 
 ---
 
@@ -37,6 +43,11 @@ A DIY home automation project using ESPHome on ESP32 hardware for occupancy and 
 
 - **Hardware:**  
   - ESP32-based device
+    - Tested on the following:
+      - ESP32-C3 Super Mini
+      - ESP32-S3 Zero
+      - Seeed Studio XIAO ESP32-C3
+      - Seeed Studio XIAO ESP32-S3
 
 - **Software:**  
   - [ESPHome Official Documentation](https://esphome.io/)
