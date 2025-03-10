@@ -1,12 +1,25 @@
-# Zerø Effort
+# Zerø Effort <!-- omit in toc -->
 
-## Minimum Conatus
+## Generally Unstable and Poorly Planned Implementations (GUPPI) - Occupancy and Presence Tracking Devices <!-- omit in toc -->
 
-# Generally Unstable and Poorly Planned Implementations (GUPPI) - Occupancy and Presence Tracking Devices
-
-A DIY home automation project using ESPHome on ESP32 hardware for occupancy and presence detection, with capabilities to monitor air quality, climate, illumination, and more. This project is designed to integrate seamlessly with Home Assistant, enabling users to create custom automations and dashboards based on sensor data.
+A DIY home automation project using ESPHome on ESP32 hardware for occupancy and presence detection, with capabilities to monitor air quality, climate, illumination, and more. This project is designed to integrate seamlessly with Home Assistant, enabling users to create custom automations and dashboards based on sensor data. <!-- omit in toc -->
 
 ---
+
+- [Overview](#overview)
+- [Repository Structure](#repository-structure)
+- [Getting Started](#getting-started)
+  - [Prerequisites](#prerequisites)
+  - [Setup and Flashing](#setup-and-flashing)
+- [Example: Entryway Occupancy](#example-entryway-occupancy)
+  - [Overview](#overview-1)
+  - [Example Configuration: Entryway Occupancy Device Setup](#example-configuration-entryway-occupancy-device-setup)
+  - [Integration with Home Assistant](#integration-with-home-assistant)
+- [Contribution Guidelines](#contribution-guidelines)
+- [External Resources](#external-resources)
+- [Future Enhancements \& Placeholders](#future-enhancements--placeholders)
+- [License](#license)
+- [Acknowledgements](#acknowledgements)
 
 ## Overview
 
@@ -77,12 +90,16 @@ This example demonstrates how to set up an "Entryway Occupancy" device using a c
 ### Overview
 
 - **Function:**  
-  Monitor occupancy in an entryway using multiple sensors.
+  Monitor presence in an entryway using multiple sensors.
 
 - **Sensors Included:**  
+  - **Bluetooth Tracker:** Detects the presence of tracked Bluetooth Low-Energy signals and updates the corresponding device_tracker information.
   - **Motion Sensor:** Detects movement (configured as a binary sensor).
-  - **Ambient Light Sensor:** Measures light levels (configured as an ADC sensor).
-  - *Optional:* Temperature and humidity sensors or additional sensors may be integrated as needed.
+  - **Radar Target:** Determines whether there is a target detected in any zone (configured as a binary sensor).
+  - **Radar Moving Target:** Determines whether there is a target moving within any zone (configured as a binary sensor).
+  - **Radar Still Target:** Determines whether there is a non-moving target within any zone (configured as a binary sensor).
+  - **Other Sensors:** Multiple additional sensors to monitor location, distance, energy level, etc. of targets (configured as number and text sesnors).
+  - *Optional:* Temperature, humidity, AQI, CO2, Altitude, Dew Point, and Luminance sensors or additional sensors may be integrated as needed.
 
 ### Example Configuration: Entryway Occupancy Device Setup
 
@@ -92,7 +109,7 @@ This example demonstrates how to create a fully configured Entryway Occupancy de
    Open ESPHome Builder and create a new device. Give it a meaningful name (e.g., `entryway_occupancy`).
 
 2. **Copy Template Contents:**  
-   Copy the contents of `defaults/00 - New Device Template.yaml` into your new device configuration. This template contains the foundational configuration needed for any new device.
+   Copy the contents of `defaults/00 - New Device Template.yaml`, according to the included instructions, into your new device configuration. This template contains the foundational configuration needed for any new device.
 
 3. **Update the Configuration:**  
    - Make any changes necessary as described in the template file (such as device-specific parameters).
