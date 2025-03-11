@@ -4,9 +4,12 @@
 
 ![GitHub commit activity](https://img.shields.io/github/commit-activity/m/Min-Con/guppi_occ?color=%2388B04B)
 [![GitHub License](https://img.shields.io/github/license/Min-Con/guppi_occ?style=plastic&color=orange)](https://img.shields.io/github/license/Min-Con/guppi_occ?style=plastic&color=%23FF6F61)
-![Static Badge](https://img.shields.io/badge/Maintainer-Zero_Effort-%2392A8D1?style=plastic&link=https%3A%2F%2Fgithub.com%2FMin-Con)
 
-A DIY home automation project using ESPHome on ESP32 hardware for occupancy and presence detection, with capabilities to monitor air quality, climate, illumination, and more. This project is designed to integrate seamlessly with Home Assistant, enabling users to create custom automations and dashboards based on sensor data. <!-- omit in toc -->
+![Static Badge](https://img.shields.io/badge/Espressif-gray?style=plastic&logo=espressif)
+![Static Badge](https://img.shields.io/badge/ESPHome-green?style=plastic&logo=esphome)
+![Static Badge](https://img.shields.io/badge/Home_Assistant-blue?style=plastic&logo=homeassistant)
+
+A DIY home automation project using ESPHome with Home Assistant on ESP32 hardware for occupancy and presence detection, with capabilities to monitor air quality, climate, illumination, and more. This project is designed to integrate seamlessly with Home Assistant, enabling users to create custom automations and dashboards based on sensor data. <!-- omit in toc -->
 
 ---
 
