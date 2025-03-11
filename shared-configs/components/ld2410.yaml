@@ -78,23 +78,33 @@ number:
     unit_of_measurement: "cm"
 
 sensor:
-   # LD2410 radar sensor readings
+  # LD2410 radar sensor readings
   - platform: ld2410
     moving_distance:
       name: "Radar Moving Distance"
       id: moving_distance
+      icon: mdi:radar
+      unit_of_measurement: "cm"
     still_distance:
       name: "Radar Still Distance"
       id: still_distance
+      icon: mdi:radar
+      unit_of_measurement: "cm"
     moving_energy:
       name: "Radar Move Energy"
       id: radar_moving_energy
+      icon: mdi:radar
+      unit_of_measurement: "mJ"
     still_energy:
       name: "Radar Still Energy"
       id: radar_still_energy
+      icon: mdi:radar
+      unit_of_measurement: "mJ"
     detection_distance:
       name: "Radar Detection Distance"
       id: radar_detection_distance
+      icon: mdi:radar
+      unit_of_measurement: "cm"
 
 binary_sensor:
   # LD2410 radar binary sensors
@@ -102,12 +112,15 @@ binary_sensor:
     has_target:
       name: Radar Target
       id: radar_has_target
+      icon: mdi:motion-sensor
     has_moving_target:
       name: Radar Moving Target
       id: radar_has_moving_target
+      icon: mdi:motion-sensor
     has_still_target:
       name: Radar Still Target
       id: radar_has_still_target
+      icon: mdi:radar
 
   # Radar zone occupancy based on detection distance and configured zone boundaries
   - platform: template

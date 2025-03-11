@@ -39,21 +39,33 @@ sensor:
     address: 0x76
     update_interval: 30s
     temperature:
-      name: "BME280 Temperature"
+      name: "Temperature"
       id: bme280_temperature_sensor
+      device_class: temperature
+      state_class: measurement
+      icon: "mdi:thermometer"
+      unit_of_measurement: "°C"
       oversampling: 2x
       filters:
         - lambda: |-
             return x + id(temperature_offset).state;
     pressure:
-      name: "BME280 Pressure"
+      name: "Pressure"
       id: bme280_pressure_sensor
+      device_class: pressure
+      state_class: measurement
+      icon: "mdi:gauge"
+      unit_of_measurement: "hPa"
       filters:
         - lambda: |-
             return x + id(pressure_offset).state;
     humidity:
-      name: "BME280 Humidity"
+      name: "Humidity"
       id: bme280_humidity_sensor
+      device_class: humidity
+      state_class: measurement
+      icon: "mdi:water-percent"
+      unit_of_measurement: "%"
       filters:
         - lambda: |-
             return x + id(humidity_offset).state;
