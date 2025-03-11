@@ -2,6 +2,10 @@
 
 ## Generally Unstable and Poorly Planned Implementations (GUPPI) - Occupancy and Presence Tracking Devices <!-- omit in toc -->
 
+![GitHub commit activity](https://img.shields.io/github/commit-activity/m/Min-Con/guppi_occ?color=%2388B04B)
+[![GitHub License](https://img.shields.io/github/license/Min-Con/guppi_occ?style=plastic&color=orange)](https://img.shields.io/github/license/Min-Con/guppi_occ?style=plastic&color=%23FF6F61)
+![Static Badge](https://img.shields.io/badge/Maintainer-Zero_Effort-steelblue?style=plastic&color=%2392A8D1)
+
 A DIY home automation project using ESPHome on ESP32 hardware for occupancy and presence detection, with capabilities to monitor air quality, climate, illumination, and more. This project is designed to integrate seamlessly with Home Assistant, enabling users to create custom automations and dashboards based on sensor data. <!-- omit in toc -->
 
 ---
@@ -59,6 +63,8 @@ A DIY home automation project using ESPHome on ESP32 hardware for occupancy and 
       - ESP32-S3 Zero
       - Seeed Studio XIAO ESP32-C3
       - Seeed Studio XIAO ESP32-S3
+  - HiLink LD2410B or LD2410C
+  - 
 
 - **Software:**  
   - [ESPHome Official Documentation](https://esphome.io/)
