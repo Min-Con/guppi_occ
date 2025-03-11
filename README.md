@@ -57,14 +57,14 @@ A DIY home automation project using ESPHome on ESP32 hardware for occupancy and 
 ### Prerequisites
 
 - **Hardware:**  
-  - ESP32-based device
+  - ***Required:*** ESP32-based device
     - Tested on the following:
       - ESP32-C3 Super Mini
       - ESP32-S3 Zero
       - Seeed Studio XIAO ESP32-C3
       - Seeed Studio XIAO ESP32-S3
-  - HiLink LD2410B or LD2410C
-  - 
+  - ***Required:*** HiLink LD2410B or LD2410C
+  - ***Optional:*** BME680 (AQI), BME280 (Temp/Humidity), SCD41 (CO2), BH1750 (LUX)
 
 - **Software:**  
   - [ESPHome Official Documentation](https://esphome.io/)
