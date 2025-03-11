@@ -165,7 +165,7 @@ binary_sensor:
     id: motion_detected
     device_class: motion
     filters:
-      - delayed_on: 10ms  # Optional: Debounce filter to avoid false triggers.
+      - delayed_on: 10ms  # Debounce filter to avoid false triggers.
       - delayed_off: 10ms
 
   - platform: template
