@@ -11,7 +11,7 @@ substitutions:
   # Update the comment_text, project_name, and project_version information to match the device
   comment_text: "Generally Unstable and Poorly Planned Implementations - Single-target Human Presence and Occupancy Sensor (ESP32/LD2410) with Bluetooth Tracker"
   project_name: "GUPPI.ST-OCC-GP-2410-BLE"
-  project_version: "25.2.27.1"
+  project_version: "25.3.16.1"
 
 ####################################
 # End Substitutions
@@ -36,104 +36,4 @@ debug:
 ota:
   - platform: esphome
 
-sensor:
-  # Uptime sensor
-  - platform: uptime
-    id: uptime_sensor
-    internal: true
-    entity_category: "diagnostic"
-    update_interval: 1s
-
-  # WiFi signal strength sensor
-  - platform: wifi_signal
-    name: RSSI
-    id: wifi_signal_db
-    update_interval: 30s
-    entity_category: "diagnostic"
-
-  # Internal ESP temperature sensor
-  - platform: internal_temperature
-    name: "ESP Temperature"
-    id: sys_esp_temperature
-    entity_category: "diagnostic"
-
-binary_sensor:
-  - platform: status
-    name: Online
-    id: ink_ha_connected
-
-################################################################################
-# Text Sensors for Diagnostics and Derived Information
-################################################################################
-
-text_sensor:
-  # Device IP Address
-  - platform: wifi_info
-    ip_address:
-      name: "Device IP Address"
-      id: "ip"
-      icon: "mdi:ip-network"
-      entity_category: diagnostic
-  # Firmware Version
-  - platform: version
-    name: "Firmware Version"
-    id: "firmware"
-    icon: "mdi:chip"
-    entity_category: diagnostic
-
-  - platform: template
-    name: "Uptime"
-    icon: "mdi:timer-outline"
-    id: "text_uptime"
-    entity_category: "diagnostic"
-    lambda: |-
-      uint32_t dur = id(uptime_sensor).state;
-      int days = dur / 86400;
-      int hours = (dur % 86400) / 3600;
-      int minutes = (dur % 3600) / 60;
-      int seconds = dur % 60;
-      char buffer[50];
-      if (days > 0) {
-        sprintf(buffer, "%dd %02dh %02dm %02ds", days, hours, minutes, seconds);
-      } else if (hours > 0) {
-        sprintf(buffer, "%02dh %02dm %02ds", hours, minutes, seconds);
-      } else if (minutes > 0) {
-        sprintf(buffer, "%02dm %02ds", minutes, seconds);
-      } else {
-        sprintf(buffer, "%02ds", seconds);
-      }
-      return {buffer};
-    update_interval: 60s
-
-  - platform: debug
-    device:
-      name: "Device Info"
-      id: "info"
-      icon: "mdi:information-outline"
-    reset_reason:
-      name: "Reset Reason"
-
-
-button:
-  - platform: factory_reset
-    disabled_by_default: True
-    name: "Factory Reset ESP"
-    id: factory_reset_all
-
-  - platform: restart
-    icon: mdi:power-cycle
-    name: "ESP Reboot"
-    id: reboot_esp
-
-switch:
-  - platform: template
-    name: "Startup Light Blink"
-    id: startup_light_blink
-    icon: mdi:lightbulb
-    restore_mode: RESTORE_DEFAULT_ON
-    optimistic: true
-    entity_category: "config"
-  - platform: factory_reset
-    id: factory_reset_switch
-    internal: true
 
