@@ -48,7 +48,7 @@ text_sensor:
   # Firmware Version
   - platform: version
     name: "Firmware Version"
-    id: "version"
+    #id: "version"
     icon: "mdi:chip"
     entity_category: diagnostic
 
