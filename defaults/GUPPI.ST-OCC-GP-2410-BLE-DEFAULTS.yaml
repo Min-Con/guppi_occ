@@ -84,7 +84,7 @@ text_sensor:
   - platform: template
     name: "Uptime"
     icon: "mdi:timer-outline"
-    id: "uptime"
+    id: "text_uptime"
     entity_category: "diagnostic"
     lambda: |-
       uint32_t dur = id(uptime_sensor).state;
