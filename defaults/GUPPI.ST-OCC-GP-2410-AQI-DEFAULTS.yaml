@@ -73,13 +73,13 @@ text_sensor:
       name: "Device IP Address"
       id: "ip"
       icon: "mdi:ip-network"
-      hidden_by_default: true
+      entity_category: diagnostic
   # Firmware Version
   - platform: version
     name: "Firmware Version"
     id: "firmware"
     icon: "mdi:chip"
-    hidden_by_default: true
+    entity_category: diagnostic
 
   - platform: template
     name: "Uptime"
@@ -130,7 +130,6 @@ switch:
     name: "Startup Light Blink"
     id: startup_light_blink
     icon: mdi:lightbulb
-    hidden_by_default: true
     restore_mode: RESTORE_DEFAULT_ON
     optimistic: true
     entity_category: "config"
