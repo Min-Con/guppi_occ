@@ -40,10 +40,15 @@ text_sensor:
       id: "ip"
       icon: "mdi:ip-network"
       entity_category: diagnostic
+    mac_address:
+      name: "MAC Address"
+      id: "mac_address"
+      entity_category: "diagnostic"
+      icon: mdi:ip-network
   # Firmware Version
   - platform: version
     name: "Firmware Version"
-    id: "firmware"
+    id: "version"
     icon: "mdi:chip"
     entity_category: diagnostic
 
