@@ -62,9 +62,29 @@ binary_sensor:
     name: Online
     id: ink_ha_connected
 
+################################################################################
+# Text Sensors for Diagnostics and Derived Information
+################################################################################
+
 text_sensor:
+  # Device IP Address
+  - platform: wifi_info
+    ip_address:
+      name: "Device IP Address"
+      id: "ip"
+      icon: "mdi:ip-network"
+      hidden_by_default: true
+  # Firmware Version
+  - platform: version
+    name: "Firmware Version"
+    id: "firmware"
+    icon: "mdi:chip"
+    hidden_by_default: true
+
   - platform: template
-    name: "Formatted Uptime"
+    name: "Uptime"
+    icon: "mdi:timer-outline"
+    id: "uptime"
     entity_category: "diagnostic"
     lambda: |-
       uint32_t dur = id(uptime_sensor).state;
@@ -88,6 +108,8 @@ text_sensor:
   - platform: debug
     device:
       name: "Device Info"
+      id: "info"
+      icon: "mdi:information-outline"
     reset_reason:
       name: "Reset Reason"
 
@@ -108,6 +130,7 @@ switch:
     name: "Startup Light Blink"
     id: startup_light_blink
     icon: mdi:lightbulb
+    hidden_by_default: true
     restore_mode: RESTORE_DEFAULT_ON
     optimistic: true
     entity_category: "config"

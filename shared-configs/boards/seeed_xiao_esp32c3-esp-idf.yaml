@@ -1,3 +1,23 @@
+####################################
+# Start Substitutions
+####################################
+
+substitutions:
+# Specify below pin numbers for UART, GPIO, and I2C connections
+# Default values are set for the Seeed XIAO ESP32-C3
+# These are device specific and may need to be adjusted
+
+  tx_pin_uart: GPIO21
+  rx_pin_uart: GPIO20
+  light_gpio: GPIO8
+  motion_gpio: GPIO4
+  sda_pin_i2c: GPIO6
+  scl_pin_i2c: GPIO7
+
+####################################
+# End Substitutions
+####################################
+
 esphome:
   platformio_options:
     board_build.flash_mode: dio
