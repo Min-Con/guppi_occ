@@ -155,7 +155,7 @@ sensor:
       unit_of_measurement: "mJ"
     detection_distance:
       name: "Radar Detection Distance"
-#      id: detection_distance
+      id: detection_distance
 #      icon: mdi:radar
       unit_of_measurement: "cm"
     g0:
@@ -209,15 +209,15 @@ binary_sensor:
   - platform: ld2410
     has_target:
       name: Radar Target
-#      id: has_target
+      id: has_target
 #      icon: mdi:motion-sensor
     has_moving_target:
       name: Radar Moving Target
-#      id: has_moving_target
+      id: has_moving_target
 #      icon: mdi:motion-sensor
     has_still_target:
       name: Radar Still Target
-#      id: has_still_target
+      id: has_still_target
 #      icon: mdi:radar
     out_pin_presence_status:
       name: out pin presence status
@@ -263,6 +263,7 @@ binary_sensor:
       mode: INPUT_PULLUP
     name: gpio out pin presence
     #name: "Motion Detected"
+    id: gpio_out_pin_presence
     #id: motion_detected
     device_class: presence
     filters:
@@ -276,7 +277,7 @@ binary_sensor:
       return id(has_target).state ||
              id(has_moving_target).state ||
              id(has_still_target).state ||
-             id(motion_detected).state;
+             id(gpio_out_pin_presence).state;
 
 text_sensor:
   - platform: ld2410
