@@ -71,8 +71,8 @@ light:
     name: "Blue Status Light"
     output: light_output
     id: led_light
-    restore_mode: ALWAYS_ON
-    #restore_mode: RESTORE_DEFAULT_ON
+    #restore_mode: ALWAYS_ON
+    restore_mode: RESTORE_DEFAULT_ON
     #restore_mode: ALWAYS_OFF
  
 output:
