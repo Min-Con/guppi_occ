@@ -1,4 +1,4 @@
-# LD2410 Radar Configuration
+# LD2410 Configuration
 ld2410:
   throttle: 100ms
   id: ld2410_radar
@@ -8,15 +8,15 @@ number:
   - platform: ld2410
     timeout:
       id: timeout
-      name: Radar Timeout
+      name: Timeout
     light_threshold:
       name: Light Threshold
     max_move_distance_gate:
       id: max_move_distance_gate
-      name: Radar Max Move Distance
+      name: Max Move Distance
     max_still_distance_gate:
       id: max_still_distance_gate
-      name: Radar Max Still Distance
+      name: Max Still Distance
 
     g0:
       move_threshold:
@@ -65,7 +65,7 @@ number:
         name: g8 still threshold
 
   - platform: template
-    name: "Radar Zone 1 Start"
+    name: "Zone 1 Start"
     id: z1_start
     device_class: distance
     min_value: 0
@@ -81,7 +81,7 @@ number:
     unit_of_measurement: "cm"
 
   - platform: template
-    name: "Radar End Zone 1"
+    name: "End Zone 1"
     id: z1_end
     device_class: distance
     min_value: 0
@@ -97,7 +97,7 @@ number:
     unit_of_measurement: "cm"
 
   - platform: template
-    name: "Radar End Zone 2"
+    name: "End Zone 2"
     id: z2_end
     device_class: distance
     min_value: 0
@@ -113,7 +113,7 @@ number:
     unit_of_measurement: "cm"
 
   - platform: template
-    name: "Radar End Zone 3"
+    name: "End Zone 3"
     id: z3_end
     device_class: distance
     min_value: 0
@@ -132,29 +132,30 @@ sensor:
   # LD2410 radar sensor readings
   - platform: ld2410
     light:
-      name: light
+      name: Light
+      id: light
     moving_distance:
-      name: "Radar Moving Distance"
-#      id: moving_distance
+      name: "Moving Distance"
+      id: moving_distance
 #      icon: mdi:radar
       unit_of_measurement: "cm"
     still_distance:
-      name: "Radar Still Distance"
-#      id: still_distance
+      name: "Still Distance"
+      id: still_distance
 #      icon: mdi:radar
       unit_of_measurement: "cm"
     moving_energy:
-      name: "Radar Move Energy"
-#      id: moving_energy
+      name: "Move Energy"
+      id: moving_energy
 #      icon: mdi:radar
       unit_of_measurement: "mJ"
     still_energy:
-      name: "Radar Still Energy"
-#      id: still_energy
+      name: "Still Energy"
+      id: still_energy
 #      icon: mdi:radar
       unit_of_measurement: "mJ"
     detection_distance:
-      name: "Radar Detection Distance"
+      name: "Detection Distance"
       id: detection_distance
 #      icon: mdi:radar
       unit_of_measurement: "cm"
@@ -208,25 +209,26 @@ binary_sensor:
   # LD2410 radar binary sensors
   - platform: ld2410
     has_target:
-      name: Radar Target
+      name: Target Detected
       id: has_target
 #      icon: mdi:motion-sensor
     has_moving_target:
-      name: Radar Moving Target
+      name: Moving Target Detected
       id: has_moving_target
 #      icon: mdi:motion-sensor
     has_still_target:
-      name: Radar Still Target
+      name: Still Target Detected
       id: has_still_target
 #      icon: mdi:radar
     out_pin_presence_status:
-      name: out pin presence status
+      name: IO Presence
+      id: out_pin_presence_status
 
-  # Radar zone occupancy based on detection distance and configured zone boundaries
+  # Radar zone presence based on detection distance and configured zone boundaries
   - platform: template
-    name: "Radar Zone 1 Occupancy"
-    id: zone_1_occupancy
-    device_class: occupancy
+    name: "Zone 1 Presence"
+    id: zone_1_presence
+    device_class: presence
     icon: mdi:motion-sensor
     lambda: |-
       if ((id(has_target).state) && ((id(detection_distance).state < id(z1_end).state) && (id(detection_distance).state > id(z1_start).state))) {
@@ -235,9 +237,9 @@ binary_sensor:
         return false;
       }
   - platform: template
-    name: "Radar Zone 2 Occupancy"
-    id: zone_2_occupancy
-    device_class: occupancy
+    name: "Zone 2 Presence"
+    id: zone_2_presence
+    device_class: presence
     icon: mdi:motion-sensor
     lambda: |-
       if ((id(has_target).state) && ((id(z1_end).state < id(detection_distance).state) && (id(detection_distance).state < id(z2_end).state))) {
@@ -246,9 +248,9 @@ binary_sensor:
         return false;
       }
   - platform: template
-    name: "Radar Zone 3 Occupancy"
-    id: zone_3_occupancy
-    device_class: occupancy
+    name: "Zone 3 Presence"
+    id: zone_3_presence
+    device_class: presence
     icon: mdi:motion-sensor
     lambda: |-
       if ((id(has_target).state) && ((id(z2_end).state < id(detection_distance).state) && (id(detection_distance).state < id(z3_end).state))) {
@@ -271,8 +273,10 @@ binary_sensor:
       - delayed_off: 50ms
 
   - platform: template
-    name: "Occupancy Detected"
-    device_class: occupancy
+    name: "Presence Detected"
+    id: has_presence
+    icon: mdi:motion-sensor
+    device_class: presence
     lambda: |-
       return id(has_target).state ||
              id(has_moving_target).state ||
@@ -306,7 +310,7 @@ switch:
 select:
   - platform: ld2410
     distance_resolution:
-      name: "Radar Gate Size"
+      name: "Gate Size"
 #      disabled_by_default: true
     baud_rate:
       name: baud rate
