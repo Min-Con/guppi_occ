@@ -133,7 +133,7 @@ sensor:
   - platform: ld2410
     light:
       name: Light
-      id: light
+#      id: light
     moving_distance:
       name: "Moving Distance"
       id: moving_distance
