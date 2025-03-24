@@ -5,7 +5,7 @@
 substitutions:
 # Specify below pin numbers for UART, GPIO, and I2C connections
 # Default values are set for the Seeed XIAO ESP32-S3
-# These are device specific and may need to be adjusted
+# Add superseding substitutions in your specific device configuration if these don't match the actual pins used.
 
   tx_pin_uart: GPIO43
   rx_pin_uart: GPIO44

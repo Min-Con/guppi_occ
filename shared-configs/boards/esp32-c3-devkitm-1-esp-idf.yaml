@@ -5,6 +5,8 @@
 substitutions:
 # Specify below pin numbers for UART, GPIO, and I2C connections
 # Delete if not needed
+# Add superseding substitutions in your specific device configuration if these don't match the actual pins used.
+
   tx_pin_uart: GPIO21
   rx_pin_uart: GPIO20
   light_gpio: GPIO8
