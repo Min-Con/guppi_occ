@@ -1,7 +1,10 @@
 esphome:
   name: esp32_device
-  platform: ESP32
   board: esp32dev
+  on_boot:
+    priority: 600
+    then:
+      - delay: 500ms  # Boot delay for sensor stabilization
 
 esp32:
   board: esp32dev
