@@ -1,6 +1,4 @@
 esphome:
-  name: esp32_device
-  board: esp32dev
   on_boot:
     priority: 600
     then:
