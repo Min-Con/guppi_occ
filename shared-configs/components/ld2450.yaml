@@ -1,3 +1,6 @@
+#Inspired by https://github.com/53l3cu5/ESP32_LD2450
+#Inspired by https://docs.screek.io/2a
+
 esphome:
   on_boot:
     - priority: -200

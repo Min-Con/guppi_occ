@@ -1,0 +1,50 @@
+########################################
+# GUPPI.ST-OCC-GP-2410-AQI-DEFAULTS.yaml
+# Default setting for advanced single-target occupancy sensors with AQI, climate, and lux monitoring capabilities
+########################################
+
+####################################
+# Start Substitutions
+####################################
+
+substitutions:
+  # Update the comment_text, project_name, and project_version information to match the device
+  comment_text: "Generally Unstable and Poorly Planned Implementations - Multi-target Human Presence and Occupancy Sensor with climate and lux"
+  project_name: "GUPPI.MT-OCC-2450-CLIMATE"
+  project_version: "25.3.26.1"
+
+####################################
+# End Substitutions
+####################################
+
+esphome:
+  comment: "${comment_text}"
+  project: 
+    name: "${project_name}"
+    version: "${project_version}"
+
+# Enable logging at DEBUG level for detailed output during development
+logger:
+  # 0 Enables logging, but disables serial-port logging to free CPU and memory
+  baud_rate: 0
+  #  Disable DEBUG after testing
+  #level: INFO
+
+debug:
+  update_interval: 30s
+
+ota:
+  - platform: esphome
+
+################################################################################
+# Text Sensors for Diagnostics and Derived Information
+################################################################################
+
+text_sensor:
+  # Firmware Version
+  - platform: version
+    name: "Firmware Version"
+    id: "firmware"
+    icon: "mdi:chip"
+    entity_category: diagnostic
+

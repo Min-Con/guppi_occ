@@ -1,0 +1,10 @@
+esphome:
+  name: esp32_device
+  platform: ESP32
+  board: esp32dev
+
+esp32:
+  board: esp32dev
+  framework:
+    type: arduino
+    
