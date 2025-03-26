@@ -503,9 +503,9 @@ number:
         - script.execute: check_zout1_vaild
 
 binary_sensor:
-  - platform: status
-    name: Online
-    id: ink_ha_connected
+  # - platform: status
+  #   name: Online
+  #   id: ink_ha_connected
   - platform: template
     name: "Any Presence"
     id: any_target_exsits
