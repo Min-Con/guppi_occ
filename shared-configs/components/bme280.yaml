@@ -1,3 +1,9 @@
+i2c:
+  sda: ${sda_pin_i2c}
+  scl: ${scl_pin_i2c}
+  scan: true
+  frequency: 400khz
+
 number:
   - platform: template
     name: "Temperature OffSet"

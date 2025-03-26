@@ -1,3 +1,9 @@
+i2c:
+  sda: ${sda_pin_i2c}
+  scl: ${scl_pin_i2c}
+  scan: true
+  frequency: 400khz
+
 # Alternative compensation method for BH1750 sensor
 number:
   - platform: template
