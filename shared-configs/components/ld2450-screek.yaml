@@ -639,16 +639,16 @@ script:
           id(tips_zone_ex1_conf).publish_state("Zone Exclusion 1");
 
 sensor:
-  # - platform: template
-  #   name: "ESP CPU Speed"
-  #   accuracy_decimals: 0
-  #   icon: mdi:cpu-32-bit
-  #   unit_of_measurement: Mhz
-  #   disabled_by_default: True
-  #   lambda: |-
-  #     return (id(cpu_speed));
-  #   entity_category: "diagnostic"
-  #   update_interval: 600s
+  - platform: template
+    name: "ESP CPU Speed"
+    accuracy_decimals: 0
+    icon: mdi:cpu-32-bit
+    unit_of_measurement: Mhz
+    disabled_by_default: True
+    lambda: |-
+      return (id(cpu_speed));
+    entity_category: "diagnostic"
+    update_interval: 600s
 #  - platform: template
 #    id: sys_esp_temperature
 #    name: ESP Temperature

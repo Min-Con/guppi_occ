@@ -33,16 +33,16 @@ sensor:
     entity_category: "diagnostic"
     update_interval: 60s
 
-  - platform: template
-    name: "ESP CPU Speed"
-    accuracy_decimals: 0
-    icon: mdi:cpu-32-bit
-    unit_of_measurement: Mhz
-    disabled_by_default: True
-    lambda: |-
-      return (id(cpu_speed));
-    entity_category: "diagnostic"
-    update_interval: 600s
+  # - platform: template
+  #   name: "ESP CPU Speed"
+  #   accuracy_decimals: 0
+  #   icon: mdi:cpu-32-bit
+  #   unit_of_measurement: Mhz
+  #   disabled_by_default: True
+  #   lambda: |-
+  #     return (id(cpu_speed));
+  #   entity_category: "diagnostic"
+  #   update_interval: 600s
 
 binary_sensor:
   - platform: status
