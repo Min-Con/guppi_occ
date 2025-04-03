@@ -14,7 +14,7 @@ sensor:
   - platform: wifi_signal
     name: RSSI
     id: wifi_signal_db
-    update_interval: 30s
+    update_interval: 1m
     entity_category: "diagnostic"
 
   # Internal ESP temperature sensor
@@ -31,7 +31,7 @@ sensor:
     unit_of_measurement: 'kB'
     state_class: measurement
     entity_category: "diagnostic"
-    update_interval: 60s
+    update_interval: 1m
 
   # - platform: template
   #   name: "ESP CPU Speed"
@@ -58,15 +58,28 @@ text_sensor:
   # Device IP Address
   - platform: wifi_info
     ip_address:
-      name: "Device IP Address"
-      id: "ip"
+      name: "IP Address"
+#      id: "ip"
       icon: "mdi:ip-network"
       entity_category: diagnostic
     mac_address:
       name: "MAC Address"
-      id: "mac_address"
+#      id: "mac_address"
       entity_category: "diagnostic"
       icon: mdi:ip-network
+    ssid:
+      name: Connected SSID
+      entity_category: diagnostic
+    bssid:
+      name: Connected BSSID
+      entity_category: diagnostic
+    scan_results:
+      name: Latest Scan Results
+      entity_category: diagnostic
+    dns_address:
+      name: DNS Address  
+      entity_category: diagnostic
+  
   # Firmware Version
   - platform: version
     name: "Firmware Version"
@@ -111,12 +124,12 @@ button:
   - platform: factory_reset
     disabled_by_default: True
     name: "Factory Reset ESP"
-    id: factory_reset_all
+#    id: factory_reset_all
 
   - platform: restart
     icon: mdi:power-cycle
-    name: "ESP Reboot"
-    id: reboot_esp
+    name: "Reboot ESP"
+#    id: reboot_esp
 
 switch:
   - platform: template
@@ -126,6 +139,6 @@ switch:
     restore_mode: RESTORE_DEFAULT_ON
     optimistic: true
     entity_category: "config"
-  - platform: factory_reset
-    id: factory_reset_switch
-    internal: true
+#  - platform: factory_reset
+#    id: factory_reset_switch
+#    internal: true
