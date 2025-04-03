@@ -14,7 +14,7 @@ sensor:
   - platform: wifi_signal
     name: RSSI
     id: wifi_signal_db
-    update_interval: 1m
+    update_interval: 60s
     entity_category: "diagnostic"
 
   # Internal ESP temperature sensor
@@ -31,7 +31,7 @@ sensor:
     unit_of_measurement: 'kB'
     state_class: measurement
     entity_category: "diagnostic"
-    update_interval: 1m
+    update_interval: 60s
 
   # - platform: template
   #   name: "ESP CPU Speed"
