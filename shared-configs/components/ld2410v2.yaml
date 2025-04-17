@@ -1,6 +1,6 @@
 # LD2410 Configuration
 ld2410:
-  throttle: 100ms
+  throttle: 500ms
   id: ld2410_radar
 
 # User configurable radar configuration parameters
@@ -211,15 +211,21 @@ binary_sensor:
     has_target:
       name: Target Detected
       id: has_target
-#      icon: mdi:motion-sensor
+      filters:
+        - delayed_on: 300ms
+        - delayed_off: 5s  # Prevents rapid on/off toggles
     has_moving_target:
       name: Moving Target Detected
       id: has_moving_target
-#      icon: mdi:motion-sensor
+      filters:
+        - delayed_on: 200ms
+        - delayed_off: 2s  # Moving targets can change state more frequently
     has_still_target:
       name: Still Target Detected
       id: has_still_target
-#      icon: mdi:radar
+      filters:
+        - delayed_on: 500ms  # Longer delay for still targets to reduce false positives
+        - delayed_off: 10s   # Longer persistence for still targets
     out_pin_presence_status:
       name: IO Presence
       id: out_pin_presence_status
