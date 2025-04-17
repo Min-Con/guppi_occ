@@ -17,7 +17,7 @@ esphome:
                     - delay: 200ms
 
 preferences:
-  - id: startup_light_blink
+    id: startup_light_blink
     label: "Blink on Startup"
     restore_value: true
     default: false
