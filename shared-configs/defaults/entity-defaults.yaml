@@ -17,10 +17,13 @@ esphome:
                     - delay: 200ms
 
 preferences:
-    id: startup_light_blink
-    label: "Blink on Startup"
-    restore_value: true
-    default: false
+  id: startup_preferences  # optional but good practice
+  
+  switch:
+    - name: "Blink on Startup"
+      id: startup_light_blink
+      restore_value: true
+      initial_value: false  # replaced "default" with "initial_value"
 
 light:
   - platform: status_led
