@@ -5,15 +5,16 @@
 esphome:
   on_boot:
     - priority: 600
-    - if:
-        condition:
-          - preference.is_true: startup_light_blink
-        then:
-          - repeat:
-              count: 5
-              then:
-                - light.toggle: sys_status
-                - delay: 200ms
+      then:
+        - if:
+            condition:
+              - preference.is_true: startup_light_blink
+            then:
+              - repeat:
+                  count: 5
+                  then:
+                    - light.toggle: sys_status
+                    - delay: 200ms
 
 preferences:
   - id: startup_light_blink
