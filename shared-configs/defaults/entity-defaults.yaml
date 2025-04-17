@@ -8,7 +8,7 @@ esphome:
       then:
         - if:
             condition:
-              - preference.is_true: startup_light_blink
+              - preference.is_on: startup_light_blink_switch
             then:
               - repeat:
                   count: 5
