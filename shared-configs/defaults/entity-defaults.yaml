@@ -16,15 +16,6 @@ esphome:
                     - light.toggle: sys_status
                     - delay: 200ms
 
-preferences:
-  id: startup_preferences  # optional but good practice
-  
-  switch:
-    - name: "Blink on Startup"
-      id: startup_light_blink
-      restore_value: true
-      initial_value: false  # replaced "default" with "initial_value"
-
 light:
   - platform: status_led
     id: sys_status
