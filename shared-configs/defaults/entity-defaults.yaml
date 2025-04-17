@@ -164,17 +164,4 @@ switch:
 #  - platform: factory_reset
 #    id: factory_reset_switch
 #    internal: true
-  # - platform: template
-  #   name: "Blink on Startup"
-  #   id: startup_light_blink_switch
-  #   optimistic: true
-  #   restore_mode: RESTORE_DEFAULT_OFF
-  #   turn_on_action:
-  #     - preference.set:
-  #         id: startup_light_blink
-  #         value: true
-  #   turn_off_action:
-  #     - preference.set:
-  #         id: startup_light_blink
-  #         value: false
 
