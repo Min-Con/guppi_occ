@@ -2,6 +2,33 @@
 # This file is included in all configurations
 # It is not intended to be used as a standalone configuration
 
+esphome:
+  on_boot:
+    - priority: 600
+    - if:
+        condition:
+          - preference.is_true: startup_light_blink
+        then:
+          - repeat:
+              count: 5
+              then:
+                - light.toggle: sys_status
+                - delay: 200ms
+
+preferences:
+  - id: startup_light_blink
+    label: "Blink on Startup"
+    restore_value: true
+    default: false
+
+light:
+  - platform: status_led
+    id: sys_status
+    pin:
+      number: ${light_gpio}
+    internal: true
+    restore_mode: ALWAYS_OFF
+
 sensor:
   # Uptime sensor
   - platform: uptime
@@ -132,13 +159,27 @@ button:
 #    id: reboot_esp
 
 switch:
-  - platform: template
-    name: "Startup Light Blink"
-    id: startup_light_blink
-    icon: mdi:lightbulb
-    restore_mode: RESTORE_DEFAULT_ON
-    optimistic: true
-    entity_category: "config"
+  # - platform: template
+  #   name: "Startup Light Blink"
+  #   id: startup_light_blink
+  #   icon: mdi:lightbulb
+  #   restore_mode: RESTORE_DEFAULT_ON
+  #   optimistic: true
+  #   entity_category: "config"
 #  - platform: factory_reset
 #    id: factory_reset_switch
 #    internal: true
+  - platform: template
+    name: "Blink on Startup"
+    id: startup_light_blink_switch
+    optimistic: true
+    restore_mode: RESTORE_DEFAULT_OFF
+    turn_on_action:
+      - preference.set:
+          id: startup_light_blink
+          value: true
+    turn_off_action:
+      - preference.set:
+          id: startup_light_blink
+          value: false
+

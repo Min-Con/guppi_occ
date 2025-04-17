@@ -10,9 +10,10 @@ substitutions:
   tx_pin_uart: GPIO43
   rx_pin_uart: GPIO44
   light_gpio: GPIO21
-  motion_gpio: GPIO2
-  sda_pin_i2c: GPIO6
-  scl_pin_i2c: GPIO7
+  mic_adc: GPIO36
+  motion_gpio: GPIO22
+  sda_pin_i2c: GPIO4
+  scl_pin_i2c: GPIO5
 
 ####################################
 # End Substitutions
