@@ -26,7 +26,7 @@ esphome:
 # Enable logging at DEBUG level for detailed output during development
 logger:
   # 0 Enables logging, but disables serial-port logging to free CPU and memory
-  baud_rate: 0
+  #baud_rate: 0
   #  Disable DEBUG after testing
   #level: INFO
 
