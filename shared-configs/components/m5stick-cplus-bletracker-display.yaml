@@ -107,18 +107,18 @@ bluetooth_proxy:
 
 # Sensors for display data
 sensor:
-  # WiFi signal strength
-  - platform: wifi_signal
-    name: "WiFi Signal"
-    id: wifi_signal
-    update_interval: 30s
-    internal: true
+  # # WiFi signal strength
+  # - platform: wifi_signal
+  #   name: "WiFi Signal"
+  #   id: wifi_signal
+  #   update_interval: 30s
+  #   internal: true
 
-  # Device uptime
-  - platform: uptime
-    name: "Uptime"
-    id: device_uptime
-    internal: true
+  # # Device uptime
+  # - platform: uptime
+  #   name: "Uptime"
+  #   id: device_uptime
+  #   internal: true
 
   # Memory usage
   - platform: template
