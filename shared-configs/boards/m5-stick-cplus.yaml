@@ -1,0 +1,81 @@
+####################################
+# Start Substitutions
+####################################
+
+substitutions:
+# Specify below pin numbers for UART, GPIO, and I2C connections
+# Default values are set for the ESP32-Cs Super Mini
+# Add superseding substitutions in your specific device configuration if these don't match the actual pins used.
+
+  tx_pin_uart: GPIO32
+  rx_pin_uart: GPIO33
+  light_gpio: GPIO10
+  mic_adc: GPIO36
+  button_gpio: GPIO37
+  motion_gpio: GPIO25
+  sda_pin_i2c: GPIO0
+  scl_pin_i2c: GPIO32
+
+  clk_pin: GPIO13
+  mosi_pin: GPIO15
+  cs_pin: GPIO5
+  dc_pin: GPIO23
+  reset_pin: GPIO18
+
+####################################
+# End Substitutions
+####################################
+
+esphome:
+  platformio_options:
+    board_build.flash_mode: dio
+    board_build.flash_size: 4MB
+    board_build.f_flash: 40000000L
+
+esp32:
+  board: m5stick-c
+  variant: esp32
+  flash_size: 4MB
+  framework:
+    type: esp-idf
+    version: recommended
+    sdkconfig_options:
+      # Performance optimizations
+      CONFIG_COMPILER_OPTIMIZATION_PERF: y
+      CONFIG_COMPILER_OPTIMIZATION_SIZE: y
+      CONFIG_ESPTOOLPY_FLASHSIZE_4MB: y
+      # BLE 4.2 is supported by ALL ESP32 boards that have bluetooth, the original and derivatives.
+      CONFIG_BT_BLE_42_FEATURES_SUPPORTED: y
+      # BLE 5.0 is also supported by the original ESP32 (with some limitations)
+      CONFIG_BT_BLE_50_FEATURES_SUPPORTED: y
+      # Extend the watchdog timeout, so the device reboots if the device appears locked up for over 10 seconds.
+      CONFIG_ESP_TASK_WDT_TIMEOUT_S: "10"
+    
+uart:
+  id: uart_bus
+  tx_pin: 
+    number: ${tx_pin_uart}
+#    mode:
+#      input: true
+#      pullup: true
+  rx_pin: 
+    number: ${rx_pin_uart}
+#    mode:
+#      input: true
+#      pullup: true
+  baud_rate: 256000
+  parity: NONE
+  stop_bits: 1
+#  data_bits: 8
+
+# light:
+#   - platform: binary
+#     name: "Blue Status Light"
+#     output: light_output
+#     id: led_light
+#     restore_mode: ALWAYS_OFF
+ 
+# output:
+#   - platform: gpio
+#     pin: ${light_gpio}
+#     id: light_output
