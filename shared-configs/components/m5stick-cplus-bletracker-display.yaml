@@ -117,7 +117,7 @@ esp32_ble_tracker:
   #         id(last_device_name).publish_state(x.get_name());
   #       }
 
-  on_ble_advertise:
+on_ble_advertise:
     - lambda: |-
         // Simple device counting with memory limits
         static std::map<std::string, unsigned long> devices;
@@ -143,12 +143,11 @@ esp32_ble_tracker:
         id(ble_device_count).publish_state(devices.size());
         
         // Update strongest RSSI
-        static float strongest_rssi = -100;
-        if (x.get_rssi() > strongest_rssi) {
-          strongest_rssi = x.get_rssi();
-          id(strongest_rssi).publish_state(strongest_rssi);
+        static float max_rssi = -100;
+        if (x.get_rssi() > max_rssi) {
+          max_rssi = x.get_rssi();
+          id(strongest_rssi).publish_state(max_rssi);
         }
-
 
 # BLE Proxy for Home Assistant
 bluetooth_proxy:
