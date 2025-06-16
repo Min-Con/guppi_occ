@@ -51,20 +51,31 @@ display:
       // Last device seen
       it.printf(0, 220, id(font_tiny), "Last: %s", id(last_device_name).state.c_str());
 
-# Fonts for display
+# # Fonts for display
+# font:
+#   - file: "gfonts://Roboto"
+#     id: font_tiny
+#     size: 8
+#   - file: "gfonts://Roboto"
+#     id: font_small
+#     size: 10
+#   - file: "gfonts://Roboto"
+#     id: font_medium
+#     size: 12
+#   - file: "gfonts://Roboto"
+#     id: font_large
+#     size: 16
+
+# Fonts for display (reduced to save memory)
 font:
-  - file: "gfonts://Roboto"
-    id: font_tiny
-    size: 8
   - file: "gfonts://Roboto"
     id: font_small
     size: 10
+    glyphs: "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz :.-_%/"
   - file: "gfonts://Roboto"
     id: font_medium
     size: 12
-  - file: "gfonts://Roboto"
-    id: font_large
-    size: 16
+    glyphs: "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz :.-_%/"
 
 # Time component
 time:
