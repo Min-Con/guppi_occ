@@ -1,0 +1,167 @@
+# Default sensors and entities used in all configurations
+# This file is included in all configurations
+# It is not intended to be used as a standalone configuration
+
+esphome:
+  on_boot:
+    - priority: 600
+      then:
+        - if:
+            condition:
+              - switch.is_on: startup_light_blink_switch
+            then:
+              - repeat:
+                  count: 5
+                  then:
+                    - light.toggle: sys_status
+                    - delay: 200ms
+
+# light:
+#   - platform: status_led
+#     id: sys_status
+#     pin:
+#       number: ${light_gpio}
+#     internal: true
+#     restore_mode: ALWAYS_OFF
+
+sensor:
+  # Uptime sensor
+  - platform: uptime
+    id: uptime_sensor
+    internal: true
+    entity_category: "diagnostic"
+    update_interval: 30s
+
+  # WiFi signal strength sensor
+  - platform: wifi_signal
+    name: RSSI
+    id: wifi_signal_db
+    update_interval: 60s
+    entity_category: "diagnostic"
+
+  # Internal ESP temperature sensor
+  - platform: internal_temperature
+    name: "ESP Temperature"
+    id: sys_esp_temperature
+    entity_category: "diagnostic"
+
+  - platform: template
+    id: esp_memory
+    icon: mdi:memory
+    name: ESP Free Memory
+    lambda: return heap_caps_get_free_size(MALLOC_CAP_INTERNAL) / 1024;
+    unit_of_measurement: 'kB'
+    state_class: measurement
+    entity_category: "diagnostic"
+    update_interval: 60s
+
+  # - platform: template
+  #   name: "ESP CPU Speed"
+  #   accuracy_decimals: 0
+  #   icon: mdi:cpu-32-bit
+  #   unit_of_measurement: Mhz
+  #   disabled_by_default: True
+  #   lambda: |-
+  #     return (id(cpu_speed));
+  #   entity_category: "diagnostic"
+  #   update_interval: 600s
+
+binary_sensor:
+  - platform: status
+    name: Online
+    id: ink_ha_connected
+
+
+################################################################################
+# Text Sensors for Diagnostics and Derived Information
+################################################################################
+
+text_sensor:
+  # Device IP Address
+  - platform: wifi_info
+    ip_address:
+      name: "IP Address"
+#      id: "ip"
+      icon: "mdi:ip-network"
+      entity_category: diagnostic
+    mac_address:
+      name: "MAC Address"
+#      id: "mac_address"
+      entity_category: "diagnostic"
+      icon: mdi:ip-network
+    ssid:
+      name: Connected SSID
+      entity_category: diagnostic
+    bssid:
+      name: Connected BSSID
+      entity_category: diagnostic
+    scan_results:
+      name: Latest Scan Results
+      entity_category: diagnostic
+    dns_address:
+      name: DNS Address  
+      entity_category: diagnostic
+  
+  # Firmware Version
+  - platform: version
+    name: "Firmware Version"
+    #id: "version"
+    icon: "mdi:chip"
+    entity_category: diagnostic
+
+  - platform: template
+    name: "Uptime"
+    icon: "mdi:timer-outline"
+    id: "text_uptime"
+    entity_category: "diagnostic"
+    lambda: |-
+      uint32_t dur = id(uptime_sensor).state;
+      int days = dur / 86400;
+      int hours = (dur % 86400) / 3600;
+      int minutes = (dur % 3600) / 60;
+      int seconds = dur % 60;
+      char buffer[50];
+      if (days > 0) {
+        sprintf(buffer, "%dd %02dh %02dm %02ds", days, hours, minutes, seconds);
+      } else if (hours > 0) {
+        sprintf(buffer, "%02dh %02dm %02ds", hours, minutes, seconds);
+      } else if (minutes > 0) {
+        sprintf(buffer, "%02dm %02ds", minutes, seconds);
+      } else {
+        sprintf(buffer, "%02ds", seconds);
+      }
+      return {buffer};
+    update_interval: 60s
+
+  - platform: debug
+    device:
+      name: "Device Info"
+      id: "info"
+      icon: "mdi:information-outline"
+    reset_reason:
+      name: "Reset Reason"
+
+
+button:
+  - platform: factory_reset
+    disabled_by_default: True
+    name: "Factory Reset ESP"
+#    id: factory_reset_all
+
+  - platform: restart
+    icon: mdi:power-cycle
+    name: "Reboot ESP"
+#    id: reboot_esp
+
+switch:
+  - platform: template
+    name: "Startup Light"
+    id: startup_light_blink_switch
+    icon: mdi:lightbulb
+    restore_mode: RESTORE_DEFAULT_ON
+    optimistic: true
+    entity_category: "config"
+#  - platform: factory_reset
+#    id: factory_reset_switch
+#    internal: true
+
