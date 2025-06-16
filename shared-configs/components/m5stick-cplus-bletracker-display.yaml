@@ -114,11 +114,11 @@ sensor:
   #   update_interval: 30s
   #   internal: true
 
-  # # Device uptime
-  # - platform: uptime
-  #   name: "Uptime"
-  #   id: device_uptime
-  #   internal: true
+  # Device uptime
+  - platform: uptime
+    name: "Uptime"
+    id: device_uptime
+    internal: true
 
   # Memory usage
   - platform: template
