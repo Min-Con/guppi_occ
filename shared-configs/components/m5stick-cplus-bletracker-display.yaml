@@ -176,11 +176,11 @@ binary_sensor:
 # Status LED (optional)
 light:
   - platform: monochromatic
-    output: stat_led
+    output: sys_status
     name: "Status LED"
     id: led
 
 output:
   - platform: ledc
     pin: ${light_gpio}
-    id: stat_led
+    id: sys_status
