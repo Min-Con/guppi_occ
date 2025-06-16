@@ -16,8 +16,8 @@ display:
       // Header with device name and WiFi status
       it.print(0, 0, id(font_small), "BLE Tracker");
       it.printf(135, 0, id(font_small), TextAlign::TOP_RIGHT, "WiFi: %s", 
-                id(wifi_signal).state > -50 ? "Strong" : 
-                id(wifi_signal).state > -70 ? "Good" : "Weak");
+                id(wifi_signal_db).state > -50 ? "Strong" : 
+                id(wifi_signal_db).state > -70 ? "Good" : "Weak");
       
       // Current time
       it.strftime(67, 12, id(font_small), TextAlign::TOP_CENTER, 
@@ -34,8 +34,8 @@ display:
       it.printf(0, 70, id(font_small), "RAM: %.1f%%", id(memory_usage).state);
       
       // Uptime
-      int uptime_hours = (int)(id(device_uptime).state / 3600);
-      int uptime_minutes = (int)((id(device_uptime).state % 3600) / 60);
+      int uptime_hours = (int)(id(uptime_sensor).state / 3600);
+      int uptime_minutes = (int)((id(uptime_sensor).state % 3600) / 60);
       it.printf(0, 85, id(font_small), "Up: %dh %dm", uptime_hours, uptime_minutes);
       
       // Show strongest BLE signal
@@ -114,11 +114,11 @@ sensor:
   #   update_interval: 30s
   #   internal: true
 
-  # Device uptime
-  - platform: uptime
-    name: "Uptime"
-    id: device_uptime
-    internal: true
+  # # Device uptime
+  # - platform: uptime
+  #   name: "Uptime"
+  #   id: device_uptime
+  #   internal: true
 
   # Memory usage
   - platform: template
