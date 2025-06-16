@@ -69,6 +69,10 @@ display:
 # Fonts for display (reduced to save memory)
 font:
   - file: "gfonts://Roboto"
+    id: font_tiny
+    size: 8
+    glyphs: "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz :.-_%/"
+  - file: "gfonts://Roboto"
     id: font_small
     size: 10
     glyphs: "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz :.-_%/"
