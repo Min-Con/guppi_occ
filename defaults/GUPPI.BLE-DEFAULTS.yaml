@@ -25,7 +25,7 @@ esphome:
 
 logger:
   level: WARN
-  baud_rate: 0  # Disable UART logging to save memory
+#  baud_rate: 0  # Disable UART logging to save memory
   # 0 Enables logging, but disables serial-port logging to free CPU and memory
 
 debug:
@@ -38,7 +38,7 @@ ota:
 web_server:
   port: 80
   include_internal: false  # Don't include internal sensors
-  local: true             # Disable mDNS
+#  local: true             # Disable mDNS
   ota: false             # Disable OTA via web server
 
 
