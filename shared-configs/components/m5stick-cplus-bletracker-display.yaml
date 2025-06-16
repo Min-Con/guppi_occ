@@ -89,33 +89,66 @@ time:
 # BLE configuration for tracking and proxy
 esp32_ble_tracker:
   scan_parameters:
-    interval: 1100ms
-    window: 1000ms
+    interval: 1600ms
+    window: 800ms
     active: true
+  # on_ble_advertise:
+  #   - lambda: |-
+  #       // Count and track devices
+  #       static std::set<std::string> seen_devices;
+  #       static std::map<std::string, float> device_rssi;
+        
+  #       std::string device_mac = x.address_str();
+  #       seen_devices.insert(device_mac);
+  #       device_rssi[device_mac] = x.get_rssi();
+        
+  #       // Update device count
+  #       id(ble_device_count).publish_state(seen_devices.size());
+        
+  #       // Find strongest signal
+  #       float strongest = -100;
+  #       for (auto& pair : device_rssi) {
+  #         if (pair.second > strongest) strongest = pair.second;
+  #       }
+  #       id(strongest_rssi).publish_state(strongest);
+        
+  #       // Track last device name if available
+  #       if (!x.get_name().empty()) {
+  #         id(last_device_name).publish_state(x.get_name());
+  #       }
+
   on_ble_advertise:
     - lambda: |-
-        // Count and track devices
-        static std::set<std::string> seen_devices;
-        static std::map<std::string, float> device_rssi;
+        // Simple device counting with memory limits
+        static std::map<std::string, unsigned long> devices;
+        static unsigned long last_cleanup = 0;
         
-        std::string device_mac = x.address_str();
-        seen_devices.insert(device_mac);
-        device_rssi[device_mac] = x.get_rssi();
+        std::string mac = x.address_str();
+        devices[mac] = millis();
+        
+        // Cleanup old devices every 60 seconds to prevent memory leak
+        if (millis() - last_cleanup > 60000) {
+          auto it = devices.begin();
+          while (it != devices.end()) {
+            if (millis() - it->second > 300000) { // 5 minutes
+              it = devices.erase(it);
+            } else {
+              ++it;
+            }
+          }
+          last_cleanup = millis();
+        }
         
         // Update device count
-        id(ble_device_count).publish_state(seen_devices.size());
+        id(ble_device_count).publish_state(devices.size());
         
-        // Find strongest signal
-        float strongest = -100;
-        for (auto& pair : device_rssi) {
-          if (pair.second > strongest) strongest = pair.second;
+        // Update strongest RSSI
+        static float strongest_rssi = -100;
+        if (x.get_rssi() > strongest_rssi) {
+          strongest_rssi = x.get_rssi();
+          id(strongest_rssi).publish_state(strongest_rssi);
         }
-        id(strongest_rssi).publish_state(strongest);
-        
-        // Track last device name if available
-        if (!x.get_name().empty()) {
-          id(last_device_name).publish_state(x.get_name());
-        }
+
 
 # BLE Proxy for Home Assistant
 bluetooth_proxy:

@@ -23,12 +23,10 @@ esphome:
     name: "${project_name}"
     version: "${project_version}"
 
-# Enable logging at DEBUG level for detailed output during development
 logger:
+  level: WARN
+  baud_rate: 0  # Disable UART logging to save memory
   # 0 Enables logging, but disables serial-port logging to free CPU and memory
-  #baud_rate: 0
-  #  Disable DEBUG after testing
-  #level: INFO
 
 debug:
   update_interval: 30s
@@ -39,5 +37,8 @@ ota:
 # Web server (optional, consider disabling in production)
 web_server:
   port: 80
+  include_internal: false  # Don't include internal sensors
+  local: true             # Disable mDNS
+  ota: false             # Disable OTA via web server
 
 
