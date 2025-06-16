@@ -2,19 +2,19 @@
 # This file is included in all configurations
 # It is not intended to be used as a standalone configuration
 
-esphome:
-  on_boot:
-    - priority: 600
-      then:
-        - if:
-            condition:
-              - switch.is_on: startup_light_blink_switch
-            then:
-              - repeat:
-                  count: 5
-                  then:
-                    - light.toggle: sys_status
-                    - delay: 200ms
+# esphome:
+#   on_boot:
+#     - priority: 600
+#       then:
+#         - if:
+#             condition:
+#               - switch.is_on: startup_light_blink_switch
+#             then:
+#               - repeat:
+#                   count: 5
+#                   then:
+#                     - light.toggle: sys_status
+#                     - delay: 200ms
 
 # light:
 #   - platform: status_led
