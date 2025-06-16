@@ -34,8 +34,9 @@ display:
       it.printf(0, 70, id(font_small), "RAM: %.1f%%", id(memory_usage).state);
       
       // Uptime
-      int uptime_hours = (int)(id(uptime_sensor).state / 3600);
-      int uptime_minutes = (int)((id(uptime_sensor).state % 3600) / 60);
+      int total_seconds = (int)id(uptime_sensor).state;
+      int uptime_hours = total_seconds / 3600;
+      int uptime_minutes = (total_seconds % 3600) / 60;
       it.printf(0, 85, id(font_small), "Up: %dh %dm", uptime_hours, uptime_minutes);
       
       // Show strongest BLE signal
