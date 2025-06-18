@@ -24,7 +24,8 @@ esphome:
     version: "${project_version}"
 
 logger:
-  level: WARN
+#  level: WARN
+  level: INFO
 #  baud_rate: 0  # Disable UART logging to save memory
   # 0 Enables logging, but disables serial-port logging to free CPU and memory
 

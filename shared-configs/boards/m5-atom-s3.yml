@@ -1,0 +1,101 @@
+####################################
+# Start Substitutions
+####################################
+
+substitutions:
+  # Pins for M5 Atom S3
+  # Add superseding substitutions in your specific device configuration if these don't match the actual pins used.
+  tx_pin_uart: GPIO1    # Alternative UART TX (GPIO43 conflicts with built-in RGB LED)
+  rx_pin_uart: GPIO2    # Alternative UART RX (GPIO44 conflicts with built-in button)
+  light_gpio: GPIO35    # Built-in RGB LED data pin (WS2812C)
+  motion_gpio: GPIO8    # Grove connector pin (alternative sensor pin)
+  sda_pin_i2c: GPIO38   # Grove I2C SDA (default I2C bus)
+  scl_pin_i2c: GPIO39   # Grove I2C SCL (default I2C bus)
+  button_gpio: GPIO41   # Built-in button
+
+####################################
+# End Substitutions
+####################################
+
+esphome:
+  platformio_options:
+    build_flags: -DBOARD_HAS_PSRAM
+    board_build.flash_mode: qio
+    board_build.f_flash: 80000000L
+
+esp32:
+  board: m5stack-atoms3
+  variant: esp32s3
+  flash_size: 8MB
+  framework:
+    type: esp-idf
+    version: latest
+#    platform_version: "6.8.1"
+    sdkconfig_options:
+      # Performance optimizations
+      CONFIG_COMPILER_OPTIMIZATION_PERF: y
+      CONFIG_COMPILER_OPTIMIZATION_SIZE: y
+      CONFIG_ESPTOOLPY_FLASHSIZE_8MB: y
+      # PSRAM configuration for ESP-IDF
+      CONFIG_SPIRAM: y
+      CONFIG_SPIRAM_MODE_OCT: y
+      CONFIG_SPIRAM_SPEED_80M: y
+      CONFIG_SPIRAM_TYPE_AUTO: y
+      # BLE support
+      CONFIG_BT_BLE_42_FEATURES_SUPPORTED: y
+      CONFIG_BT_BLE_50_FEATURES_SUPPORTED: y
+      # Extend the watchdog timeout
+      CONFIG_ESP_TASK_WDT_TIMEOUT_S: "10"
+      # USB CDC On Boot - M5 Atom S3 has native USB
+      CONFIG_ESP_CONSOLE_USB_CDC: y
+      CONFIG_ESP_CONSOLE_USB_CDC_SUPPORT_ETS_PRINTF: y
+
+psram:
+  mode: octal
+  speed: 80MHz
+    
+uart:
+  id: uart_bus
+  tx_pin: 
+    number: ${tx_pin_uart}
+  rx_pin: 
+    number: ${rx_pin_uart}
+  baud_rate: 256000
+  parity: NONE
+  stop_bits: 1
+
+# M5 Atom S3 Built-in RGB LED (WS2812C)
+light:
+  - platform: neopixel
+    type: GRB
+    pin: ${light_gpio}
+    num_leds: 1
+    name: "Atom RGB LED"
+    id: atom_led
+    restore_mode: ALWAYS_OFF
+    effects:
+      - pulse:
+      - strobe:
+      - rainbow:
+      - color_wipe:
+
+# M5 Atom S3 Built-in Button
+binary_sensor:
+  - platform: gpio
+    pin:
+      number: ${button_gpio}
+      inverted: true
+      mode:
+        input: true
+        pullup: true
+    name: "Atom Button"
+    id: atom_button
+    on_press:
+      then:
+        - light.toggle: atom_led
+
+# Alternative simple GPIO output for external LED if needed
+# output:
+#   - platform: gpio
+#     pin: GPIO5  # Grove connector alternative pin
+#     id: external_light_output
