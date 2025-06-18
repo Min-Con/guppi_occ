@@ -13,7 +13,7 @@ esphome:
               - repeat:
                   count: 5
                   then:
-                    - light.toggle: sys_status
+                    - light.toggle: status_light
                     - delay: 200ms
 
 # light:
