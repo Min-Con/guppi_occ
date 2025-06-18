@@ -1,0 +1,124 @@
+#################################### 
+# Start Substitutions 
+####################################
+substitutions:
+  # Pins for M5 AtomS3 Lite
+  # Add superseding substitutions in your specific device configuration if these don't match the actual pins used.
+  tx_pin_uart: GPIO43           # Available GPIO - using from the 6 available pins
+  rx_pin_uart: GPIO44           # Available GPIO - using from the 6 available pins  
+  light_gpio: GPIO35            # RGB LED (WS2812C-2020) - onboard
+  button_gpio: GPIO41           # Button - onboard
+  ir_gpio: GPIO4                # IR LED - onboard
+  motion_gpio: GPIO7            # Available GPIO for external motion sensor
+  sda_pin_i2c: GPIO2            # Default I2C SDA for AtomS3 Lite (Grove connector)
+  scl_pin_i2c: GPIO1            # Default I2C SCL for AtomS3 Lite (Grove connector)
+
+#################################### 
+# End Substitutions 
+####################################
+
+esphome:
+  platformio_options:
+    build_flags:
+      - -DBOARD_HAS_PSRAM
+    board_build.flash_mode: qio
+    board_build.f_flash: 80000000L
+
+esp32:
+  board: esp32-s3-devkitc-1     # Use generic ESP32-S3 board until native AtomS3 Lite support
+  variant: esp32s3
+  flash_size: 8MB
+  framework:
+    type: esp-idf               # Recommended for ESP32-S3 in ESPHome
+    version: latest
+    # platform_version: "6.8.1"
+  sdkconfig_options:
+    # Performance optimizations
+    CONFIG_COMPILER_OPTIMIZATION_PERF: y
+    CONFIG_COMPILER_OPTIMIZATION_SIZE: y
+    CONFIG_ESPTOOLPY_FLASHSIZE_8MB: y
+    
+    # PSRAM configuration for ESP-IDF
+    CONFIG_SPIRAM: y
+    CONFIG_SPIRAM_MODE_OCT: y
+    CONFIG_SPIRAM_SPEED_80M: y
+    CONFIG_SPIRAM_TYPE_AUTO: y
+    
+    # BLE support
+    CONFIG_BT_BLE_42_FEATURES_SUPPORTED: y
+    CONFIG_BT_BLE_50_FEATURES_SUPPORTED: y
+    
+    # Extend the watchdog timeout
+    CONFIG_ESP_TASK_WDT_TIMEOUT_S: "10"
+    
+    # USB CDC On Boot - AtomS3 Lite has native USB
+    CONFIG_ESP_CONSOLE_USB_CDC: y
+    CONFIG_ESP_CONSOLE_USB_CDC_SUPPORT_ETS_PRINTF: y
+
+psram:
+  mode: octal
+  speed: 80MHz
+
+# Additional AtomS3 Lite specific configurations
+# Onboard RGB LED using ESP32 RMT LED Strip
+light:
+  - platform: esp32_rmt_led_strip
+    rgb_order: GRB
+    pin: ${light_gpio}
+    num_leds: 1
+    rmt_channel: 1              # RMT 0 reserved for IR
+    chipset: ws2812
+    id: status_led
+    name: "Status LED"
+    effects:
+      - addressable_rainbow:
+      - addressable_color_wipe:
+      - addressable_scan:
+      - addressable_flicker:
+
+# Onboard Button
+binary_sensor:
+  - platform: gpio
+    name: "Button"
+    pin:
+      number: ${button_gpio}
+      inverted: true
+      mode:
+        input: true
+        pullup: true
+    filters:
+      - delayed_off: 10ms
+    on_press:
+      then:
+        - logger.log: "Button Pressed"
+
+# IR Transmitter (if needed)
+remote_transmitter:
+  pin: ${ir_gpio}
+  carrier_duty_percent: 50%
+  # Note: This will use RMT channel 0
+
+# I2C Bus (Grove connector)
+i2c:
+  sda: ${sda_pin_i2c}
+  scl: ${scl_pin_i2c}
+  scan: true
+  id: bus_a
+
+# Available GPIO pins for expansion:
+# GPIO5, GPIO6, GPIO7, GPIO8, GPIO38, GPIO39
+# Note: GPIO43/GPIO44 are available but check for UART conflicts
+# Note: GPIO35 is used by RGB LED
+# Note: GPIO41 is used by button
+# Note: GPIO4 is used by IR LED
+# Note: GPIO1/GPIO2 are used by I2C
+
+# Example sensor using available GPIO
+# binary_sensor:
+#   - platform: gpio
+#     name: "Motion Sensor"
+#     pin:
+#       number: ${motion_gpio}
+#       mode:
+#         input: true
+#         pullup: true
