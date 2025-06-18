@@ -67,8 +67,8 @@ light:
     pin: ${light_gpio}
     num_leds: 1
     # rmt_channel and chipset parameters removed for ESP-IDF v5.x compatibility
-    id: status_led
-    name: "Status LED"
+    id: status_light
+    name: "Status Light"
     effects:
       - addressable_rainbow:
       - addressable_color_wipe:
