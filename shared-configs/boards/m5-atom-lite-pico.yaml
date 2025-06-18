@@ -20,11 +20,40 @@ substitutions:
 # End Substitutions
 ####################################
 
+# esphome:
+#   platformio_options:
+#     board_build.flash_mode: dio
+#     board_build.flash_size: 4MB
+#     board_build.f_flash: 40000000L
+
+# esp32:
+#   board: m5stack-atom
+#   variant: esp32
+#   flash_size: 4MB
+#   framework:
+#     type: esp-idf
+#     version: recommended
+#     sdkconfig_options:
+#       # Performance optimizations
+#       CONFIG_COMPILER_OPTIMIZATION_PERF: y
+#       CONFIG_COMPILER_OPTIMIZATION_SIZE: y
+#       CONFIG_ESPTOOLPY_FLASHSIZE_4MB: y
+#       # BLE 4.2 is supported by ALL ESP32 boards that have bluetooth, the original and derivatives.
+#       CONFIG_BT_BLE_42_FEATURES_SUPPORTED: y
+#       # BLE 5.0 is also supported by the original ESP32 (with some limitations)
+#       CONFIG_BT_BLE_50_FEATURES_SUPPORTED: y
+#       # Extend the watchdog timeout, so the device reboots if the device appears locked up for over 10 seconds.
+#       CONFIG_ESP_TASK_WDT_TIMEOUT_S: "10"
+    
+
 esphome:
   platformio_options:
     board_build.flash_mode: dio
     board_build.flash_size: 4MB
     board_build.f_flash: 40000000L
+    # Add build flags to help with stability
+    build_flags:
+      - -DCONFIG_ARDUINO_LOOP_STACK_SIZE=16384
 
 esp32:
   board: m5stack-atom
@@ -34,17 +63,44 @@ esp32:
     type: esp-idf
     version: recommended
     sdkconfig_options:
-      # Performance optimizations
-      CONFIG_COMPILER_OPTIMIZATION_PERF: y
-      CONFIG_COMPILER_OPTIMIZATION_SIZE: y
+      # Flash and memory optimizations
       CONFIG_ESPTOOLPY_FLASHSIZE_4MB: y
-      # BLE 4.2 is supported by ALL ESP32 boards that have bluetooth, the original and derivatives.
-      CONFIG_BT_BLE_42_FEATURES_SUPPORTED: y
-      # BLE 5.0 is also supported by the original ESP32 (with some limitations)
-      CONFIG_BT_BLE_50_FEATURES_SUPPORTED: y
-      # Extend the watchdog timeout, so the device reboots if the device appears locked up for over 10 seconds.
+      CONFIG_ESPTOOLPY_FLASHMODE_DIO: y
+      CONFIG_ESPTOOLPY_FLASHFREQ_40M: y
+      
+      # Compiler optimizations (balanced approach)
+      CONFIG_COMPILER_OPTIMIZATION_SIZE: y
+      # Note: Removed PERF optimization as it can cause instability on ESP32 Pico
+      
+      # Memory management
+      CONFIG_ESP32_WIFI_STATIC_RX_BUFFER_NUM: 4
+      CONFIG_ESP32_WIFI_DYNAMIC_RX_BUFFER_NUM: 8
+      CONFIG_ESP32_WIFI_DYNAMIC_TX_BUFFER_NUM: 8
+      CONFIG_ESP32_WIFI_AMPDU_TX_ENABLED: y
+      CONFIG_ESP32_WIFI_AMPDU_RX_ENABLED: y
+      
+      # Task and system stability
       CONFIG_ESP_TASK_WDT_TIMEOUT_S: "10"
-    
+      CONFIG_ESP_TASK_WDT_CHECK_IDLE_TASK_CPU0: y
+      CONFIG_ESP_TASK_WDT_CHECK_IDLE_TASK_CPU1: y
+      CONFIG_ESP_INT_WDT_TIMEOUT_MS: 800
+      CONFIG_ESP_SYSTEM_EVENT_TASK_STACK_SIZE: 4096
+      
+      # Power management for stability
+      CONFIG_PM_ENABLE: y
+      CONFIG_PM_DFS_INIT_AUTO: y
+      
+      # Bluetooth configuration (if needed)
+      CONFIG_BT_BLE_42_FEATURES_SUPPORTED: y
+      # Note: Removed BLE 5.0 as it's not well supported on ESP32 Pico and can cause issues
+      
+      # Network stack optimizations
+      CONFIG_LWIP_TCP_MSS: 1436
+      CONFIG_LWIP_TCP_RECVMBOX_SIZE: 32
+      CONFIG_LWIP_UDP_RECVMBOX_SIZE: 32
+      CONFIG_LWIP_TCPIP_RECVMBOX_SIZE: 32
+
+
 uart:
   id: uart_bus
   tx_pin: 
