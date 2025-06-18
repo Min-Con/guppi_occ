@@ -66,7 +66,8 @@ light:
     rgb_order: GRB
     pin: ${light_gpio}
     num_leds: 1
-    # rmt_channel and chipset parameters removed for ESP-IDF v5.x compatibility
+    chipset: ws2812
+    # rmt_channel parameter removed for ESP-IDF v5.x compatibility (auto-allocated)
     id: status_light
     name: "Status Light"
     effects:
