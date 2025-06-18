@@ -16,13 +16,13 @@ esphome:
                     - light.toggle: sys_status
                     - delay: 200ms
 
-light:
-  - platform: status_led
-    id: sys_status
-    pin:
-      number: ${light_gpio}
-    internal: true
-    restore_mode: ALWAYS_OFF
+# light:
+#   - platform: status_led
+#     id: sys_status
+#     pin:
+#       number: ${light_gpio}
+#     internal: true
+#     restore_mode: ALWAYS_OFF
 
 sensor:
   # Uptime sensor
