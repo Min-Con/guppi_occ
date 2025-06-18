@@ -32,42 +32,41 @@ esp32:
     type: esp-idf               # Recommended for ESP32-S3 in ESPHome
     version: latest
     # platform_version: "6.8.1"
-    sdkconfig_options:
-      # Performance optimizations
-      CONFIG_COMPILER_OPTIMIZATION_PERF: y
-      CONFIG_COMPILER_OPTIMIZATION_SIZE: y
-      CONFIG_ESPTOOLPY_FLASHSIZE_8MB: y
-      
-      # PSRAM configuration for ESP-IDF
-      CONFIG_SPIRAM: y
-      CONFIG_SPIRAM_MODE_OCT: y
-      CONFIG_SPIRAM_SPEED_80M: y
-      CONFIG_SPIRAM_TYPE_AUTO: y
-      
-      # BLE support
-      CONFIG_BT_BLE_42_FEATURES_SUPPORTED: y
-      CONFIG_BT_BLE_50_FEATURES_SUPPORTED: y
-      
-      # Extend the watchdog timeout
-      CONFIG_ESP_TASK_WDT_TIMEOUT_S: "10"
-      
-      # USB CDC On Boot - AtomS3 Lite has native USB
-      CONFIG_ESP_CONSOLE_USB_CDC: y
-      CONFIG_ESP_CONSOLE_USB_CDC_SUPPORT_ETS_PRINTF: y
+  sdkconfig_options:
+    # Performance optimizations
+    CONFIG_COMPILER_OPTIMIZATION_PERF: y
+    CONFIG_COMPILER_OPTIMIZATION_SIZE: y
+    CONFIG_ESPTOOLPY_FLASHSIZE_8MB: y
+    
+    # PSRAM configuration for ESP-IDF
+    CONFIG_SPIRAM: y
+    CONFIG_SPIRAM_MODE_OCT: y
+    CONFIG_SPIRAM_SPEED_80M: y
+    CONFIG_SPIRAM_TYPE_AUTO: y
+    
+    # BLE support
+    CONFIG_BT_BLE_42_FEATURES_SUPPORTED: y
+    CONFIG_BT_BLE_50_FEATURES_SUPPORTED: y
+    
+    # Extend the watchdog timeout
+    CONFIG_ESP_TASK_WDT_TIMEOUT_S: "10"
+    
+    # USB CDC On Boot - AtomS3 Lite has native USB
+    CONFIG_ESP_CONSOLE_USB_CDC: y
+    CONFIG_ESP_CONSOLE_USB_CDC_SUPPORT_ETS_PRINTF: y
 
 psram:
   mode: octal
   speed: 80MHz
 
 # Additional AtomS3 Lite specific configurations
-# Onboard RGB LED using ESP32 RMT LED Strip
+# Onboard RGB LED using ESP32 RMT LED Strip (ESP-IDF v5.x compatible)
 light:
   - platform: esp32_rmt_led_strip
     rgb_order: GRB
     pin: ${light_gpio}
     num_leds: 1
-    rmt_channel: 1              # RMT 0 reserved for IR
-    chipset: ws2812
+    # rmt_channel and chipset parameters removed for ESP-IDF v5.x compatibility
     id: status_led
     name: "Status LED"
     effects:
