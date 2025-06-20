@@ -67,16 +67,16 @@ uart:
   stop_bits: 1
 #  data_bits: 8
 
-# light:
-#   - platform: binary
-#     name: "Blue Status Light"
-#     output: light_output
-#     id: led_light
-#     #restore_mode: ALWAYS_ON
-#     restore_mode: RESTORE_DEFAULT_ON
-#     #restore_mode: ALWAYS_OFF
+light:
+  - platform: binary
+    name: "Blue Status Light"
+    output: light_output
+    id: led_light
+    #restore_mode: ALWAYS_ON
+    restore_mode: RESTORE_DEFAULT_ON
+    #restore_mode: ALWAYS_OFF
  
-# output:
-#   - platform: gpio
-#     pin: ${light_gpio}
-#     id: light_output
+output:
+  - platform: gpio
+    pin: ${light_gpio}
+    id: light_output
