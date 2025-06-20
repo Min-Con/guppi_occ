@@ -11,7 +11,7 @@ substitutions:
   # Update the comment_text, project_name, and project_version information to match the device
   comment_text: "Generally Unstable and Poorly Planned Implementations - Single-target Human Presence and Occupancy Sensor (ESP32/LD2410)"
   project_name: "GUPPI.ST-OCC-GP-2410"
-  project_version: "25.4.17.1"
+  project_version: "25.6.20.1"
 
 ####################################
 # End Substitutions
@@ -26,7 +26,7 @@ esphome:
 # Enable logging at DEBUG level for detailed output during development
 logger:
   # 0 Enables logging, but disables serial-port logging to free CPU and memory
-  baud_rate: 0
+  # baud_rate: 0
   #  Disable DEBUG after testing
   #level: INFO
 
