@@ -74,7 +74,7 @@ light:
   - platform: binary
     name: "Blue Status Light"
     output: light_output
-    id: led_light
+    id: status_light
     restore_mode: ALWAYS_OFF
  
 output:
