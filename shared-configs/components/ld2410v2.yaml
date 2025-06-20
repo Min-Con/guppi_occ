@@ -229,9 +229,12 @@ binary_sensor:
       filters:
         - delayed_on: 500ms  # Longer delay for still targets to reduce false positives
         - delayed_off: 10s   # Longer persistence for still targets
-    motion_gpio_state:
-      name: ${sensor_type} GPIO Motion State
-      id: motion_gpio_state
+    out_pin_presence_status:
+      name: IO Presence
+      id: out_pin_presence_status
+    # motion_gpio_state:
+    #   name: ${sensor_type} GPIO Motion State
+    #   id: motion_gpio_state
 
   # Radar zone presence based on detection distance and configured zone boundaries
   - platform: template
