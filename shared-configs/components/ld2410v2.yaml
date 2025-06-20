@@ -1,3 +1,6 @@
+substitutions:
+  sensor_type: LD2410C
+
 # LD2410 Configuration
 ld2410:
   throttle: 500ms
@@ -269,11 +272,11 @@ binary_sensor:
     pin: 
       number: "${motion_gpio}"  # OUT pin of LD2410 connected here
       mode: INPUT_PULLUP
-    name: gpio out pin presence
+    name: ${sensor_type} GPIO Motion Detection
     #name: "Motion Detected"
-    id: gpio_out_pin_presence
+    id: ${sensor_type}_motion_gpio
     #id: motion_detected
-    device_class: presence
+    device_class: motion
     filters:
       - delayed_on: 50ms  # Debounce filter to avoid false triggers.
       - delayed_off: 50ms
@@ -287,7 +290,7 @@ binary_sensor:
       return id(has_target).state ||
              id(has_moving_target).state ||
              id(has_still_target).state ||
-             id(gpio_out_pin_presence).state;
+             id(${sensor_type}_motion_gpio).state;
 
 text_sensor:
   - platform: ld2410
