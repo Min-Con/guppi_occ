@@ -62,7 +62,7 @@ uart:
   parity: NONE
   stop_bits: 1
 
-Only enable the following if the device has a light
+# Only enable the following if the device has a light
 light:
   - platform: binary
     name: "Blue Status Light"
