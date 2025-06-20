@@ -72,7 +72,7 @@ esp32:
       # Also enable this on any derivative boards (S2, C3 etc) but not the original ESP32.
       CONFIG_BT_BLE_50_FEATURES_SUPPORTED: y
       # Extend the watchdog timeout, so the device reboots if the device appears locked up for over 10 seconds.
-      CONFIG_ESP_TASK_WDT_TIMEOUT_S: "10"
+      # CONFIG_ESP_TASK_WDT_TIMEOUT_S: "10"
     
 uart:
   id: uart_bus
