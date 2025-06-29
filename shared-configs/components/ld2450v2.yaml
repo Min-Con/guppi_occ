@@ -14,7 +14,7 @@ ld2450:
 binary_sensor:
   - platform: ld2450
     ld2450_id: ld2450_radar
-    device_class: occupancy
+#    device_class: occupancy
     has_target:
       name: Presence
     has_moving_target:
