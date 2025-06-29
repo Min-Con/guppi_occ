@@ -14,16 +14,16 @@ ld2450:
 binary_sensor:
   - platform: ld2450
     ld2450_id: ld2450_radar
-#    device_class: occupancy
+    # device_class: occupancy
     has_target:
       name: Presence
     has_moving_target:
       name: Moving Target
     has_still_target:
       name: Still Target
-    filters:
-      delayed_off: 1000ms
-      settle: 250ms
+    # filters:
+    #   delayed_off: 1000ms
+    #   settle: 250ms
 
 number:
   - platform: ld2450
