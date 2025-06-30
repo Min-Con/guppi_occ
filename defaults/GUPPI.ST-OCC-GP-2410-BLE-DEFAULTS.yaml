@@ -39,5 +39,7 @@ ota:
 # Web server (optional, consider disabling in production)
 web_server:
   port: 80
+  version: 3
+  
 
 
