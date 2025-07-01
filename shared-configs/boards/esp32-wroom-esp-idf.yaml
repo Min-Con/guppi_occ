@@ -24,25 +24,22 @@ esphome:
     board_build.flash_mode: dio
     board_build.flash_size: 4MB
     board_build.f_flash: 40000000L
+    board_build.f_cpu: 160000000L
 
 esp32:
-  board: nodemcu-32s
+  board: esp32dev
   variant: esp32
   flash_size: 4MB
   framework:
     type: esp-idf
     version: recommended
     sdkconfig_options:
-      # Performance optimizations
-      CONFIG_COMPILER_OPTIMIZATION_PERF: y
-      CONFIG_COMPILER_OPTIMIZATION_SIZE: y
       CONFIG_ESPTOOLPY_FLASHSIZE_4MB: y
-      # BLE 4.2 is supported by ALL ESP32 boards that have bluetooth, the original and derivatives.
-      CONFIG_BT_BLE_42_FEATURES_SUPPORTED: y
-      # Remove BLE 5.0 support as original ESP32 doesn't support it
-      # CONFIG_BT_BLE_50_FEATURES_SUPPORTED: y
-      # Extend the watchdog timeout, so the device reboots if the device appears locked up for over 10 seconds.
+      CONFIG_COMPILER_OPTIMIZATION_SIZE: y
       CONFIG_ESP_TASK_WDT_TIMEOUT_S: "10"
+      # Disable problematic features that can cause crashes
+      CONFIG_ESP32_DEFAULT_CPU_FREQ_160: y
+      CONFIG_ESP32_DEFAULT_CPU_FREQ_240: n
 
 
 # esp32:
