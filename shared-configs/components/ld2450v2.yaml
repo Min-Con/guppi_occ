@@ -5,6 +5,22 @@
 preferences:
     flash_write_interval: 5s
 
+uart:
+  id: uart_bus
+  tx_pin: 
+    number: ${tx_pin_uart}
+    mode:
+      input: true
+      pullup: true
+  rx_pin: 
+    number: ${rx_pin_uart}
+    mode:
+      input: true
+      pullup: true
+  baud_rate: 256000
+  parity: NONE
+  stop_bits: 1
+  data_bits: 8
 
 ld2450:
   id: ld2450_radar
