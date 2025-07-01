@@ -35,7 +35,7 @@ esp32:
   # flash_size: 4MB
   framework:
     type: arduino
-    version: recommended
+    version: latest
 
 uart:
   id: uart_bus
