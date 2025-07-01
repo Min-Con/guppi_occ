@@ -27,7 +27,7 @@ binary_sensor:
 number:
   - platform: ld2450
     ld2450_id: ld2450_radar
-    presence_timeout: 1000ms
+    presence_timeout:
       name: "Timeout"
     zone_1:
       x1:
