@@ -32,7 +32,8 @@ esphome:
 esp32:
   # Because the ESP32‑S3 Zero/Mini isn’t yet defined as its own board,
   # many users have successfully used the esp32‑s3‑devkitc‑1 profile.
-  board: esp32dev  flash_size: 4MB
+  board: esp32dev  
+  flash_size: 4MB
   framework:
     type: esp-idf
     version: recommended
