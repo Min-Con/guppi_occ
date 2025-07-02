@@ -27,7 +27,8 @@ esphome:
   #   board_build.f_cpu: 160000000L
 
 esp32:
-  board: esp32dev
+  # board: esp32dev
+  board: nodemcu-32s
   variant: esp32
   flash_size: 4MB
   framework:
