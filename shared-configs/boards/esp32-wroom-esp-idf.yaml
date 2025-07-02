@@ -20,11 +20,11 @@ substitutions:
 ####################################
 
 esphome:
-  platformio_options:
-    board_build.flash_mode: dio
-    board_build.flash_size: 4MB
-    board_build.f_flash: 40000000L
-    board_build.f_cpu: 160000000L
+  # platformio_options:
+  #   board_build.flash_mode: dio
+  #   board_build.flash_size: 4MB
+  #   board_build.f_flash: 40000000L
+  #   board_build.f_cpu: 160000000L
 
 esp32:
   board: esp32dev
@@ -37,6 +37,13 @@ esp32:
       CONFIG_ESPTOOLPY_FLASHSIZE_4MB: y
       CONFIG_COMPILER_OPTIMIZATION_SIZE: y
       CONFIG_ESP_TASK_WDT_TIMEOUT_S: "10"
+      # WiFi compatibility options for WPA3/mesh networks
+      CONFIG_ESP32_WIFI_ENABLE_WPA3_SAE: n
+      CONFIG_ESP32_WIFI_ENABLE_WPA3_OWE_STA: n
+      CONFIG_ESP32_WIFI_SOFTAP_SAE_SUPPORT: n
+      # Disable power management features that can cause auth issues
+      CONFIG_ESP32_WIFI_AMPDU_TX_ENABLED: n
+      CONFIG_ESP32_WIFI_AMPDU_RX_ENABLED: n
       # Disable problematic features that can cause crashes
       CONFIG_ESP32_DEFAULT_CPU_FREQ_160: y
       CONFIG_ESP32_DEFAULT_CPU_FREQ_240: n

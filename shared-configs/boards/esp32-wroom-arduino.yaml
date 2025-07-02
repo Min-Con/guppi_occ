@@ -24,10 +24,10 @@ esphome:
     board_build.flash_mode: dio
     # board_build.flash_size: 4MB
     # board_build.f_flash: 40000000L
-  on_boot:
-    priority: 600
-    then:
-      - delay: 500ms  # Boot delay for sensor stabilization
+#  on_boot:
+#    - priority: 600
+#      then:
+#        - delay: 500ms  # Boot delay for sensor stabilization
 
 esp32:
   board: esp32dev
