@@ -20,8 +20,8 @@ substitutions:
 ####################################
 
 esphome:
-  # platformio_options:
-  #   board_build.flash_mode: dio
+  platformio_options:
+    board_build.flash_mode: dio
   #   board_build.flash_size: 4MB
   #   board_build.f_flash: 40000000L
   #   board_build.f_cpu: 160000000L
@@ -45,9 +45,9 @@ esp32:
       # Disable power management features that can cause auth issues
       CONFIG_ESP32_WIFI_AMPDU_TX_ENABLED: n
       CONFIG_ESP32_WIFI_AMPDU_RX_ENABLED: n
-      # # Disable problematic features that can cause crashes
-      # CONFIG_ESP32_DEFAULT_CPU_FREQ_160: y
-      # CONFIG_ESP32_DEFAULT_CPU_FREQ_240: n
+      # Disable problematic features that can cause crashes
+      CONFIG_ESP32_DEFAULT_CPU_FREQ_160: y
+      CONFIG_ESP32_DEFAULT_CPU_FREQ_240: n
 
 
 # esp32:
