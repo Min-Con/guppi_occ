@@ -3,8 +3,9 @@ substitutions:
 
 # LD2410 Configuration
 ld2410:
-  throttle: 500ms
+  throttle: 1000ms
   id: ld2410_radar
+  uart_id: uart_bus
 
 # User configurable radar configuration parameters
 number:
