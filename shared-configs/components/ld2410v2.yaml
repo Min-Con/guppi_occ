@@ -3,7 +3,7 @@ substitutions:
 
 # LD2410 Configuration
 ld2410:
-  throttle: 1000ms
+  throttle: 2000ms
   id: ld2410_radar
   uart_id: uart_bus
 
