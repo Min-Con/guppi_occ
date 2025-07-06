@@ -20,9 +20,9 @@ wifi:
   password: !secret wifi_password
   reboot_timeout: 5min
   output_power: 8.5dB
-  power_save_mode: NONE # Optional, default is LIGHT
-  fast_connect: True
-  passive_scan: True
+  # power_save_mode: NONE # Optional, default is LIGHT
+  # fast_connect: True
+  # passive_scan: True
 
 # Enable only if using static IP address
   # manual_ip:
@@ -38,8 +38,8 @@ wifi:
   #   password: !secret fallback_ap_password
 
 # Web server (optional, consider disabling in production)
-web_server:
-  port: 80
-  version: 3
+# web_server:
+#   port: 80
+#   version: 3
 
 captive_portal:

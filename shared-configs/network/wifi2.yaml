@@ -20,7 +20,7 @@ wifi:
   password: !secret wifi_password
   reboot_timeout: 5min
   output_power: 8.5dB
-  power_save_mode: NONE # Optional, default is LIGHT
+  # power_save_mode: NONE # Optional, default is LIGHT
   # fast_connect: True
   # passive_scan: True
 
