@@ -36,9 +36,9 @@ ota:
   - platform: esphome
 
 # Web server (optional, consider disabling in production)
-web_server:
-  port: 80
-  version: 3
+# web_server:
+#   port: 80
+#   version: 3
   # include_internal: false  # Don't include internal sensors
   # local: true             # Disable mDNS
   # ota: false             # Disable OTA via web server
