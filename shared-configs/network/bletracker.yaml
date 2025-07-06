@@ -1,7 +1,7 @@
-esp32:
-  framework:
-    type: esp-idf
-    sdkconfig_options:
+# esp32:
+#   framework:
+#     type: esp-idf
+#     sdkconfig_options:
       # @grigi found in testing that these options resulted in better responsiveness.
       # BLE 4.2 is supported by ALL ESP32 boards that have bluetooth, the original and derivatives.
 ## Moved BLE 4.2 and 5.0 to the board config files, so they can be enabled on all boards that support it.
@@ -9,7 +9,7 @@ esp32:
       # Also enable this on any derivative boards (S2, C3 etc) but not the original ESP32.
 #      CONFIG_BT_BLE_50_FEATURES_SUPPORTED: y
       # Extend the watchdog timeout, so the device reboots if the device appears locked up for over 10 seconds.
-      CONFIG_ESP_TASK_WDT_TIMEOUT_S: "10"
+      # CONFIG_ESP_TASK_WDT_TIMEOUT_S: "10"
 
 api:
   # Only enable BLE tracking when wifi is up and api is connected
