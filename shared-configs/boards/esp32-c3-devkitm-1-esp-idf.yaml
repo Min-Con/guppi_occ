@@ -43,19 +43,18 @@ esp32:
       CONFIG_BT_BLE_50_FEATURES_SUPPORTED: y
       # Extend the watchdog timeout, so the device reboots if the device appears locked up for over 10 seconds.
       CONFIG_ESP_TASK_WDT_TIMEOUT_S: "10"
+      # WiFi compatibility options for WPA3/mesh networks
+      CONFIG_ESP32_WIFI_ENABLE_WPA3_SAE: n
+      CONFIG_ESP32_WIFI_ENABLE_WPA3_OWE_STA: n
+      CONFIG_ESP32_WIFI_SOFTAP_SAE_SUPPORT: n
+      # Disable power management features that can cause auth issues
+      CONFIG_ESP32_WIFI_AMPDU_TX_ENABLED: n
+      CONFIG_ESP32_WIFI_AMPDU_RX_ENABLED: n
     
 uart:
   id: uart_bus
-  tx_pin: 
-    number: ${tx_pin_uart}
-#    mode:
-#      input: true
-#      pullup: true
-  rx_pin: 
-    number: ${rx_pin_uart}
-#    mode:
-#      input: true
-#      pullup: true
+  tx_pin: ${tx_pin_uart}
+  rx_pin: ${rx_pin_uart}
   baud_rate: 256000
   parity: NONE
   stop_bits: 1

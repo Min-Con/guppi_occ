@@ -37,27 +37,38 @@ esp32:
       CONFIG_COMPILER_OPTIMIZATION_PERF: y
       CONFIG_COMPILER_OPTIMIZATION_SIZE: y
       CONFIG_ESPTOOLPY_FLASHSIZE_8MB: y
-      
       # PSRAM configuration for ESP-IDF
       CONFIG_SPIRAM: y
       CONFIG_SPIRAM_MODE_OCT: y
       CONFIG_SPIRAM_SPEED_80M: y
       CONFIG_SPIRAM_TYPE_AUTO: y
-      
       # BLE support
       CONFIG_BT_BLE_42_FEATURES_SUPPORTED: y
       CONFIG_BT_BLE_50_FEATURES_SUPPORTED: y
-      
       # Extend the watchdog timeout
       CONFIG_ESP_TASK_WDT_TIMEOUT_S: "10"
-      
       # USB CDC On Boot - AtomS3 Lite has native USB
       CONFIG_ESP_CONSOLE_USB_CDC: y
       CONFIG_ESP_CONSOLE_USB_CDC_SUPPORT_ETS_PRINTF: y
+      # WiFi compatibility options for WPA3/mesh networks
+      CONFIG_ESP32_WIFI_ENABLE_WPA3_SAE: n
+      CONFIG_ESP32_WIFI_ENABLE_WPA3_OWE_STA: n
+      CONFIG_ESP32_WIFI_SOFTAP_SAE_SUPPORT: n
+      # Disable power management features that can cause auth issues
+      CONFIG_ESP32_WIFI_AMPDU_TX_ENABLED: n
+      CONFIG_ESP32_WIFI_AMPDU_RX_ENABLED: n
 
 psram:
   mode: octal
   speed: 80MHz
+
+uart:
+  id: uart_bus
+  tx_pin: ${tx_pin_uart}
+  rx_pin: ${rx_pin_uart}
+  baud_rate: 256000
+  parity: NONE
+  stop_bits: 1
 
 # Additional AtomS3 Lite specific configurations
 # Onboard RGB LED using ESP32 RMT LED Strip (ESP-IDF v5.x compatible)

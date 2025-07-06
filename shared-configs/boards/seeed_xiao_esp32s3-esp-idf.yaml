@@ -48,6 +48,13 @@ esp32:
       # USB CDC On Boot - XIAO ESP32-S3 has native USB
       CONFIG_ESP_CONSOLE_USB_CDC: y
       CONFIG_ESP_CONSOLE_USB_CDC_SUPPORT_ETS_PRINTF: y
+      # WiFi compatibility options for WPA3/mesh networks
+      CONFIG_ESP32_WIFI_ENABLE_WPA3_SAE: n
+      CONFIG_ESP32_WIFI_ENABLE_WPA3_OWE_STA: n
+      CONFIG_ESP32_WIFI_SOFTAP_SAE_SUPPORT: n
+      # Disable power management features that can cause auth issues
+      CONFIG_ESP32_WIFI_AMPDU_TX_ENABLED: n
+      CONFIG_ESP32_WIFI_AMPDU_RX_ENABLED: n
 
 psram:
   mode: octal
@@ -55,10 +62,8 @@ psram:
     
 uart:
   id: uart_bus
-  tx_pin: 
-    number: ${tx_pin_uart}
-  rx_pin: 
-    number: ${rx_pin_uart}
+  tx_pin: ${tx_pin_uart}
+  rx_pin: ${rx_pin_uart}
   baud_rate: 256000
   parity: NONE
   stop_bits: 1
