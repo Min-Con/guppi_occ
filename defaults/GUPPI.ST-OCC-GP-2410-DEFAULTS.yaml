@@ -9,7 +9,7 @@
 
 substitutions:
   # Update the comment_text, project_name, and project_version information to match the device
-  comment_text: "Generally Unstable and Poorly Planned Implementations - Single-target Human Presence and Occupancy Sensor (ESP32/LD2410)"
+  comment_text: "Generally Unstable and Poorly Produced Instruments - Single-target Human Presence and Occupancy Sensor (ESP32/LD2410)"
   project_name: "GUPPI.ST-OCC-GP-2410"
   project_version: "25.6.20.1"
 

@@ -9,7 +9,7 @@
 
 substitutions:
   # Update the comment_text, project_name, and project_version information to match the device
-  comment_text: "Generally Unstable and Poorly Planned Implementations - Multi-target Human Presence and Occupancy Sensor with climate and lux"
+  comment_text: "Generally Unstable and Poorly Produced Instruments - Multi-target Human Presence and Occupancy Sensor with climate and lux"
   project_name: "GUPPI.MT-OCC-2450-CLIMATE"
   project_version: "25.3.26.1"
 
