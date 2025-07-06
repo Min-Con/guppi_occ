@@ -2,8 +2,8 @@
 #Inspired by https://docs.screek.io/2a
 
 
-preferences:
-    flash_write_interval: 5s
+# preferences:
+#     flash_write_interval: 5s
 
 ld2450:
   id: ld2450_radar
@@ -28,6 +28,7 @@ number:
   - platform: ld2450
     ld2450_id: ld2450_radar
     presence_timeout:
+      id: timeout
       name: "Timeout"
     zone_1:
       x1:
@@ -176,3 +177,4 @@ sensor:
         name: Zone-3 Still Target Count
       moving_target_count:
         name: Zone-3 Moving Target Count
+
