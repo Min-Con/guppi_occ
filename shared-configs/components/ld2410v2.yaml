@@ -80,7 +80,7 @@ number:
     optimistic: true
     restore_value: true
     initial_value: 0
-    icon: "mdi:arrow-collapse-right"
+    # icon: "mdi:arrow-collapse-right"
     entity_category: CONFIG
     unit_of_measurement: "cm"
 
@@ -96,7 +96,7 @@ number:
     optimistic: true
     restore_value: true
     initial_value: 50
-    icon: "mdi:arrow-collapse-right"
+    # icon: "mdi:arrow-collapse-right"
     entity_category: CONFIG
     unit_of_measurement: "cm"
 
@@ -112,7 +112,7 @@ number:
     optimistic: true
     restore_value: true
     initial_value: 150
-    icon: "mdi:arrow-collapse-right"
+    # icon: "mdi:arrow-collapse-right"
     entity_category: CONFIG
     unit_of_measurement: "cm"
 
@@ -128,7 +128,7 @@ number:
     optimistic: true
     restore_value: true
     initial_value: 250
-    icon: "mdi:arrow-collapse-right"
+    # icon: "mdi:arrow-collapse-right"
     entity_category: CONFIG
     unit_of_measurement: "cm"
 
@@ -242,7 +242,7 @@ binary_sensor:
     name: "Zone 1 Presence"
     id: zone_1_presence
     device_class: presence
-    icon: mdi:motion-sensor
+    # icon: mdi:motion-sensor
     lambda: |-
       if ((id(has_target).state) && ((id(detection_distance).state < id(z1_end).state) && (id(detection_distance).state > id(z1_start).state))) {
         return true;
@@ -253,7 +253,7 @@ binary_sensor:
     name: "Zone 2 Presence"
     id: zone_2_presence
     device_class: presence
-    icon: mdi:motion-sensor
+    # icon: mdi:motion-sensor
     lambda: |-
       if ((id(has_target).state) && ((id(z1_end).state < id(detection_distance).state) && (id(detection_distance).state < id(z2_end).state))) {
         return true;
@@ -264,7 +264,7 @@ binary_sensor:
     name: "Zone 3 Presence"
     id: zone_3_presence
     device_class: presence
-    icon: mdi:motion-sensor
+    # icon: mdi:motion-sensor
     lambda: |-
       if ((id(has_target).state) && ((id(z2_end).state < id(detection_distance).state) && (id(detection_distance).state < id(z3_end).state))) {
         return true;
@@ -288,7 +288,7 @@ binary_sensor:
   - platform: template
     name: "Presence Detected"
     id: has_presence
-    icon: mdi:motion-sensor
+    # icon: mdi:motion-sensor
     device_class: presence
     lambda: |-
       return id(has_target).state ||
