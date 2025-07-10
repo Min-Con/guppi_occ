@@ -1,0 +1,132 @@
+####################################
+# Start Substitutions
+####################################
+
+substitutions:
+# Specify below pin numbers for UART, GPIO, and I2C connections
+# Default values are set for the ESP32-Cs Super Mini
+# Add superseding substitutions in your specific device configuration if these don't match the actual pins used.
+
+substitutions:
+  # UART pins - Using standard ESP32-C6 UART pins
+  # RX and TX are labeled on the board
+  tx_pin_uart: GPIO16  # TX pin on board
+  rx_pin_uart: GPIO17  # RX pin on board
+  
+  # LED/Light GPIO - ESP32-C6 Super Mini has multiple LEDs:
+  # - Simple status LED on GPIO15
+  # - WS2812 RGB LED on GPIO8
+  light_gpio: GPIO8  # WS2812 RGB LED (or use GPIO15 for simple LED)
+  
+  # ADC pins - ESP32-C6 has ADC on GPIO0-GPIO6
+  # These are labeled A0-A5 on the board
+  mic_adc: GPIO2  # A2 pin (avoid GPIO0 which is BOOT pin)
+  
+  # Motion sensor GPIO - Using available GPIO
+  motion_gpio: GPIO10
+  
+  # I2C pins - Common I2C pins for ESP32-C6 Super Mini
+  sda_pin_i2c: GPIO6  # Also labeled as SDA on some boards
+  scl_pin_i2c: GPIO7  # Also labeled as SCL on some boards
+  
+  # Alternative configurations:
+  # If using the onboard simple LED instead of RGB:
+  # light_gpio: GPIO15
+  
+  # If you need different I2C pins:
+  # sda_pin_i2c: GPIO4
+  # scl_pin_i2c: GPIO5
+  
+  # SPI pins (if needed):
+  # miso_pin: GPIO18  # MISO
+  # mosi_pin: GPIO19  # MOSI  
+  # sck_pin: GPIO20   # SCK
+  # cs_pin: GPIO21    # SS/CS
+  
+  # Additional analog pins available:
+  # A0: GPIO0 (also BOOT button - use with caution)
+  # A1: GPIO1
+  # A2: GPIO2 (used for mic_adc above)
+  # A3: GPIO3
+  # A4: GPIO4
+  # A5: GPIO5
+
+####################################
+# End Substitutions
+####################################
+
+esphome:
+  platformio_options:
+    board_build.flash_mode: qio
+    board_build.f_flash: 80000000L
+
+esp32:
+  board: esp32-c6-devkitc-1
+  variant: esp32c6
+  flash_size: 4MB
+  framework:
+    type: esp-idf
+    version: latest
+    sdkconfig_options:
+      # Performance optimizations
+      CONFIG_COMPILER_OPTIMIZATION_PERF: y
+      CONFIG_COMPILER_OPTIMIZATION_SIZE: y
+      CONFIG_ESPTOOLPY_FLASHSIZE_4MB: y
+      # BLE support - ESP32-C6 supports BLE 5.0+
+      CONFIG_BT_ENABLED: y
+      CONFIG_BT_BLE_ENABLED: y
+      CONFIG_BT_BLE_42_FEATURES_SUPPORTED: y
+      CONFIG_BT_BLE_50_FEATURES_SUPPORTED: y
+      # Extend the watchdog timeout
+      CONFIG_ESP_TASK_WDT_TIMEOUT_S: "10"
+      # USB Serial/JTAG - ESP32-C6 Super Mini has native USB
+      CONFIG_ESP_CONSOLE_USB_SERIAL_JTAG: y
+      CONFIG_ESP_CONSOLE_USB_SERIAL_JTAG_ENABLED: y
+      # WiFi 6 compatibility options
+      CONFIG_ESP_WIFI_ENABLE_WPA3_SAE: y
+      CONFIG_ESP_WIFI_SOFTAP_SAE_SUPPORT: y
+      CONFIG_ESP_WIFI_ENABLE_WPA3_OWE_STA: y
+      # WiFi optimization
+      CONFIG_ESP_WIFI_SW_COEXIST_ENABLE: y
+      # Power management optimization
+      CONFIG_PM_ENABLE: n
+      # ESP32-C6 specific optimizations
+      CONFIG_ESP_PHY_ENABLE_USB: y
+      CONFIG_ESP_SYSTEM_PANIC_PRINT_REBOOT: y
+      # Low power processor support
+      CONFIG_ULP_COPROC_ENABLED: y
+      CONFIG_ULP_COPROC_TYPE_LP_CORE: y
+      CONFIG_ULP_COPROC_RESERVE_MEM: "4096"
+      # Reduce boot time
+      CONFIG_BOOTLOADER_SKIP_VALIDATE_IN_DEEP_SLEEP: y
+      CONFIG_BOOTLOADER_SKIP_VALIDATE_ON_POWER_ON: y
+
+uart:
+  id: uart_bus
+  tx_pin: ${tx_pin_uart}
+  rx_pin: ${rx_pin_uart}
+  baud_rate: 256000
+  parity: NONE
+  stop_bits: 1
+#  data_bits: 8
+
+light:
+  - platform: binary
+    name: "Blue Status Light"
+    output: light_output
+    id: status_light
+    restore_mode: ALWAYS_OFF
+
+# If using the onboard RGB LED, you'll need to configure it as an addressable LED strip in ESPHome
+# light:
+#   - platform: esp32_rmt_led_strip
+#     chipset: WS2812
+#     pin: GPIO8
+#     num_leds: 1
+#     rgb_order: GRB
+#     name: "Onboard RGB LED"
+
+output:
+  - platform: gpio
+    pin: ${light_gpio}
+    id: light_output
