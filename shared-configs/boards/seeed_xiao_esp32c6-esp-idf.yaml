@@ -3,15 +3,44 @@
 ####################################
 
 substitutions:
-  # Pins for XIAO ESP32-S3
+  # Pins for XIAO ESP32-C6
   # Add superseding substitutions in your specific device configuration if these don't match the actual pins used.
-  tx_pin_uart: GPIO6
-  rx_pin_uart: GPIO7
+
+  # UART pins - XIAO ESP32-C6 uses D6/D7 for hardware UART
+  tx_pin_uart: GPIO6  # D6 on XIAO ESP32-C6
+  rx_pin_uart: GPIO7  # D7 on XIAO ESP32-C6
+  
+  # LED/Light GPIO - XIAO ESP32-C6 has onboard LED on GPIO15
+  # Note: Some documentation shows it may be on different pins
   light_gpio: GPIO15
-  mic_adc: GPIO2
-  motion_gpio: GPIO3
-  sda_pin_i2c: GPIO4
-  scl_pin_i2c: GPIO5
+  
+  # ADC pin - ESP32-C6 has ADC on GPIO0-GPIO6
+  # Using GPIO2 (D2) for microphone ADC (avoid GPIO0 which is BOOT pin)
+  mic_adc: GPIO2  # D2 on XIAO ESP32-C6
+  
+  # Motion sensor GPIO - Using available GPIO
+  motion_gpio: GPIO3  # D3 on XIAO ESP32-C6
+  
+  # I2C pins - XIAO ESP32-C6 commonly uses GPIO4/GPIO5 for I2C
+  sda_pin_i2c: GPIO4  # D4 on XIAO ESP32-C6
+  scl_pin_i2c: GPIO5  # D5 on XIAO ESP32-C6
+  
+  # Additional pins available on XIAO ESP32-C6:
+  # SPI pins (if needed):
+  # mosi_pin: GPIO10  # D10
+  # miso_pin: GPIO9   # D9
+  # sck_pin: GPIO8    # D8
+  
+  # Battery voltage monitoring (if using battery):
+  # battery_adc: GPIO0  # A0 (requires voltage divider)
+
+  # tx_pin_uart: GPIO6
+  # rx_pin_uart: GPIO7
+  # light_gpio: GPIO15
+  # mic_adc: GPIO2
+  # motion_gpio: GPIO3
+  # sda_pin_i2c: GPIO4
+  # scl_pin_i2c: GPIO5
 
 ####################################
 # End Substitutions
