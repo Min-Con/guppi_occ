@@ -132,9 +132,9 @@ binary_sensor:
         - logger.log: "Button Pressed"
 
 # IR Transmitter (if needed)
-remote_transmitter:
-  pin: ${ir_gpio}
-  carrier_duty_percent: 50%
+# remote_transmitter:
+#   pin: ${ir_gpio}
+#   carrier_duty_percent: 50%
   # Note: This will use RMT channel 0
 
 # I2C Bus (Grove connector)
