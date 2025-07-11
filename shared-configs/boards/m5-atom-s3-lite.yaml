@@ -26,7 +26,7 @@ substitutions:
   button_gpio: GPIO41
   
   # IR Transmitter GPIO - Built-in IR LED on GPIO4
-  # ir_transmit_gpio: GPIO4
+  ir_gpio: GPIO4
   
   # Additional exposed GPIO pins on bottom:
   # GPIO5, GPIO6, GPIO7, GPIO8, GPIO38, GPIO39
