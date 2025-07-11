@@ -3,18 +3,53 @@
 ####################################
 
 substitutions:
-# Specify below pin numbers for UART, GPIO, and I2C connections
-# Default values are set for the ESP32-S3 Zero
-# Add superseding substitutions in your specific device configuration if these don't match the actual pins used.
-
-  tx_pin_uart: GPIO17
-  rx_pin_uart: GPIO16
-  light_gpio: GPIO2
-  mic_adc: GPIO36
+  # UART pins - ESP32 D1 Mini uses standard ESP32 UART pins
+  # UART2 is available on GPIO16/GPIO17
+  tx_pin_uart: GPIO17  # TXD2
+  rx_pin_uart: GPIO16  # RXD2
+  
+  # LED/Light GPIO - Using a safe GPIO pin
+  # Note: ESP32 D1 Mini doesn't have onboard LED like ESP8266 D1 Mini
+  light_gpio: GPIO2  # Safe GPIO with built-in LED on some boards
+  
+  # ADC pin - ESP32 has many ADC channels
+  # Using ADC1 channel (ADC2 doesn't work when WiFi is active)
+  mic_adc: GPIO36  # VP - ADC1_CH0 (input only)
+  
+  # Motion sensor GPIO - Using available GPIO
   motion_gpio: GPIO13
-  sda_pin_i2c: GPIO21
-  scl_pin_i2c: GPIO22
-
+  
+  # I2C pins - Standard ESP32 I2C pins
+  sda_pin_i2c: GPIO21  # Default SDA
+  scl_pin_i2c: GPIO22  # Default SCL
+  
+  # Additional safe GPIO pins available on D1 Mini:
+  # GPIO4, GPIO5, GPIO12, GPIO13, GPIO14, GPIO15,
+  # GPIO18, GPIO19, GPIO23, GPIO25, GPIO26, GPIO27
+  
+  # Input-only pins (no pull-up/pull-down):
+  # GPIO34, GPIO35, GPIO36 (VP), GPIO39 (VN)
+  
+  # Pins to avoid:
+  # GPIO0 - Boot/Programming (has pull-up)
+  # GPIO6-11 - Connected to flash (DO NOT USE)
+  # GPIO2 - Connected to LED on some boards
+  # GPIO15 - Boot strapping pin (has pull-down)
+  
+  # Alternative configurations:
+  # If you need different UART pins:
+  # tx_pin_uart: GPIO1   # TXD0 (USB serial)
+  # rx_pin_uart: GPIO3   # RXD0 (USB serial)
+  
+  # Alternative I2C pins (any GPIO can be I2C):
+  # sda_pin_i2c: GPIO4
+  # scl_pin_i2c: GPIO5
+  
+  # SPI pins (if needed):
+  # mosi_pin: GPIO23  # MOSI
+  # miso_pin: GPIO19  # MISO
+  # sck_pin: GPIO18   # SCK
+  # cs_pin: GPIO5     # SS/CS
 ####################################
 # End Substitutions
 ####################################
@@ -22,37 +57,29 @@ substitutions:
 esphome:
   platformio_options:
     board_build.flash_mode: dio
-    board_build.flash_size: 4MB
     board_build.f_flash: 40000000L
 
 esp32:
   board: wemos_d1_mini32
   variant: esp32
+  flash_size: 4MB
   framework:
+    # type: arduino  # Can also use esp-idf
+    # Uncomment below lines if using esp-idf instead of arduino
     type: esp-idf
-    version: recommended
+    version: latest
     sdkconfig_options:
-      # ESSENTIAL BLUETOOTH ENABLEMENT
-      CONFIG_BT_ENABLED: y
+      # Performance optimizations
+      CONFIG_COMPILER_OPTIMIZATION_PERF: y
+      CONFIG_ESPTOOLPY_FLASHSIZE_4MB: y
+      # BLE support
       CONFIG_BT_BLE_42_FEATURES_SUPPORTED: y
-      # CONFIG_BT_BLE_50_FEATURES_SUPPORTED: y
-      
-      # MEMORY OPTIMIZATIONS
-      CONFIG_COMPILER_OPTIMIZATION_SIZE: y
-      CONFIG_LOG_DEFAULT_LEVEL_WARN: y
-      CONFIG_LOG_MAXIMUM_LEVEL_WARN: y
-      # TASK OPTIMIZATIONS
+      CONFIG_BT_BLE_50_FEATURES_SUPPORTED: y
+      # Extend the watchdog timeout
       CONFIG_ESP_TASK_WDT_TIMEOUT_S: "10"
-      CONFIG_ESP_MAIN_TASK_STACK_SIZE: "3584"
-      CONFIG_ESP_TIMER_TASK_STACK_SIZE: "3072"
-      # WiFi compatibility options for WPA3/mesh networks
-      CONFIG_ESP32_WIFI_ENABLE_WPA3_SAE: n
-      CONFIG_ESP32_WIFI_ENABLE_WPA3_OWE_STA: n
-      CONFIG_ESP32_WIFI_SOFTAP_SAE_SUPPORT: n
       # Disable power management features that can cause auth issues
       CONFIG_ESP32_WIFI_AMPDU_TX_ENABLED: n
       CONFIG_ESP32_WIFI_AMPDU_RX_ENABLED: n
-
 
 # Onboard RGB LED using ESP32 RMT LED Strip (ESP-IDF v5.x compatible)
 light:
