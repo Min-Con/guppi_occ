@@ -93,22 +93,26 @@ light:
 
 
 # M5 Atom S3 Built-in Button
-binary_sensor:
-  - platform: gpio
-    pin:
-      number: ${button_gpio}
-      inverted: true
-      mode:
-        input: true
-        pullup: true
-    name: "Atom Button"
-    id: atom_button
-    on_press:
-      then:
-        - light.toggle: atom_led
+# binary_sensor:
+#   - platform: gpio
+#     pin:
+#       number: ${button_gpio}
+#       inverted: true
+#       mode:
+#         input: true
+#         pullup: true
+#     name: "Atom Button"
+#     id: atom_button
+#     on_press:
+#       then:
+#         - light.toggle: atom_led
 
 # Alternative simple GPIO output for external LED if needed
 # output:
 #   - platform: gpio
 #     pin: GPIO5  # Grove connector alternative pin
 #     id: external_light_output
+output:
+  - platform: gpio
+    pin: ${light_gpio}
+    id: light_output
