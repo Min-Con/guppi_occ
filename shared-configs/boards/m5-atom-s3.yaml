@@ -84,6 +84,14 @@ uart:
 #       - rainbow:
 #       - color_wipe:
 
+light:
+  - platform: binary
+    name: "Blue Status Light"
+    output: light_output
+    id: status_light
+    restore_mode: ALWAYS_OFF
+
+
 # M5 Atom S3 Built-in Button
 binary_sensor:
   - platform: gpio
