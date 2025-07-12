@@ -70,19 +70,19 @@ uart:
   stop_bits: 1
 
 # M5 Atom S3 Built-in RGB LED (WS2812C)
-light:
-  - platform: neopixel
-    type: GRB
-    pin: ${light_gpio}
-    num_leds: 1
-    name: "Atom RGB LED"
-    id: atom_led
-    restore_mode: ALWAYS_OFF
-    effects:
-      - pulse:
-      - strobe:
-      - rainbow:
-      - color_wipe:
+# light:
+#   - platform: neopixel
+#     type: GRB
+#     pin: ${light_gpio}
+#     num_leds: 1
+#     name: "Atom RGB LED"
+#     id: atom_led
+#     restore_mode: ALWAYS_OFF
+#     effects:
+#       - pulse:
+#       - strobe:
+#       - rainbow:
+#       - color_wipe:
 
 # M5 Atom S3 Built-in Button
 binary_sensor:
