@@ -8,7 +8,7 @@ substitutions:
   tx_pin_uart: GPIO43    # Alternative UART TX (GPIO43 conflicts with built-in RGB LED)
   rx_pin_uart: GPIO44    # Alternative UART RX (GPIO44 conflicts with built-in button)
   light_gpio: GPIO35    # Built-in RGB LED data pin (WS2812C)
-  motion_gpio: GPIO8    # Grove connector pin (alternative sensor pin)
+  motion_gpio: GPIO10    # Grove connector pin (alternative sensor pin)
   sda_pin_i2c: GPIO38   # Grove I2C SDA (default I2C bus)
   scl_pin_i2c: GPIO39   # Grove I2C SCL (default I2C bus)
   button_gpio: GPIO41   # Built-in button
