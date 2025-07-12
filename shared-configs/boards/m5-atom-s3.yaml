@@ -5,8 +5,8 @@
 substitutions:
   # Pins for M5 Atom S3
   # Add superseding substitutions in your specific device configuration if these don't match the actual pins used.
-  tx_pin_uart: GPIO1    # Alternative UART TX (GPIO43 conflicts with built-in RGB LED)
-  rx_pin_uart: GPIO2    # Alternative UART RX (GPIO44 conflicts with built-in button)
+  tx_pin_uart: GPIO43    # Alternative UART TX (GPIO43 conflicts with built-in RGB LED)
+  rx_pin_uart: GPIO44    # Alternative UART RX (GPIO44 conflicts with built-in button)
   light_gpio: GPIO35    # Built-in RGB LED data pin (WS2812C)
   motion_gpio: GPIO8    # Grove connector pin (alternative sensor pin)
   sda_pin_i2c: GPIO38   # Grove I2C SDA (default I2C bus)
