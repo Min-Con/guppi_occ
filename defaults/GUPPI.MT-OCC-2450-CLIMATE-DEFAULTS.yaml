@@ -37,14 +37,14 @@ ota:
   - platform: esphome
 
 ################################################################################
-# Text Sensors for Diagnostics and Derived Information
+# Text Sensors for Diagnostics and Derived Information - Moved to Entity Defaults
 ################################################################################
 
-text_sensor:
-  # Firmware Version
-  - platform: version
-    name: "Firmware Version"
-    id: "firmware"
-    icon: "mdi:chip"
-    entity_category: diagnostic
+# text_sensor:
+#   # Firmware Version
+#   - platform: version
+#     name: "Firmware Version"
+#     id: "firmware"
+#     icon: "mdi:chip"
+#     entity_category: diagnostic
 

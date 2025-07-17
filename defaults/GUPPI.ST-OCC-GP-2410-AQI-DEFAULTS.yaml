@@ -37,7 +37,7 @@ ota:
   - platform: esphome
 
 ################################################################################
-# Text Sensors for Diagnostics and Derived Information
+# Text Sensors for Diagnostics and Derived Information - Moved to Entity Defaults
 ################################################################################
 
 # text_sensor:
