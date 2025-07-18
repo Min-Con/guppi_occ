@@ -1,6 +1,7 @@
 # BME280 sensor configuration
 sensor:
-  - platform: bme280
+  - platform: bme280_i2c
+    id: bme_sensor
     temperature:
       name: "Temperature"
       id: bme_temperature
@@ -19,7 +20,7 @@ sensor:
       oversampling: 16x
       filters:
         - offset: 0.0  # Adjust for calibration if needed
-    address: 0x77  # Use 0x76 if SDO is connected to GND
+    address: 0x76  # Use 0x76 if SDO is connected to GND
     update_interval: 60s
     iir_filter: 4x  # IIR filter for stable readings
 
