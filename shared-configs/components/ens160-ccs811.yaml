@@ -1,0 +1,52 @@
+# ENS160 Air Quality Sensor
+sensor:
+  # ENS160 sensor configuration
+  - platform: ens160
+    eco2:
+      name: "ENS160 eCO2"
+      id: ens160_eco2
+    tvoc:
+      name: "ENS160 TVOC"
+      id: ens160_tvoc
+    aqi:
+      name: "ENS160 AQI"
+      id: ens160_aqi
+    address: 0x53
+    update_interval: 60s
+    compensation:
+      temperature: temperature_sensor
+      humidity: humidity_sensor
+
+  # CCS811 sensor configuration
+  - platform: ccs811
+    eco2:
+      name: "CCS811 eCO2"
+      id: ccs811_eco2
+    tvoc:
+      name: "CCS811 TVOC"
+      id: ccs811_tvoc
+    address: 0x5A
+    update_interval: 60s
+    # Baseline can be used to speed up compensation
+    # baseline: 0x4EFF
+
+# Text sensors for additional information
+text_sensor:
+  # Air quality interpretation
+  - platform: template
+    name: "Air Quality Status"
+    lambda: |-
+      if (id(ens160_aqi).state <= 50) {
+        return {"Excellent"};
+      } else if (id(ens160_aqi).state <= 100) {
+        return {"Good"};
+      } else if (id(ens160_aqi).state <= 150) {
+        return {"Moderate"};
+      } else if (id(ens160_aqi).state <= 200) {
+        return {"Poor"};
+      } else if (id(ens160_aqi).state <= 300) {
+        return {"Unhealthy"};
+      } else {
+        return {"Hazardous"};
+      }
+    update_interval: 60s

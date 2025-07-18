@@ -1,0 +1,131 @@
+# Sensors configuration
+sensor:
+  # AHT21 Temperature and Humidity Sensor
+  - platform: aht10
+    variant: AHT20  # AHT21 uses the same protocol as AHT20
+    temperature:
+      name: "Temperature"
+      id: temp_sensor
+      filters:
+        - offset: 0.0  # Adjust if calibration needed
+    humidity:
+      name: "Humidity"
+      id: humidity_sensor
+      filters:
+        - offset: 0.0  # Adjust if calibration needed
+    address: 0x38
+    update_interval: 30s
+
+  # ENS160 Air Quality Sensor with compensation
+  - platform: ens160
+    eco2:
+      name: "eCO2"
+      id: eco2_sensor
+      filters:
+        - sliding_window_moving_average:
+            window_size: 5
+            send_every: 1
+    tvoc:
+      name: "TVOC"
+      id: tvoc_sensor
+      filters:
+        - sliding_window_moving_average:
+            window_size: 5
+            send_every: 1
+    aqi:
+      name: "Air Quality Index"
+      id: aqi_sensor
+    address: 0x53
+    update_interval: 60s
+    compensation:
+      temperature: temp_sensor
+      humidity: humidity_sensor
+
+# Text sensors for additional information
+text_sensor:
+  # ENS160 operation mode
+  - platform: ens160
+    version:
+      name: "ENS160 Firmware Version"
+
+  # Air quality level interpretation
+  - platform: template
+    name: "Air Quality Level"
+    icon: "mdi:air-filter"
+    lambda: |-
+      if (id(aqi_sensor).state <= 50) {
+        return {"Excellent"};
+      } else if (id(aqi_sensor).state <= 100) {
+        return {"Good"};
+      } else if (id(aqi_sensor).state <= 150) {
+        return {"Moderate"};
+      } else if (id(aqi_sensor).state <= 200) {
+        return {"Poor"};
+      } else if (id(aqi_sensor).state <= 300) {
+        return {"Unhealthy"};
+      } else {
+        return {"Hazardous"};
+      }
+    update_interval: 60s
+
+  # CO2 level interpretation
+  - platform: template
+    name: "CO2 Level Status"
+    icon: "mdi:molecule-co2"
+    lambda: |-
+      if (id(eco2_sensor).state < 600) {
+        return {"Excellent"};
+      } else if (id(eco2_sensor).state < 800) {
+        return {"Good"};
+      } else if (id(eco2_sensor).state < 1000) {
+        return {"Fair"};
+      } else if (id(eco2_sensor).state < 1500) {
+        return {"Poor"};
+      } else {
+        return {"Very Poor"};
+      }
+    update_interval: 60s
+
+  # Comfort level based on temperature and humidity
+  - platform: template
+    name: "Comfort Level"
+    icon: "mdi:home-thermometer"
+    lambda: |-
+      float temp = id(temp_sensor).state;
+      float hum = id(humidity_sensor).state;
+      
+      if (temp >= 20 && temp <= 26 && hum >= 40 && hum <= 60) {
+        return {"Comfortable"};
+      } else if ((temp >= 18 && temp < 20) || (temp > 26 && temp <= 28)) {
+        if (hum >= 30 && hum <= 70) {
+          return {"Acceptable"};
+        }
+      }
+      
+      if (temp < 18) {
+        return {"Too Cold"};
+      } else if (temp > 28) {
+        return {"Too Hot"};
+      } else if (hum < 30) {
+        return {"Too Dry"};
+      } else if (hum > 70) {
+        return {"Too Humid"};
+      } else {
+        return {"Uncomfortable"};
+      }
+    update_interval: 60s
+
+# Interval-based automations (optional)
+interval:
+  # Periodically log sensor status
+  # - interval: 5min
+  - interval: 1min # Reduced interval for testing. Restore previous interval for production.
+    then:
+      - logger.log:
+          format: "AQI: %.0f, eCO2: %.0f ppm, TVOC: %.0f ppb, Temp: %.1f°C, Humidity: %.1f%%"
+          args: 
+            - 'id(aqi_sensor).state'
+            - 'id(eco2_sensor).state'
+            - 'id(tvoc_sensor).state'
+            - 'id(temp_sensor).state'
+            - 'id(humidity_sensor).state'
