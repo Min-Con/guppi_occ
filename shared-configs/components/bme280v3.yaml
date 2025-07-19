@@ -61,7 +61,7 @@ sensor:
       oversampling: 16x
       filters:
         - lambda: "return x + id(humidity_offset).state;"
-    address: 0x77  # Use 0x76 if SDO is connected to GND
+    address: 0x76  # Use 0x76 if SDO is connected to GND
     update_interval: 60s
     iir_filter: 4x  # IIR filter for stable readings
 
