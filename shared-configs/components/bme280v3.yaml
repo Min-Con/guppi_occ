@@ -52,7 +52,6 @@ sensor:
     pressure:
       name: "Pressure"
       id: bme_pressure
-      unit_of_measurement: "hPa"
       oversampling: 16x
       filters:
         - lambda: "return x + id(pressure_offset).state;"
