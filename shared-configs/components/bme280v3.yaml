@@ -104,7 +104,8 @@ sensor:
       filters:
         - lambda: "return x + id(humidity_offset).state;"
     address: 0x76  # Use 0x76 if SDO is connected to GND
-    update_interval: never  # Controlled by automation instead
+    update_interval: !lambda |-
+      return id(sensor_read_interval).state * 1000;
     iir_filter: 4x  # IIR filter for stable readings
 
   # Calculated sensors with static intervals
@@ -298,85 +299,15 @@ binary_sensor:
       
       return (temp <= 4.0 || dew_point <= 2.0);
 
-# Automation to handle dynamic sensor updates
+# Automation to update all sensors when interval changes
 automation:
-  - id: sensor_update_loop
+  - id: update_sensor_intervals
     trigger:
-      - platform: homeassistant
-        event: start
       - platform: state
         entity_id: select.sensor_update_frequency
     action:
-      - if:
-          condition:
-            lambda: 'return id(sensor_frequency).state == "1 second";'
-          then:
-            - while:
-                condition:
-                  lambda: 'return id(sensor_frequency).state == "1 second";'
-                then:
-                  - component.update: bme_sensor
-                  - delay: 1s
-      - if:
-          condition:
-            lambda: 'return id(sensor_frequency).state == "10 seconds";'
-          then:
-            - while:
-                condition:
-                  lambda: 'return id(sensor_frequency).state == "10 seconds";'
-                then:
-                  - component.update: bme_sensor
-                  - delay: 10s
-      - if:
-          condition:
-            lambda: 'return id(sensor_frequency).state == "30 seconds";'
-          then:
-            - while:
-                condition:
-                  lambda: 'return id(sensor_frequency).state == "30 seconds";'
-                then:
-                  - component.update: bme_sensor
-                  - delay: 30s
-      - if:
-          condition:
-            lambda: 'return id(sensor_frequency).state == "1 minute";'
-          then:
-            - while:
-                condition:
-                  lambda: 'return id(sensor_frequency).state == "1 minute";'
-                then:
-                  - component.update: bme_sensor
-                  - delay: 60s
-      - if:
-          condition:
-            lambda: 'return id(sensor_frequency).state == "5 minutes";'
-          then:
-            - while:
-                condition:
-                  lambda: 'return id(sensor_frequency).state == "5 minutes";'
-                then:
-                  - component.update: bme_sensor
-                  - delay: 300s
-      - if:
-          condition:
-            lambda: 'return id(sensor_frequency).state == "30 minutes";'
-          then:
-            - while:
-                condition:
-                  lambda: 'return id(sensor_frequency).state == "30 minutes";'
-                then:
-                  - component.update: bme_sensor
-                  - delay: 1800s
-      - if:
-          condition:
-            lambda: 'return id(sensor_frequency).state == "1 hour";'
-          then:
-            - while:
-                condition:
-                  lambda: 'return id(sensor_frequency).state == "1 hour";'
-                then:
-                  - component.update: bme_sensor
-                  - delay: 3600s
+      # Force update all sensors to apply new timing immediately
+      - component.update: bme_sensor
 
 # Interval for periodic logging (fixed interval)
 interval:
