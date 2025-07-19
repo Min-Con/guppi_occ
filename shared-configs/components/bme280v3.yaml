@@ -1,47 +1,5 @@
-# User-configurable sensor reading interval
-select:
-  - platform: template
-    name: "Sensor Update Frequency"
-    id: sensor_frequency
-    icon: "mdi:timer-outline"
-    entity_category: config
-    restore_value: true
-    initial_option: "1 minute"
-    options:
-      - "1 second"
-      - "10 seconds"
-      - "30 seconds"
-      - "1 minute"
-      - "5 minutes"
-      - "30 minutes"
-      - "1 hour"
-    on_value:
-      then:
-        - component.update: bme_sensor
-
-# Number component to store the interval value in seconds
+# User-configurable offset controls
 number:
-  - platform: template
-    name: "Sensor Read Interval"
-    id: sensor_read_interval
-    min_value: 1
-    max_value: 3600
-    step: 1
-    unit_of_measurement: "s"
-    icon: "mdi:clock-outline"
-    entity_category: config
-    internal: true  # Hidden from UI since we use the select instead
-    lambda: |-
-      std::string freq = id(sensor_frequency).state;
-      if (freq == "1 second") return 1;
-      if (freq == "10 seconds") return 10;
-      if (freq == "30 seconds") return 30;
-      if (freq == "1 minute") return 60;
-      if (freq == "5 minutes") return 300;
-      if (freq == "30 minutes") return 1800;
-      if (freq == "1 hour") return 3600;
-      return 60;  // Default fallback
-
   - platform: template
     name: "Temperature Offset"
     id: temp_offset
@@ -81,7 +39,7 @@ number:
     entity_category: config
     optimistic: true
 
-# BME280 sensor configuration with user-configurable offsets and dynamic interval
+# BME280 sensor configuration with user-configurable offsets
 sensor:
   - platform: bme280_i2c
     id: bme_sensor
@@ -104,11 +62,10 @@ sensor:
       filters:
         - lambda: "return x + id(humidity_offset).state;"
     address: 0x76  # Use 0x76 if SDO is connected to GND
-    update_interval: !lambda |-
-      return id(sensor_read_interval).state * 1000;
+    update_interval: 60s
     iir_filter: 4x  # IIR filter for stable readings
 
-  # Calculated sensors with static intervals
+  # Calculated sensors (these will automatically use the offset-adjusted values)
   - platform: template
     name: "Dew Point"
     device_class: temperature
@@ -204,15 +161,6 @@ sensor:
 
 # Text sensors
 text_sensor:
-  # Display current update interval
-  - platform: template
-    name: "Current Update Interval"
-    icon: "mdi:information-outline"
-    entity_category: diagnostic
-    lambda: |-
-      return {"Sensor reads every " + id(sensor_frequency).state};
-    update_interval: 30s
-
   # Comfort level
   - platform: template
     name: "Comfort Level"
@@ -283,7 +231,7 @@ text_sensor:
 
 # Binary sensors
 binary_sensor:
-  # Frost warning
+  # Frost warning (fixed to use dew point calculation)
   - platform: template
     name: "Frost Warning"
     device_class: cold
@@ -299,22 +247,12 @@ binary_sensor:
       
       return (temp <= 4.0 || dew_point <= 2.0);
 
-# Automation to update all sensors when interval changes
-automation:
-  - id: update_sensor_intervals
-    trigger:
-      - platform: state
-        entity_id: select.sensor_update_frequency
-    action:
-      # Force update all sensors to apply new timing immediately
-      - component.update: bme_sensor
-
-# Interval for periodic logging (fixed interval)
+# Interval for periodic logging
 interval:
   - interval: 10min
     then:
       - logger.log:
-          format: "Temp: %.1f°C (offset: %.1f), Humidity: %.1f%% (offset: %.1f), Pressure: %.1f hPa (offset: %.1f) - Update freq: %s"
+          format: "Temp: %.1f°C (offset: %.1f), Humidity: %.1f%% (offset: %.1f), Pressure: %.1f hPa (offset: %.1f)"
           args: 
             - 'id(bme_temperature).state'
             - 'id(temp_offset).state'
@@ -322,7 +260,6 @@ interval:
             - 'id(humidity_offset).state'
             - 'id(bme_pressure).state'
             - 'id(pressure_offset).state'
-            - 'id(sensor_frequency).state.c_str()'
 
 # Optional: Daily min/max tracking
 globals:
