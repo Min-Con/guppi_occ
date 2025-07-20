@@ -1,45 +1,4 @@
-# User-configurable offset controls
-number:
-  - platform: template
-    name: "Temperature Offset"
-    id: temp_offset
-    min_value: -10.0
-    max_value: 10.0
-    step: 0.1
-    initial_value: 0.0
-    restore_value: true
-    unit_of_measurement: "°C"
-    icon: "mdi:thermometer-plus"
-    entity_category: config
-    optimistic: true
-
-  - platform: template
-    name: "Humidity Offset"
-    id: humidity_offset
-    min_value: -20.0
-    max_value: 20.0
-    step: 0.1
-    initial_value: 0.0
-    restore_value: true
-    unit_of_measurement: "%"
-    icon: "mdi:water-percent"
-    entity_category: config
-    optimistic: true
-
-  - platform: template
-    name: "Pressure Offset"
-    id: pressure_offset
-    min_value: -50.0
-    max_value: 50.0
-    step: 0.1
-    initial_value: 0.0
-    restore_value: true
-    unit_of_measurement: "hPa"
-    icon: "mdi:gauge"
-    entity_category: config
-    optimistic: true
-
-# BME280 sensor configuration with user-configurable offsets
+# BME280 sensor configuration
 sensor:
   - platform: bme280_i2c
     id: bme_sensor
@@ -48,24 +7,24 @@ sensor:
       id: bme_temperature
       oversampling: 16x
       filters:
-        - lambda: "return x + id(temp_offset).state;"
+        - offset: 0.0  # Adjust for calibration if needed
     pressure:
       name: "Pressure"
       id: bme_pressure
       oversampling: 16x
       filters:
-        - lambda: "return x + id(pressure_offset).state;"
+        - offset: 0.0  # Adjust for calibration if needed
     humidity:
       name: "Humidity"
       id: bme_humidity
       oversampling: 16x
       filters:
-        - lambda: "return x + id(humidity_offset).state;"
+        - offset: 0.0  # Adjust for calibration if needed
     address: 0x76  # Use 0x76 if SDO is connected to GND
     update_interval: 60s
     iir_filter: 4x  # IIR filter for stable readings
 
-  # Calculated sensors (these will automatically use the offset-adjusted values)
+  # Calculated sensors
   - platform: template
     name: "Dew Point"
     device_class: temperature
@@ -231,20 +190,13 @@ text_sensor:
 
 # Binary sensors
 binary_sensor:
-  # Frost warning (fixed to use dew point calculation)
+  # Frost warning
   - platform: template
     name: "Frost Warning"
     device_class: cold
     lambda: |-
       float temp = id(bme_temperature).state;
-      float hum = id(bme_humidity).state;
-      
-      // Calculate dew point for frost warning
-      float a = 17.27;
-      float b = 237.7;
-      float alpha = ((a * temp) / (b + temp)) + log(hum / 100.0);
-      float dew_point = (b * alpha) / (a - alpha);
-      
+      float dew_point = id(bme_temperature).state;  // You'd calculate this
       return (temp <= 4.0 || dew_point <= 2.0);
 
 # Interval for periodic logging
@@ -252,14 +204,11 @@ interval:
   - interval: 10min
     then:
       - logger.log:
-          format: "Temp: %.1f°C (offset: %.1f), Humidity: %.1f%% (offset: %.1f), Pressure: %.1f hPa (offset: %.1f)"
+          format: "Temp: %.1f°C, Humidity: %.1f%%, Pressure: %.1f hPa"
           args: 
             - 'id(bme_temperature).state'
-            - 'id(temp_offset).state'
             - 'id(bme_humidity).state'
-            - 'id(humidity_offset).state'
             - 'id(bme_pressure).state'
-            - 'id(pressure_offset).state'
 
 # Optional: Daily min/max tracking
 globals:

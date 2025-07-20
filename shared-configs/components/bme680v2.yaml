@@ -1,0 +1,251 @@
+# User configurable offsets and radar configuration parameters
+number:
+  - platform: template
+    name: "Temperature Offset"
+    id: temperature_offset
+    unit_of_measurement: "ºC"
+    optimistic: true
+    min_value: -50
+    max_value: 30
+    step: 0.1
+    update_interval: never
+    restore_value: true
+    initial_value: 0
+#    entity_category: "config"
+
+  - platform: template
+    name: "Humidity Offset"
+    id: humidity_offset
+    unit_of_measurement: "%"
+    optimistic: true
+    min_value: -50
+    max_value: 30
+    step: 0.1
+    update_interval: never
+    restore_value: true
+    initial_value: 0
+#    entity_category: "config"
+
+  - platform: template
+    name: "Pressure OffSet"
+    id: pressure_offset
+    unit_of_measurement: "hPa"
+    min_value: -50
+    max_value: 30
+    step: 0.01
+    update_interval: never
+    optimistic: true
+    restore_value: true
+    initial_value: 0
+
+
+# BME680 configuration using BSEC2
+# Ensure that the sensor is properly wired and powered (3.3V)
+bme68x_bsec2_i2c:
+  id: bme68x_sensor
+  model: bme680
+  operating_age: 28d
+  sample_rate: LP
+  supply_voltage: 3.3V
+  address: 0x77  # Verify this address with your hardware (common alternatives: 0x76)
+  state_save_interval: 24h
+
+sensor:
+  # BME680 Sensors using BSEC2 (raw sensor readings)
+  - platform: bme68x_bsec2
+    bme68x_bsec2_id: bme68x_sensor
+    temperature:
+      name: "Uncompensated Temperature"
+      id: raw_temperature
+      internal: true
+    pressure:
+      name: "Pressure"
+      filters:
+        - sliding_window_moving_average:
+            window_size: 3
+            send_every: 3
+    humidity:
+      name: "Uncompensated Humidity"
+      id: raw_humidity
+      internal: true
+    gas_resistance:
+      name: "Gas Resistance"
+      filters:
+        - sliding_window_moving_average:
+            window_size: 3
+            send_every: 3
+    iaq:
+      name: "AQI"
+      id: iaq
+      filters:
+        - sliding_window_moving_average:
+            window_size: 3
+            send_every: 3
+    co2_equivalent:
+      name: "CO2 Equivalent"
+      filters:
+        - sliding_window_moving_average:
+            window_size: 3
+            send_every: 3
+    breath_voc_equivalent:
+      name: "Breath VOC Equivalent"
+      filters:
+        - sliding_window_moving_average:
+            window_size: 3
+            send_every: 3
+
+  # Compensated temperature sensor
+  - platform: template
+    name: "Temperature"
+    id: compensated_temperature
+    unit_of_measurement: "°C"
+    device_class: "temperature"
+    state_class: "measurement"
+    icon: "mdi:thermometer"
+    accuracy_decimals: 1
+    lambda: |-
+      return id(raw_temperature).state + id(temperature_offset).state;
+    update_interval: 60s
+
+  # Compensated humidity sensor
+  - platform: template
+    name: "Humidity"
+    id: compensated_humidity
+    unit_of_measurement: "%"
+    device_class: "humidity"
+    state_class: "measurement"
+    icon: "mdi:water-percent"
+    accuracy_decimals: 1
+    lambda: |-
+      return id(raw_humidity).state + id(humidity_offset).state;
+    update_interval: 60s
+
+  # Calculated sensors (these will automatically use the offset-adjusted values)
+  - platform: template
+    name: "Dew Point"
+    device_class: temperature
+    unit_of_measurement: "°C"
+    icon: "mdi:water-thermometer"
+    lambda: |-
+      float temp = id(compensated_temperature).state;
+      float hum = id(compensated_humidity).state;
+      
+      // Magnus formula for dew point calculation
+      float a = 17.27;
+      float b = 237.7;
+      float alpha = ((a * temp) / (b + temp)) + log(hum / 100.0);
+      float dew_point = (b * alpha) / (a - alpha);
+      
+      return dew_point;
+    update_interval: 60s
+
+  - platform: template
+    name: "Heat Index"
+    device_class: temperature
+    unit_of_measurement: "°C"
+    icon: "mdi:sun-thermometer"
+    lambda: |-
+      float temp = id(compensated_temperature).state;
+      float hum = id(compensated_humidity).state;
+      float temp_f = temp * 9.0/5.0 + 32.0;  // Convert to Fahrenheit
+      
+      if (temp_f < 80.0 || hum < 40.0) {
+        return temp;  // Heat index not applicable
+      }
+      
+      // Simplified heat index calculation
+      float hi = -42.379 + 2.04901523 * temp_f + 10.14333127 * hum
+                - 0.22475541 * temp_f * hum - 0.00683783 * temp_f * temp_f
+                - 0.05481717 * hum * hum + 0.00122874 * temp_f * temp_f * hum
+                + 0.00085282 * temp_f * hum * hum - 0.00000199 * temp_f * temp_f * hum * hum;
+      
+      // Convert back to Celsius
+      return (hi - 32.0) * 5.0/9.0;
+    update_interval: 60s
+
+  - platform: template
+    name: "Absolute Humidity"
+    unit_of_measurement: "g/m³"
+    icon: "mdi:water-percent"
+    lambda: |-
+      float temp = id(compensated_temperature).state;
+      float hum = id(compensated_humidity).state;
+
+      // Calculate absolute humidity in g/m³
+      float abs_hum = (6.112 * exp((17.67 * temp) / (temp + 243.5)) * hum * 2.1674) / (273.15 + temp);
+      return abs_hum;
+    update_interval: 60s
+
+  - platform: template
+    name: "Altitude"
+    unit_of_measurement: "m"
+    icon: "mdi:elevation-rise"
+    lambda: |-
+      const float sea_level_pressure = 1013.25;  // hPa
+      float pressure = id(compensated_pressure).state;
+      float temp = id(compensated_temperature).state + 273.15;  // Kelvin
+
+      // Barometric formula
+      float altitude = ((pow((sea_level_pressure / pressure), (1.0 / 5.257)) - 1.0) * temp) / 0.0065;
+      return altitude;
+    update_interval: 60s
+
+  - platform: template
+    name: "Daily Min Temperature"
+    unit_of_measurement: "°C"
+    icon: "mdi:thermometer-chevron-down"
+    lambda: |-
+      float current = id(compensated_temperature).state;
+      if (current < id(daily_min_temp)) {
+        id(daily_min_temp) = current;
+      }
+      return id(daily_min_temp);
+    update_interval: 60s
+
+  - platform: template
+    name: "Daily Max Temperature"
+    unit_of_measurement: "°C"
+    icon: "mdi:thermometer-chevron-up"
+    lambda: |-
+      float current = id(compensated_temperature).state;
+      if (current > id(daily_max_temp)) {
+        id(daily_max_temp) = current;
+      }
+      return id(daily_max_temp);
+    update_interval: 60s
+
+
+text_sensor:
+  - platform: bme68x_bsec2
+    bme68x_bsec2_id: bme68x_sensor
+    iaq_accuracy:
+      name: "AQI Accuracy"
+
+  - platform: template
+    name: "AQI Classification"
+    lambda: |-
+      if (int(id(iaq).state) <= 50) {
+        return {"Excellent"};
+      }
+      else if (int(id(iaq).state) >= 51 && int(id(iaq).state) <= 100) {
+        return {"Good"};
+      }
+      else if (int(id(iaq).state) >= 101 && int(id(iaq).state) <= 150) {
+        return {"Lightly polluted"};
+      }
+      else if (int(id(iaq).state) >= 151 && int(id(iaq).state) <= 200) {
+        return {"Moderately polluted"};
+      }
+      else if (int(id(iaq).state) >= 201 && int(id(iaq).state) <= 250) {
+        return {"Heavily polluted"};
+      }
+      else if (int(id(iaq).state) >= 251 && int(id(iaq).state) <= 350) {
+        return {"Severely polluted"};
+      }
+      else if (int(id(iaq).state) >= 351) {
+        return {"Extremely polluted"};
+      }
+      else {
+        return {"error"};
+      }
+
