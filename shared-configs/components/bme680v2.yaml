@@ -249,3 +249,127 @@ text_sensor:
         return {"error"};
       }
 
+  # Comfort level
+  - platform: template
+    name: "Comfort Level"
+    icon: "mdi:home-thermometer-outline"
+    lambda: |-
+      float temp = id(compensated_temperature).state;
+      float hum = id(compensated_humidity).state;
+
+      if (temp >= 20 && temp <= 26 && hum >= 40 && hum <= 60) {
+        return {"Comfortable"};
+      } else if ((temp >= 18 && temp < 20) || (temp > 26 && temp <= 28)) {
+        if (hum >= 30 && hum <= 70) {
+          return {"Acceptable"};
+        }
+      }
+      
+      if (temp < 18) {
+        return {"Too Cold"};
+      } else if (temp > 28) {
+        return {"Too Hot"};
+      } else if (hum < 30) {
+        return {"Too Dry"};
+      } else if (hum > 70) {
+        return {"Too Humid"};
+      } else {
+        return {"Uncomfortable"};
+      }
+    update_interval: 60s
+
+  # Weather tendency based on pressure changes
+  - platform: template
+    name: "Weather Tendency"
+    icon: "mdi:weather-partly-cloudy"
+    lambda: |-
+      static float last_pressure = 0;
+      static float pressure_change = 0;
+      float current_pressure = id(compensated_pressure).state;
+
+      if (last_pressure > 0) {
+        pressure_change = current_pressure - last_pressure;
+      }
+      last_pressure = current_pressure;
+      
+      if (pressure_change > 1.5) {
+        return {"Improving"};
+      } else if (pressure_change < -1.5) {
+        return {"Deteriorating"};
+      } else {
+        return {"Stable"};
+      }
+    update_interval: 30min
+
+  # Pressure trend
+  - platform: template
+    name: "Pressure Level"
+    icon: "mdi:gauge"
+    lambda: |-
+      float pressure = id(compensated_pressure).state;
+
+      if (pressure < 1009) {
+        return {"Low"};
+      } else if (pressure >= 1009 && pressure <= 1022) {
+        return {"Normal"};
+      } else {
+        return {"High"};
+      }
+    update_interval: 60s
+
+binary_sensor:
+  # Frost warning (fixed to use dew point calculation)
+  - platform: template
+    name: "Frost Warning"
+    device_class: cold
+    lambda: |-
+      float temp = id(compensated_temperature).state;
+      float hum = id(compensated_humidity).state;
+
+      // Calculate dew point for frost warning
+      float a = 17.27;
+      float b = 237.7;
+      float alpha = ((a * temp) / (b + temp)) + log(hum / 100.0);
+      float dew_point = (b * alpha) / (a - alpha);
+      
+      return (temp <= 4.0 || dew_point <= 2.0);
+
+# Interval for periodic logging
+interval:
+  - interval: 10min
+    then:
+      - logger.log:
+          format: "Temp: %.1f°C (offset: %.1f), Humidity: %.1f%% (offset: %.1f), Pressure: %.1f hPa (offset: %.1f)"
+          args: 
+            - 'id(compensated_temperature).state'
+            - 'id(temp_offset).state'
+            - 'id(compensated_humidity).state'
+            - 'id(humidity_offset).state'
+            - 'id(compensated_pressure).state'
+            - 'id(pressure_offset).state'
+
+# Optional: Daily min/max tracking
+globals:
+  - id: daily_min_temp
+    type: float
+    restore_value: no
+    initial_value: '100.0'
+  - id: daily_max_temp
+    type: float
+    restore_value: no
+    initial_value: '-100.0'
+
+# Reset daily min/max at midnight
+time:
+  - platform: homeassistant
+    on_time:
+      - seconds: 0
+        minutes: 0
+        hours: 0
+        then:
+          - globals.set:
+              id: daily_min_temp
+              value: '100.0'
+          - globals.set:
+              id: daily_max_temp
+              value: '-100.0'
