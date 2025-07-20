@@ -120,6 +120,19 @@ sensor:
       return id(raw_humidity).state + id(humidity_offset).state;
     update_interval: 60s
 
+  # Compensated pressure sensor
+  - platform: template
+    name: "Pressure"
+    id: compensated_pressure
+    unit_of_measurement: "hPa"
+    device_class: "pressure"
+    state_class: "measurement"
+    icon: "mdi:gauge"
+    accuracy_decimals: 1
+    lambda: |-
+      return id(raw_humidity).state + id(humidity_offset).state;
+    update_interval: 60s
+
   # Calculated sensors (these will automatically use the offset-adjusted values)
   - platform: template
     name: "Dew Point"
@@ -342,7 +355,7 @@ interval:
           format: "Temp: %.1f°C (offset: %.1f), Humidity: %.1f%% (offset: %.1f), Pressure: %.1f hPa (offset: %.1f)"
           args: 
             - 'id(compensated_temperature).state'
-            - 'id(temp_offset).state'
+            - 'id(temperature_offset).state'
             - 'id(compensated_humidity).state'
             - 'id(humidity_offset).state'
             - 'id(compensated_pressure).state'
