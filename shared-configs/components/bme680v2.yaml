@@ -59,7 +59,9 @@ sensor:
       id: raw_temperature
       internal: true
     pressure:
-      name: "Pressure"
+      name: "UncompensatedPressure"
+      id: raw_pressure
+      internal: true
       filters:
         - sliding_window_moving_average:
             window_size: 3
@@ -130,7 +132,7 @@ sensor:
     icon: "mdi:gauge"
     accuracy_decimals: 1
     lambda: |-
-      return id(raw_humidity).state + id(humidity_offset).state;
+      return id(raw_pressure).state + id(pressure_offset).state;
     update_interval: 60s
 
   # Calculated sensors (these will automatically use the offset-adjusted values)
