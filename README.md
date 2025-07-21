@@ -121,7 +121,7 @@ This example demonstrates how to create a fully configured Entryway Occupancy de
 
 1. **Create New Device:**  
    Open ESPHome Builder and create a new device. Give it a meaningful name (e.g., `entryway_occupancy`).
-   
+
         BE SURE TO MAKE A COPY OF YOUR API KEY!!
 
 2. **Copy Template Contents:**  
@@ -145,7 +145,7 @@ Below is an example configuration for an Entryway Occupancy device:
 ####################################
 
 substitutions:
-  name: guppi-hps-test-02
+  name: entryway_occupancy_sensor
   friendly_name: Entryway Occupancy Sensor
 # Specify below pin numbers for UART, GPIO, and I2C connections
 # Delete if not needed
