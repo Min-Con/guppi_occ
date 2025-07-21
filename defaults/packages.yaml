@@ -1,7 +1,7 @@
 # This file includes definitions for external packages that ESPHome will fetch at compile time.
-
 # Replace the files as appropriate, and add any additional ones you require.
-# EXAMPLE:
+
+# EXAMPLE CONFIGURATION:
 packages:
   project_configs: 
 #    url: github://min-con/guppi_occ
@@ -10,8 +10,11 @@ packages:
     ref: main
     refresh: 0s
 
+# ================================================================================
+# AVAILABLE CONFIGURATION FILES
+# ================================================================================
 
-# ** Project specific defaults **
+# ** Project Specific Defaults **
 # defaults/GUPPI.ST-OCC-GP-2410-BLE-DEFAULTS.yaml
 # defaults/st-occ-2410-ble-defaults.yaml
 # defaults/st-occ-gp-2410-ble-defaults.yaml
@@ -19,28 +22,131 @@ packages:
 # defaults/mt-occ-2450-28-defaults.yaml
 # defaults/mt-occ-2450-2817-defaults.yaml
 
-# ** Board specific configurations **
-# shared-configs/boards/esp32dev-esp-idf.yaml
-# shared-configs/boards/esp32-s3-zero.yaml
-# shared-configs/boards/esp32-c-super-mini.yaml
-# shared-configs/boards/esp32-c3-devkitm-1-arduino.yaml
-# shared-configs/boards/seeed_xiao_esp32s3-arduino.yaml
+# ** Board Specific Configurations **
+# ESP32 Classic (Original ESP32)
+# shared-configs/boards/d1-mini-esp32dev.yaml                  # ESP32 D1 Mini with WS2812 RGB LED
+# shared-configs/boards/esp32-wroom-arduino.yaml              # ESP32 WROOM with Arduino framework
+# shared-configs/boards/esp32-wroom-esp-idf.yaml              # ESP32 WROOM with ESP-IDF framework
+# shared-configs/boards/m5-atom-lite-pico.yaml                # M5 Atom Lite/Pico with stability optimizations
+# shared-configs/boards/m5-stick-cplus.yaml                   # M5 Stick C Plus with memory optimizations
 
-# ** Default diagnostic and config entities **
-# shared-configs/defaults/entity-defaults.yaml
+# ESP32-C3 Boards (Single-core RISC-V)
+# shared-configs/boards/esp32-c3-devkitm-1-esp-idf.yaml       # ESP32-C3 DevKitM-1
+# shared-configs/boards/esp32-c3-super-mini.yaml              # ESP32-C3 Super Mini
+# shared-configs/boards/seeed_xiao_esp32c3-esp-idf.yaml       # Seeed XIAO ESP32-C3
 
-# ** Network options **
-# shared-configs/network/wifi.yaml
-# shared-configs/network/bletracker.yaml
-# shared-configs/network/bleproxy.yaml #Only needed if BLE Tracker isn't already enabled
+# ESP32-C6 Boards (Single-core RISC-V with WiFi 6 & Thread/Zigbee)
+# shared-configs/boards/esp32-c6-super-mini.yaml              # ESP32-C6 Super Mini with WS2812 RGB LED
+# shared-configs/boards/esp32-c6-zero.yaml                    # ESP32-C6 Zero
+# shared-configs/boards/seeed_xiao_esp32c6-esp-idf.yaml       # Seeed XIAO ESP32-C6
 
-# ** Sensor specific configurations **
-# shared-configs/components/ld2410.yaml
-# shared-configs/components/ld2410-no-gp.yaml
-# shared-configs/components/ld2450.yaml
-# shared-configs/components/bme680.yaml
-# shared-configs/components/bme280.yaml
-# shared-configs/components/bmp280.yaml
-# shared-configs/components/bh1750.yaml
-# shared-configs/components/scd41.yaml
+# ESP32-S3 Boards (Dual-core with PSRAM support)
+# shared-configs/boards/esp32-s3-devkitc-1-arduino.yaml      # ESP32-S3 DevKitC-1 (Arduino framework only)
+# shared-configs/boards/esp32-s3-devkitc-1-esp-idf.yaml      # ESP32-S3 DevKitC-1 with ESP-IDF
+# shared-configs/boards/esp32-s3-zero.yaml                    # ESP32-S3 Zero
+# shared-configs/boards/seeed_xiao_esp32s3-arduino.yaml      # Seeed XIAO ESP32-S3 (Arduino)
+# shared-configs/boards/seeed_xiao_esp32s3-esp-idf.yaml      # Seeed XIAO ESP32-S3 (ESP-IDF)
+# shared-configs/boards/m5-atom-s3.yaml                       # M5 Atom S3 with PSRAM & WS2812C RGB LED
+# shared-configs/boards/m5-atom-s3-lite.yaml                  # M5 Atom S3 Lite (no PSRAM) with comprehensive configs
 
+# ** Default Diagnostic and Config Entities **
+# shared-configs/defaults/entity-defaults.yaml               # Standard diagnostic sensors and controls
+# shared-configs/defaults/entity-defaults2.yaml              # Alternative diagnostic configuration
+
+# ** Network Configuration Options **
+# WiFi Configurations
+# shared-configs/network/wifi.yaml                            # Single network WiFi (recommended)
+# shared-configs/network/wifi-multi.yaml                      # Multiple WiFi networks
+# shared-configs/network/wifi2.yaml                           # High-performance WiFi (dual-core boards)
+# shared-configs/network/wifi3.yaml                           # Optimized WiFi (single-core boards)
+
+# Bluetooth Configurations
+# shared-configs/network/bletracker.yaml                      # BLE tracking with smart start/stop
+# shared-configs/network/bleproxy.yaml                        # BLE proxy only (if tracker not needed)
+# shared-configs/network/bletracker-disabled.yaml            # Disabled BLE tracking example
+
+# ** Sensor Component Configurations **
+# Environmental Sensors
+# shared-configs/components/bme280.yaml                       # BME280 temp/humidity/pressure with offsets
+# shared-configs/components/bme280v2.yaml                     # BME280 with comprehensive derived sensors
+# shared-configs/components/bme280v3.yaml                     # BME280 with weather analysis features
+# shared-configs/components/bme680.yaml                       # BME680 air quality sensor (BSEC2)
+# shared-configs/components/bme680v2.yaml                     # BME680 with compensated readings & weather analysis
+# shared-configs/components/bh1750.yaml                       # BH1750 light sensor with calibration
+# shared-configs/components/scd41.yaml                        # SCD41 CO2 sensor (placeholder)
+# shared-configs/components/ens160-aht21.yaml                 # ENS160 air quality + AHT21 temp/humidity
+# shared-configs/components/ens160-ccs811.yaml                # ENS160 + CCS811 air quality sensors
+
+# Radar/Motion Sensors
+# shared-configs/components/ld2410.yaml                       # LD2410 radar with GPIO motion detection
+# shared-configs/components/ld2410-no-gp.yaml                 # LD2410 radar without GPIO pins
+# shared-configs/components/ld2410v2.yaml                     # LD2410 with comprehensive zone detection
+# shared-configs/components/ld2450.yaml                       # LD2450 multi-target radar (legacy implementation)
+# shared-configs/components/ld2450v2.yaml                     # LD2450 with native ESPHome support
+
+# Additional Components
+# shared-configs/components/bmp280.yaml                       # BMP280 pressure sensor (placeholder)
+# shared-configs/components/zone .h                           # Header file for LD2450 zone calculations
+
+# ================================================================================
+# USAGE EXAMPLES
+# ================================================================================
+
+# ESP32-C3 Super Mini with LD2410 radar and BME280 environmental sensor:
+# packages:
+#   project_configs:
+#     url: https://github.com/min-con/guppi_occ
+#     files: [
+#       shared-configs/boards/esp32-c3-super-mini.yaml,
+#       shared-configs/defaults/entity-defaults.yaml,
+#       shared-configs/network/wifi3.yaml,
+#       shared-configs/network/bletracker.yaml,
+#       shared-configs/components/ld2410.yaml,
+#       shared-configs/components/bme280v2.yaml
+#     ]
+#     ref: main
+#     refresh: 0s
+
+# ESP32-S3 Zero with comprehensive environmental monitoring:
+# packages:
+#   project_configs:
+#     url: https://github.com/min-con/guppi_occ
+#     files: [
+#       shared-configs/boards/esp32-s3-zero.yaml,
+#       shared-configs/defaults/entity-defaults.yaml,
+#       shared-configs/network/wifi2.yaml,
+#       shared-configs/network/bletracker.yaml,
+#       shared-configs/components/bme680v2.yaml,
+#       shared-configs/components/bh1750.yaml
+#     ]
+#     ref: main
+#     refresh: 0s
+
+# M5 Atom S3 Lite with advanced radar detection:
+# packages:
+#   project_configs:
+#     url: https://github.com/min-con/guppi_occ
+#     files: [
+#       shared-configs/boards/m5-atom-s3-lite.yaml,
+#       shared-configs/defaults/entity-defaults.yaml,
+#       shared-configs/network/wifi2.yaml,
+#       shared-configs/components/ld2450v2.yaml,
+#       shared-configs/components/ens160-aht21.yaml
+#     ]
+#     ref: main
+#     refresh: 0s
+
+# ESP32-C6 Super Mini with WiFi 6 and comprehensive sensors:
+# packages:
+#   project_configs:
+#     url: https://github.com/min-con/guppi_occ
+#     files: [
+#       shared-configs/boards/esp32-c6-super-mini.yaml,
+#       shared-configs/defaults/entity-defaults.yaml,
+#       shared-configs/network/wifi3.yaml,
+#       shared-configs/network/bletracker.yaml,
+#       shared-configs/components/ld2410v2.yaml,
+#       shared-configs/components/bme280v3.yaml
+#     ]
+#     ref: main
+#     refresh: 0s

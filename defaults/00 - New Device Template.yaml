@@ -1,13 +1,17 @@
 # This is a basic configuration template for a new device.
-# Copy this file to your devices directory and rename it to something useful.
-# For example, if you're configuring a device for your living room, you might call it `living_room_occupancy.yaml`.
-# Then you can add the configuration to your new ESPHome device in ESPHome Builder.
+# Replace the default ESPHome configuration with your own device's specifications.
+# This template is designed to be a starting point for your ESPHome projects.
+# It includes common components and configurations that can be customized as needed.
 
 ####################################
 # Start Substitutions
 ####################################
 
 substitutions:
+# Move default name and friendly_name to this substitutions section and replace the original values with the substitution variables.
+  name: dining-room-occupancy
+  friendly_name: "Dining Room Occupancy"
+
 # Specify below pin numbers for UART, GPIO, and I2C connections
 # These are device specific and may need to be adjusted
 
@@ -35,6 +39,26 @@ packages:
   project_configs: 
 #    url: github://min-con/guppi_occ
     url: https://github.com/min-con/guppi_occ
-    files: [defaults/GUPPI.ST-OCC-GP-2410-BLE-DEFAULTS.yaml, shared-configs/boards/esp32-s3-zero.yaml, shared-configs/network/wifi.yaml, shared-configs/network/bletracker.yaml, shared-configs/components/ld2410.yaml]
+    files: [defaults/GUPPI.ST-OCC-GP-2410-BLE-DEFAULTS.yaml, shared-configs/boards/esp32-s3-zero.yaml, shared-configs/network/wifi3.yaml, shared-configs/network/bletracker.yaml, shared-configs/components/ld2410.yaml]
     ref: main
     refresh: 0s
+
+esphome:
+  name: "${name}"
+  friendly_name: "${friendly_name}"
+  # Only uncomment the following lines if you want to override the comment, project name, and version from the default package.
+  # comment: "${comment_text}"
+  # project: 
+  #   name: "${project_name}"
+  #   version: "${project_version}"
+
+# Enable Home Assistant API
+api:
+  encryption:
+    key: "your_encryption_key_here"  # Replace with your actual encryption key
+
+# Overide web server configuration entry for easy testing. Remove for production.
+# This is useful for testing the web server without needing to set up a full ESPHome device
+web_server:
+  port: 80
+  version: 3
