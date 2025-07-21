@@ -1,6 +1,6 @@
 # Zerø Effort <!-- omit in toc -->
 
-## Generally Unstable and Poorly Planned Implementations (GUPPI) - Occupancy and Presence Tracking Devices <!-- omit in toc -->
+## Generally Unstable and Poorly Produced Instruments (GUPPI) - Occupancy, Presence, and Environmental Monitoring Devices <!-- omit in toc -->
 
 ![GitHub commit activity](https://img.shields.io/github/commit-activity/m/Min-Con/guppi_occ?color=%2388B04B)
 [![GitHub License](https://img.shields.io/github/license/Min-Con/guppi_occ?style=plastic&color=orange)](https://img.shields.io/github/license/Min-Con/guppi_occ?style=plastic&color=%23FF6F61)
@@ -9,7 +9,7 @@
 ![Static Badge](https://img.shields.io/badge/ESPHome-green?style=plastic&logo=esphome)
 ![Static Badge](https://img.shields.io/badge/Home_Assistant-blue?style=plastic&logo=homeassistant)
 
-A DIY home automation project using ESPHome with Home Assistant on ESP32 hardware for occupancy and presence detection, with capabilities to monitor air quality, climate, illumination, and more. This project is designed to integrate seamlessly with Home Assistant, enabling users to create custom automations and dashboards based on sensor data. <!-- omit in toc -->
+Example configurations for DIY home automation projects using ESPHome with Home Assistant on ESP32 hardware for occupancy and presence detection, with capabilities to monitor air quality, climate, illumination, and more. This project is designed to integrate seamlessly with Home Assistant, enabling users to create custom automations and dashboards based on sensor data. <!-- omit in toc -->
 
 ---
 
@@ -206,13 +206,15 @@ We welcome contributions to the GUPPI Occupancy Monitor project. Please follow t
 
 - **Future Enhancements:**  
   Potential areas for future additions include:
+  - standardization of sensor and entities across different components of the same class.
   - Support for additional ESP32 boards.
-  - Integration of advanced sensors such as the multi-target LD2450.
+  - Integration of additional sensors and components, such as more environmental sensors or displays.
   - Expansion of environmental sensor options.
   - Implementation of visual and audio feedback features.
+  - Implementation of Improv protocol to simplify device configuration and updates.
 
 - **Documentation:**  
-  Update this README and other documentation as needed to reflect your changes. Please review similar ESPHome/Home Assistant projects for community best practices.
+  Perpetually in progress.
 
 ---
 
@@ -250,8 +252,5 @@ This project is licensed under the [MIT License](LICENSE).
 ## Acknowledgements
 
 - Many thanks to the ESPHome and Home Assistant communities for their comprehensive documentation and support.
-- This project is inspired by various community projects and contributions.
+- This project is inspired by numerous community projects and contributions. There are too many to keep track of, but special thanks to those who have shared their work and knowledge.
 
----
-
-For any questions or feedback, please open an issue on GitHub or contact the maintainer.
