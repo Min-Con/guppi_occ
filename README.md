@@ -145,9 +145,12 @@ Below is an example configuration for an Entryway Occupancy device:
 ####################################
 
 substitutions:
+  # These substitutions may be used in multiple places within the configuration where they'll be replaced with these values when the configuration is compiled.
   name: entryway_occupancy_sensor
   friendly_name: Entryway Occupancy Sensor
-# Specify below pin numbers for UART, GPIO, and I2C connections
+
+# Specify below pin numbers for UART, GPIO, and I2C connections to override the defaults.
+# These are device specific and may need to be adjusted if you choose different pins than those defined in the board configuration.
 # Delete if not needed
 #  tx_pin_uart: GPIO21
 #  rx_pin_uart: GPIO20
@@ -166,7 +169,6 @@ substitutions:
 packages:
   project_configs: 
     url: https://github.com/min-con/guppi_occ
-#    files: [defaults/GUPPI.ST-OCC-GP-2410-BLE-DEFAULTS.yaml, shared-configs/defaults/entity-defaults.yaml, shared-configs/boards/seeed_xiao_esp32c3-esp-idf.yaml, shared-configs/network/wifi2.yaml, shared-configs/network/bleproxy.yaml, shared-configs/components/ld2410v2.yaml]
     files: [defaults/GUPPI.ST-OCC-GP-2410-DEFAULTS.yaml, shared-configs/defaults/entity-defaults.yaml, shared-configs/boards/seeed_xiao_esp32c3-esp-idf.yaml, shared-configs/network/wifi2.yaml, shared-configs/components/ld2410v2.yaml]
     ref: main
     refresh: 1s
