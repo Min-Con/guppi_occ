@@ -145,7 +145,7 @@ Below is an example configuration for an Entryway Occupancy device:
 ####################################
 
 substitutions:
-  # These substitutions may be used in multiple places within the configuration where they'll be replaced with these values when the configuration is compiled.
+# These substitutions may be used in multiple places within the configuration where they'll be replaced with these values when the configuration is compiled.
   name: entryway_occupancy_sensor
   friendly_name: Entryway Occupancy Sensor
 
@@ -194,10 +194,10 @@ ota:
   The above configuration is built on top of the default template (`defaults/00 - New Device Template.yaml`). Ensure that you follow the instructions within that file to make any device-specific changes.
 
 - **Packages Block:**  
-  The `packages:` block should be updated based on your needs and the options available in `defaults/packages.yaml`. You may add or remove package includes as required.
+  The `packages:` block should be updated based on your needs and the options described in the packages.md documentation. You may add or remove package includes as required.
 
 - **Installation:**  
-  After finalizing your configuration in ESPHome Builder, click the install button to flash your ESP32 device with this new configuration.
+  After finalizing your configuration in ESPHome Builder, consider running Clean Build Files to confirm there are no issues before clicking the install button to flash your ESP32 device with this new configuration.
 
 Following this workflow will result in a fully configured device that integrates seamlessly with Home Assistant, automatically exposing your sensors as entities for use in dashboards, automations, and more.
 
