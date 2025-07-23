@@ -135,10 +135,10 @@ text_sensor:
     update_interval: 60s
 
   - platform: debug
-    device:
-      name: "Device Info"
-      id: "info"
-      icon: "mdi:information-outline"
+    # device:
+    #   name: "Device Info"
+    #   id: "info"
+    #   icon: "mdi:information-outline"
     reset_reason:
       name: "Reset Reason"
 
