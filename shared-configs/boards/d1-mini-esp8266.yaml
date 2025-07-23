@@ -1,0 +1,140 @@
+####################################
+# Start Substitutions
+####################################
+
+substitutions:
+  # UART pins - ESP8266 D1 Mini UART pins
+  # Note: ESP8266 has limited GPIO, UART0 is used for programming/serial
+  # Hardware UART1 TX only available on GPIO2 (but conflicts with LED)
+  # Software UART or sensors that don't need RX can use GPIO2
+  tx_pin_uart: GPIO2   # UART1 TX (also LED pin - may conflict)
+  rx_pin_uart: GPIO3   # UART0 RX (shared with programming)
+  
+  # LED/Light GPIO - ESP8266 D1 Mini has built-in LED
+  light_gpio: GPIO2    # Built-in LED (NodeMCU/D1 Mini standard)
+  
+  # ADC pin - ESP8266 has only one ADC pin
+  mic_adc: A0          # Only ADC available (maps to GPIO17 internally)
+  
+  # Motion sensor GPIO - Using available GPIO
+  motion_gpio: GPIO16  # D0 - Available GPIO, good for motion sensors
+  
+  # I2C pins - ESP8266 D1 Mini default I2C pins
+  sda_pin_i2c: GPIO4   # D2 - Default SDA
+  scl_pin_i2c: GPIO5   # D1 - Default SCL
+  
+  # Available GPIO pins on ESP8266 D1 Mini (Wemos pin mapping):
+  # GPIO16 - D0 (no interrupt, no PWM, no I2C slave)
+  # GPIO5  - D1 (SCL)
+  # GPIO4  - D2 (SDA) 
+  # GPIO0  - D3 (Flash button, has pull-up)
+  # GPIO2  - D4 (Built-in LED, has pull-up, boot fails if pulled LOW)
+  # GPIO14 - D5 (SCLK)
+  # GPIO12 - D6 (MISO)
+  # GPIO13 - D7 (MOSI)
+  # GPIO15 - D8 (SS, has pull-down, boot fails if pulled HIGH)
+  # GPIO3  - RX (UART0 RX)
+  # GPIO1  - TX (UART0 TX)
+  
+  # Input-only pins:
+  # A0 - Analog input only (0-3.3V, also available as ADC(0) in code)
+  
+  # Pins to avoid or use with caution:
+  # GPIO0  - Boot/Flash button (has pull-up, pulled LOW during boot)
+  # GPIO2  - Built-in LED (has pull-up, boot fails if pulled LOW)
+  # GPIO15 - Has pull-down, boot fails if pulled HIGH  
+  # GPIO1  - UART0 TX (programming/serial)
+  # GPIO3  - UART0 RX (programming/serial)
+  
+  # Alternative configurations:
+  # If you need different I2C pins:
+  # sda_pin_i2c: GPIO12  # D6 - Alternative SDA
+  # scl_pin_i2c: GPIO14  # D5 - Alternative SCL
+  
+  # If you need different motion sensor pin:
+  # motion_gpio: GPIO13  # D7 - Alternative motion pin
+  # motion_gpio: GPIO12  # D6 - Alternative motion pin
+  
+  # SPI pins (hardware SPI):
+  # mosi_pin: GPIO13  # D7 - MOSI
+  # miso_pin: GPIO12  # D6 - MISO
+  # sck_pin: GPIO14   # D5 - SCLK
+  # cs_pin: GPIO15    # D8 - SS/CS (use with caution due to pull-down)
+
+####################################
+# End Substitutions
+####################################
+
+esphome:
+  platformio_options:
+    board_build.flash_mode: dio
+    board_build.f_flash: 40000000L
+    build_flags: 
+      - -DPIO_FRAMEWORK_ARDUINO_MMU_CACHE16_IRAM48_SECHEAP_SHARED
+      - -DDEFAULT_BUFFER_SIZE=2048
+    board_build.f_cpu: 80000000L  # Run at 80MHz instead of 160MHz
+  on_boot:
+    priority: 600
+    then:
+      - delay: 1000ms  # Longer delay for ESP8266 stability
+
+esp8266:
+  board: esp01_1m        # Wemos D1 Mini board
+  # restore_from_flash: true  # Uncomment to restore states from flash
+
+# Note: ESP8266 does NOT support:
+# - Bluetooth/BLE (no BT hardware)
+# - PSRAM (limited to ~80KB RAM)
+# - Multiple UART ports
+# - Advanced power management
+# - Native USB
+
+# Enable logging
+logger:
+  level: INFO  # Reduce from DEBUG/VERBOSE
+  baud_rate: 0
+  esp8266_store_log_strings_in_flash: true
+
+  # ESP8266 Debug info
+debug:
+  update_interval: 30s
+
+# Light configuration
+# ESP8266 D1 Mini has built-in LED on GPIO2
+light:
+  - platform: binary
+    name: "Built-in LED"
+    output: light_output
+    id: status_light
+    restore_mode: ALWAYS_OFF
+    # Note: LED is active LOW (inverted)
+    inverted: true
+
+output:
+  - platform: gpio
+    pin: 
+      number: ${light_gpio}
+      inverted: true  # Built-in LED is active LOW
+    id: light_output
+
+uart:
+  id: uart_bus
+  # Note: ESP8266 UART limitations - be careful with pin selection
+  # Using GPIO2/GPIO3 may conflict with LED and programming
+  # Consider using software UART or sensors that only need TX
+  tx_pin: 
+    number: ${tx_pin_uart}
+  rx_pin: 
+    number: ${rx_pin_uart}
+  baud_rate: 256000
+  parity: NONE
+  stop_bits: 1
+  # ESP8266 may need lower baud rates for stability
+  # Try 115200 if 256000 causes issues
+
+# I2C configuration (optional - add if using I2C sensors)
+i2c:
+  sda: ${sda_pin_i2c}
+  scl: ${scl_pin_i2c}
+  scan: true
+  frequency: 100kHz  # ESP8266 may need lower I2C frequency
