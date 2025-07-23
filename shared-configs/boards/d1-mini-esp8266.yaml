@@ -67,8 +67,6 @@ substitutions:
 
 esphome:
   platformio_options:
-    board_build.flash_mode: dio
-    board_build.f_flash: 40000000L
     build_flags: 
       - -DPIO_FRAMEWORK_ARDUINO_MMU_CACHE16_IRAM48_SECHEAP_SHARED
       - -DDEFAULT_BUFFER_SIZE=2048
