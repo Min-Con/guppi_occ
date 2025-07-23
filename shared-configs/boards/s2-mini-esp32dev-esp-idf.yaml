@@ -22,7 +22,7 @@ substitutions:
   # I2C pins - ESP32-S2 Mini I2C pins (using your working configuration)
   sda_pin_i2c: GPIO7   # Your working SDA pin
   scl_pin_i2c: GPIO8   # Your working SCL pin
-  
+    
   # Additional safe GPIO pins available on ESP32-S2 Mini:
   # GPIO1-GPIO21 (most are available, check specific board)
   # GPIO33-GPIO45 (available on some variants)
