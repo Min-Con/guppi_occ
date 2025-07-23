@@ -108,7 +108,7 @@ light:
     id: status_light
     restore_mode: ALWAYS_OFF
     # Note: LED is active LOW (inverted)
-    inverted: true
+    # inverted: true
 
 output:
   - platform: gpio
