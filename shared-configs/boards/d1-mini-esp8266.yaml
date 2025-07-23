@@ -101,21 +101,21 @@ debug:
 
 # Light configuration
 # ESP8266 D1 Mini has built-in LED on GPIO2
-light:
-  - platform: binary
-    name: "Built-in LED"
-    output: light_output
-    id: status_light
-    restore_mode: ALWAYS_OFF
-    # Note: LED is active LOW (inverted)
-    # inverted: true
+# light:
+#   - platform: binary
+#     name: "Built-in LED"
+#     output: light_output
+#     id: status_light
+#     restore_mode: ALWAYS_OFF
+#     # Note: LED is active LOW (inverted)
+#     # inverted: true
 
-output:
-  - platform: gpio
-    pin: 
-      number: ${light_gpio}
-      inverted: true  # Built-in LED is active LOW
-    id: light_output
+# output:
+#   - platform: gpio
+#     pin: 
+#       number: ${light_gpio}
+#       inverted: true  # Built-in LED is active LOW
+#     id: light_output
 
 uart:
   id: uart_bus
