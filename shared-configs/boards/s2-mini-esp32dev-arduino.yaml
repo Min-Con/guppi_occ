@@ -1,0 +1,143 @@
+####################################
+# Start Substitutions
+####################################
+
+substitutions:
+  # UART pins - ESP32-S2 Mini uses different UART pins than classic ESP32
+  # UART0 is typically used for programming, UART1 for peripherals
+  tx_pin_uart: GPIO17  # TXD1
+  rx_pin_uart: GPIO18  # RXD1
+  
+  # LED/Light GPIO - ESP32-S2 Mini typically has RGB LED on GPIO18
+  # Note: Some S2 Mini boards have WS2812 RGB LED, others have simple LED
+  light_gpio: GPIO15  # Safe GPIO, commonly used for LED on S2 Mini
+  
+  # ADC pin - ESP32-S2 has different ADC layout than classic ESP32
+  # ESP32-S2 ADC pins: GPIO1-GPIO20 (ADC1), no ADC2 available
+  mic_adc: GPIO1  # ADC1_CH0 (input capable)
+  
+  # Motion sensor GPIO - Using available GPIO (moved from GPIO8 due to I2C)
+  motion_gpio: GPIO9
+  
+  # I2C pins - ESP32-S2 Mini I2C pins (using your working configuration)
+  sda_pin_i2c: GPIO7   # Your working SDA pin
+  scl_pin_i2c: GPIO8   # Your working SCL pin
+  
+  # Additional safe GPIO pins available on ESP32-S2 Mini:
+  # GPIO1-GPIO21 (most are available, check specific board)
+  # GPIO33-GPIO45 (available on some variants)
+  
+  # Input-capable pins with ADC:
+  # GPIO1-GPIO20 (ADC1 channels)
+  
+  # Pins to avoid:
+  # GPIO0 - Boot/Programming (has pull-up)
+  # GPIO19, GPIO20 - USB D+/D- (if using native USB)
+  # GPIO26 - Connected to flash on some boards
+  # GPIO45 - Boot strapping pin on some variants
+  
+  # Alternative configurations:
+  # If you need different UART pins:
+  # tx_pin_uart: GPIO43  # Alternative UART
+  # rx_pin_uart: GPIO44  # Alternative UART
+  
+  # Alternative I2C pins (most GPIO can be I2C):
+  # sda_pin_i2c: GPIO3  # Alternative I2C SDA
+  # scl_pin_i2c: GPIO4  # Alternative I2C SCL
+  
+  # SPI pins (if needed):
+  # mosi_pin: GPIO11  # MOSI
+  # miso_pin: GPIO13  # MISO
+  # sck_pin: GPIO12   # SCK
+  # cs_pin: GPIO10    # SS/CS
+  
+  # Native USB pins (if using USB CDC):
+  # USB_D_PLUS: GPIO20
+  # USB_D_MINUS: GPIO19
+
+####################################
+# End Substitutions
+####################################
+
+esphome:
+  platformio_options:
+    board_build.flash_mode: qio
+    board_build.f_flash: 80000000L  # S2 can handle higher flash frequency
+  on_boot:
+    priority: 600
+    then:
+      - delay: 500ms  # Boot delay for sensor stabilization
+
+esp32:
+  board: esp32-s2-saola-1  # Most compatible board type for S2 Mini variants
+  variant: esp32s2
+  flash_size: 4MB
+  framework:
+    # Arduino framework for easier development and compatibility
+    type: arduino
+    version: latest
+
+# Note: ESP32-S2 does NOT have Bluetooth/BLE support
+# All BLE configurations should be excluded when using this board
+
+# ESP32-S2 supports PSRAM (if available on your specific board)
+# Note: PSRAM configuration may be different or unavailable in Arduino framework
+# Comment out if your board doesn't have PSRAM or if it causes compilation issues
+# psram:
+#   mode: quad
+#   speed: 80MHz
+
+# Light configuration - check if your S2 Mini has RGB LED or simple LED
+# Option 1: For boards with WS2812 RGB LED (uncomment if applicable)
+# Note: Arduino framework may require different configuration for WS2812
+# light:
+#   - platform: neopixel
+#     type: GRB
+#     pin: ${light_gpio}
+#     num_leds: 1
+#     name: "Status Light"
+#     id: status_light
+#     restore_mode: ALWAYS_OFF
+#     effects:
+#       - pulse:
+#       - strobe:
+#       - rainbow:
+#       - color_wipe:
+
+i2c:
+  sda: ${sda_pin_i2c}
+  scl: ${scl_pin_i2c}
+  scan: true
+  # scan: false
+  frequency: 400khz
+
+
+# Option 2: For boards with simple LED (default - Arduino compatible)
+light:
+  - platform: binary
+    name: "Status Light"
+    output: light_output
+    id: status_light
+    restore_mode: ALWAYS_OFF
+
+output:
+  - platform: gpio
+    pin: ${light_gpio}
+    id: light_output
+
+uart:
+  id: uart_bus
+  tx_pin: 
+    number: ${tx_pin_uart}
+    # mode:
+    #   input: true
+    #   pullup: true
+  rx_pin: 
+    number: ${rx_pin_uart}
+    # mode:
+    #   input: true
+    #   pullup: true
+  baud_rate: 256000
+  parity: NONE
+  stop_bits: 1
+#  data_bits: 8
