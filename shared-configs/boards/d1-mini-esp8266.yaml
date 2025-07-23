@@ -9,10 +9,10 @@ substitutions:
   # Software UART or sensors that don't need RX can use GPIO2
   tx_pin_uart: GPIO2   # UART1 TX (also LED pin - may conflict)
   rx_pin_uart: GPIO3   # UART0 RX (shared with programming)
-  
-  # LED/Light GPIO - ESP8266 D1 Mini has built-in LED
-  light_gpio: GPIO2    # Built-in LED (NodeMCU/D1 Mini standard)
-  
+
+  # LED/Light GPIO - ESP8266 D1 Mini has built-in LED - conflict with UART
+  # light_gpio: GPIO2    # Built-in LED (NodeMCU/D1 Mini standard)
+
   # ADC pin - ESP8266 has only one ADC pin
   mic_adc: A0          # Only ADC available (maps to GPIO17 internally)
   
