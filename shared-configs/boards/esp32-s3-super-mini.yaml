@@ -1,0 +1,188 @@
+####################################
+# Start Substitutions
+####################################
+
+substitutions:
+  # UART pins - ESP32-S3 Super Mini UART pins (based on pinout diagram)
+  # Using available GPIO pins that support UART
+  tx_pin_uart: GPIO43  # Available UART TX pin
+  rx_pin_uart: GPIO44  # Available UART RX pin
+  
+  # LED/Light GPIO - ESP32-S3 Super Mini has WS2812 RGB LED on GPIO48
+  light_gpio: GPIO48   # WS2812 RGB LED (confirmed from diagram)
+  
+  # ADC pin - ESP32-S3 Super Mini ADC pins (from diagram)
+  # Using one of the available ADC pins
+  mic_adc: GPIO1       # ADC capable pin (safer choice for ADC)
+  
+  # Motion sensor GPIO - Using available GPIO
+  motion_gpio: GPIO4   # Available GPIO pin (moved from mic_adc)
+  
+  # I2C pins - ESP32-S3 Super Mini I2C pins (from diagram)
+  sda_pin_i2c: GPIO6   # I2C SDA pin (from diagram)
+  scl_pin_i2c: GPIO7   # I2C SCL pin (from diagram)
+  
+  # Additional safe GPIO pins available on ESP32-S3 Super Mini:
+  # GPIO1-GPIO21 (most available, check specific board layout)
+  # GPIO33-GPIO48 (GPIO48 often used for RGB LED)
+  
+  # ADC-capable input pins:
+  # ADC1: GPIO1-GPIO10
+  # ADC2: GPIO11-GPIO20 (avoid when using WiFi)
+  
+  # Pins to avoid or use with caution:
+  # GPIO0 - Boot/Programming (has pull-up)  
+  # GPIO3 - Boot strapping pin
+  # GPIO43, GPIO44 - UART0 (USB serial/programming)
+  # GPIO19, GPIO20 - USB D+/D- pins (if using native USB)
+  # GPIO26-GPIO32 - May be used for flash/PSRAM on some boards
+  
+  # Alternative configurations:
+  # If you need different UART pins:
+  # tx_pin_uart: GPIO43  # UART0 TX (conflicts with USB serial)
+  # rx_pin_uart: GPIO44  # UART0 RX (conflicts with USB serial)
+  
+  # Alternative I2C pins (any GPIO can be I2C):
+  # sda_pin_i2c: GPIO4   # Alternative SDA
+  # scl_pin_i2c: GPIO5   # Alternative SCL
+  
+  # If your board has simple LED instead of RGB:
+  # light_gpio: GPIO21   # Alternative LED pin
+  
+  # SPI pins (if needed):
+  # mosi_pin: GPIO11  # MOSI
+  # miso_pin: GPIO13  # MISO
+  # sck_pin: GPIO12   # SCK
+  # cs_pin: GPIO10    # SS/CS
+  
+  # Native USB pins (CDC serial):
+  # USB_D_PLUS: GPIO20
+  # USB_D_MINUS: GPIO19
+
+####################################
+# End Substitutions
+####################################
+
+esphome:
+  platformio_options:
+    build_flags: -DBOARD_HAS_PSRAM  # Enable PSRAM support
+    board_build.flash_mode: qio
+    board_build.f_flash: 80000000L
+  on_boot:
+    priority: 600
+    then:
+      - delay: 500ms  # Boot delay for sensor stabilization
+
+esp32:
+  # ESP32-S3 Super Mini uses esp32-s3-devkitc-1 profile for compatibility
+  board: esp32-s3-devkitc-1
+  variant: esp32s3
+  flash_size: 4MB  # Some variants may have 8MB or 16MB
+  framework:
+    type: esp-idf
+    version: recommended
+    sdkconfig_options:
+      # Performance optimizations
+      CONFIG_COMPILER_OPTIMIZATION_PERF: y
+      CONFIG_COMPILER_OPTIMIZATION_SIZE: y
+      CONFIG_ESPTOOLPY_FLASHSIZE_4MB: y  # Adjust if your board has different flash size
+      
+      # PSRAM configuration for ESP-IDF
+      CONFIG_SPIRAM: y
+      CONFIG_SPIRAM_MODE_OCT: y
+      CONFIG_SPIRAM_SPEED_80M: y
+      CONFIG_SPIRAM_TYPE_AUTO: y
+      
+      # BLE support
+      CONFIG_BT_BLE_42_FEATURES_SUPPORTED: y
+      CONFIG_BT_BLE_50_FEATURES_SUPPORTED: y
+      
+      # Extend the watchdog timeout
+      CONFIG_ESP_TASK_WDT_TIMEOUT_S: "10"
+      
+      # USB CDC On Boot - ESP32-S3 Super Mini has native USB
+      CONFIG_ESP_CONSOLE_USB_CDC: y
+      CONFIG_ESP_CONSOLE_USB_CDC_SUPPORT_ETS_PRINTF: y
+      
+      # WiFi compatibility options
+      CONFIG_ESP32_WIFI_ENABLE_WPA3_SAE: n
+      CONFIG_ESP32_WIFI_ENABLE_WPA3_OWE_STA: n
+      CONFIG_ESP32_WIFI_SOFTAP_SAE_SUPPORT: n
+      
+      # Disable power management features that can cause auth issues
+      CONFIG_ESP32_WIFI_AMPDU_TX_ENABLED: n
+      CONFIG_ESP32_WIFI_AMPDU_RX_ENABLED: n
+
+# ESP32-S3 Super Mini supports PSRAM (most variants have it)
+psram:
+  mode: octal
+  speed: 80MHz
+
+uart:
+  id: uart_bus
+  tx_pin: ${tx_pin_uart}
+  rx_pin: ${rx_pin_uart}
+  baud_rate: 256000
+  parity: NONE
+  stop_bits: 1
+#  data_bits: 8
+
+# I2C configuration (optional - add if using I2C sensors)
+# i2c:
+#   sda: ${sda_pin_i2c}
+#   scl: ${scl_pin_i2c}
+#   scan: true
+#   frequency: 400kHz
+
+# ADC sensor example (if using analog sensor)
+# sensor:
+#   - platform: adc
+#     pin: ${mic_adc}
+#     name: "Analog Input"
+#     update_interval: 60s
+#     attenuation: auto
+
+# GPIO binary sensor example (motion sensor)
+# binary_sensor:
+#   - platform: gpio
+#     pin: 
+#       number: ${motion_gpio}
+#       mode:
+#         input: true
+#         pullup: true
+#     name: "Motion Sensor"
+#     device_class: motion
+
+# Light configuration - ESP32-S3 Super Mini typically has WS2812 RGB LED
+# Option 1: For boards with WS2812 RGB LED (most common)
+light:
+  - platform: esp32_rmt_led_strip
+    rgb_order: GRB
+    pin: ${light_gpio}
+    num_leds: 1
+    chipset: ws2812
+    # rmt_channel parameter removed for ESP-IDF v5.x compatibility (auto-allocated)
+    id: status_light
+    name: "Status Light"
+    internal: true
+    restore_mode: ALWAYS_OFF
+    effects:
+      - addressable_rainbow:
+      - addressable_color_wipe:
+      - addressable_scan:
+      - addressable_flicker:
+
+# Option 2: For boards with simple LED (uncomment if your board has simple LED)
+# light:
+#   - platform: binary
+#     name: "Blue Status Light"
+#     output: light_output
+#     id: status_light
+#     #restore_mode: ALWAYS_ON
+#     restore_mode: RESTORE_DEFAULT_ON
+#     #restore_mode: ALWAYS_OFF
+ 
+# output:
+#   - platform: gpio
+#     pin: ${light_gpio}
+#     id: light_output
