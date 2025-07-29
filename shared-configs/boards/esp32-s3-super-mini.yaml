@@ -248,3 +248,71 @@ light:
 #   - platform: gpio
 #     pin: ${light_gpio}
 #     id: light_output
+
+# Add select entity for easy effect switching
+select:
+  - platform: template
+    name: "LED Effect"
+    id: led_effect_select
+    options:
+      - "None"
+      - "Rainbow"
+      - "Color Wipe"
+      - "Scanner"
+      - "Flicker"
+      - "Pulse"
+      - "Strobe"
+      - "Random"
+    initial_option: "None"
+    set_action:
+      - if:
+          condition:
+            lambda: 'return x == "None";'
+          then:
+            - light.turn_on:
+                id: status_light
+                effect: "None"
+      - if:
+          condition:
+            lambda: 'return x == "Rainbow";'
+          then:
+            - light.turn_on:
+                id: status_light
+                effect: "Rainbow"
+      - if:
+          condition:
+            lambda: 'return x == "Color Wipe";'
+          then:
+            - light.turn_on:
+                id: status_light
+                effect: "Color Wipe"
+      - if:
+          condition:
+            lambda: 'return x == "Scanner";'
+          then:
+            - light.turn_on:
+                id: status_light
+                effect: "Scanner"
+      - if:
+          condition:
+            lambda: 'return x == "Pulse";'
+          then:
+            - light.turn_on:
+                id: status_light
+                effect: "Pulse"
+      - if:
+          condition:
+            lambda: 'return x == "Strobe";'
+          then:
+            - light.turn_on:
+                id: status_light
+                effect: "Strobe"
+      - if:
+          condition:
+            lambda: 'return x == "Random";'
+          then:
+            - light.turn_on:
+                id: status_light
+                effect: "Random"
+
+
