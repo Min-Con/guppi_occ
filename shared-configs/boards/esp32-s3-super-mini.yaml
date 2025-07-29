@@ -155,6 +155,24 @@ uart:
 
 # Light configuration - ESP32-S3 Super Mini typically has WS2812 RGB LED
 # Option 1: For boards with WS2812 RGB LED (most common)
+# light:
+#   - platform: esp32_rmt_led_strip
+#     rgb_order: GRB
+#     pin: ${light_gpio}
+#     num_leds: 1
+#     chipset: ws2812
+#     # rmt_channel parameter removed for ESP-IDF v5.x compatibility (auto-allocated)
+#     id: status_light
+#     name: "Status Light"
+#     internal: true
+#     restore_mode: ALWAYS_OFF
+#     effects:
+#       - addressable_rainbow:
+#       - addressable_color_wipe:
+#       - addressable_scan:
+#       - addressable_flicker:
+
+# Option 1.1: For boards with WS2812 RGB LED (most common) - make the light configurable in Home Assistant
 light:
   - platform: esp32_rmt_led_strip
     rgb_order: GRB
@@ -164,13 +182,57 @@ light:
     # rmt_channel parameter removed for ESP-IDF v5.x compatibility (auto-allocated)
     id: status_light
     name: "Status Light"
-    internal: true
+    # internal: true  # Remove this line to make it visible in Home Assistant
     restore_mode: ALWAYS_OFF
     effects:
       - addressable_rainbow:
+          name: "Rainbow"
+          speed: 10
+          width: 50
       - addressable_color_wipe:
+          name: "Color Wipe"
+          colors:
+            - red: 100%
+              green: 0%
+              blue: 0%
+              num_leds: 1
+            - red: 0%
+              green: 100%
+              blue: 0%
+              num_leds: 1
+            - red: 0%
+              green: 0%
+              blue: 100%
+              num_leds: 1
+          add_led_interval: 100ms
+          reverse: false
       - addressable_scan:
+          name: "Scanner"
+          move_interval: 100ms
+          scan_width: 1
       - addressable_flicker:
+          name: "Flicker"
+          alpha: 95%
+          intensity: 1.5%
+      - pulse:
+          name: "Pulse"
+          transition_length: 1s
+          update_interval: 1s
+      - strobe:
+          name: "Strobe"
+          colors:
+            - state: true
+              brightness: 100%
+              red: 100%
+              green: 100%
+              blue: 100%
+              duration: 500ms
+            - state: false
+              duration: 250ms
+      - random:
+          name: "Random"
+          transition_length: 5s
+          update_interval: 7s
 
 # Option 2: For boards with simple LED (uncomment if your board has simple LED)
 # light:
