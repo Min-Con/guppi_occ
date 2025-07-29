@@ -8,10 +8,10 @@ substitutions:
   tx_pin_uart: GPIO43  # Available UART TX pin
   rx_pin_uart: GPIO44  # Available UART RX pin
 
-  # LED/Light GPIO - ESP32-S3 Super Mini has WS2812 RGB LED on GPIO38
+  # LED/Light GPIO - ESP32-S3 Super Mini has WS2812 RGB LED on GPIO48
   # light_gpio: GPIO21   # WS2812 RGB LED (confirmed from diagram)
-  # light_gpio: GPIO48   # WS2812 RGB LED (confirmed from diagram)
-  light_gpio: GPIO38   # WS2812 RGB LED (confirmed from diagram)
+  light_gpio: GPIO48   # WS2812 RGB LED (confirmed from diagram)
+  # light_gpio: GPIO38   # WS2812 RGB LED (confirmed from diagram)
   
   # ADC pin - ESP32-S3 Super Mini ADC pins (from diagram)
   # Using one of the available ADC pins
