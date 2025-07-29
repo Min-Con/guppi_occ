@@ -8,9 +8,9 @@ substitutions:
   tx_pin_uart: GPIO43  # Available UART TX pin
   rx_pin_uart: GPIO44  # Available UART RX pin
 
-  # LED/Light GPIO - ESP32-S3 Super Mini has WS2812 RGB LED on GPIO21
-  light_gpio: GPIO21   # WS2812 RGB LED (confirmed from diagram)
-  # light_gpio: GPIO48   # WS2812 RGB LED (confirmed from diagram)
+  # LED/Light GPIO - ESP32-S3 Super Mini has WS2812 RGB LED on GPIO48
+  # light_gpio: GPIO21   # WS2812 RGB LED (confirmed from diagram)
+  light_gpio: GPIO48   # WS2812 RGB LED (confirmed from diagram)
   
   # ADC pin - ESP32-S3 Super Mini ADC pins (from diagram)
   # Using one of the available ADC pins
@@ -175,7 +175,8 @@ uart:
 
 # Option 1.1: For boards with WS2812 RGB LED (most common) - make the light configurable in Home Assistant
 light:
-  - platform: esp32_rmt_led_strip
+  # - platform: esp32_rmt_led_strip
+  - platform: neopixel
     rgb_order: GRB
     pin: ${light_gpio}
     num_leds: 1
