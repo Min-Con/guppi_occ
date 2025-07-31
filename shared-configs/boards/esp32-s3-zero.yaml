@@ -4,9 +4,10 @@
 
 substitutions:
   # UART pins - ESP32-S3 Zero UART pins
-  # Using available GPIO pins that support UART communication
-  tx_pin_uart: GPIO43  # Available UART TX pin
-  rx_pin_uart: GPIO44  # Available UART RX pin
+  # Using safe GPIO pins that don't conflict with USB programming
+  # GPIO43/44 are reserved for USB serial programming interface
+  tx_pin_uart: GPIO17  # Safe UART TX pin (any GPIO can be UART)
+  rx_pin_uart: GPIO18  # Safe UART RX pin (any GPIO can be UART)
   
   # LED/Light GPIO - ESP32-S3 Zero typically has simple LED
   # Most S3 Zero boards have a simple status LED rather than RGB
@@ -14,7 +15,8 @@ substitutions:
   
   # ADC pin - ESP32-S3 Zero ADC-capable pins
   # Using one of the available ADC pins for analog sensor input
-  mic_adc: GPIO36      # ADC capable pin (good for analog sensors)
+  # GPIO36 doesn't exist on ESP32-S3 (only on original ESP32)
+  mic_adc: GPIO1       # ADC1_CH0 - Safe ADC pin on ESP32-S3
   
   # Motion sensor GPIO - Using available GPIO pin
   # Dedicated pin for motion sensor or radar GPIO output
@@ -24,42 +26,49 @@ substitutions:
   sda_pin_i2c: GPIO4   # I2C SDA pin (data line)
   scl_pin_i2c: GPIO5   # I2C SCL pin (clock line)
   
-  # Additional safe GPIO pins available on ESP32-S3 Zero:
-  # GPIO1-GPIO21 (most available, check specific board layout)
-  # GPIO33-GPIO48 (availability depends on board variant)
+  # ESP32-S3 Zero GPIO pin availability:
+  # Safe GPIO pins: GPIO1-GPIO21, GPIO33-GPIO48 (board dependent)
+  # Note: Not all pins may be broken out on every ESP32-S3 Zero variant
   
-  # ADC-capable input pins:
-  # ADC1: GPIO1-GPIO10 (preferred when using WiFi)
-  # ADC2: GPIO11-GPIO20 (avoid when using WiFi)
+  # ADC-capable input pins on ESP32-S3:
+  # ADC1: GPIO1-GPIO10 (preferred - doesn't conflict with WiFi)
+  # ADC2: GPIO11-GPIO20 (avoid when using WiFi - causes conflicts)
   
-  # Pins to avoid or use with caution:
-  # GPIO0 - Boot/Programming (has pull-up resistor)
+  # Pins to avoid or use with caution on ESP32-S3:
+  # GPIO0 - Boot/Programming mode (has pull-up, affects boot sequence)
   # GPIO3 - Boot strapping pin (may affect boot sequence)
-  # GPIO43, GPIO44 - UART0 (USB serial/programming interface)
-  # GPIO19, GPIO20 - USB D+/D- pins (if using native USB)
-  # GPIO26-GPIO32 - May be used for flash/PSRAM on some boards
+  # GPIO19, GPIO20 - Native USB D-/D+ pins (if using USB CDC)
+  # GPIO26-GPIO32 - Often used for SPI flash/PSRAM (board dependent)
+  # GPIO43, GPIO44 - USB serial programming interface (avoid for user UART)
+  # GPIO45, GPIO46 - Boot strapping pins (may affect boot sequence)
   
-  # Alternative pin configurations:
-  # If you need different UART pins (avoid conflicts):
-  # tx_pin_uart: GPIO1   # Alternative UART TX
-  # rx_pin_uart: GPIO2   # Alternative UART RX
+  # Alternative UART pin configurations (any GPIO can be UART on ESP32-S3):
+  # tx_pin_uart: GPIO1   # Alternative UART TX (also ADC capable)
+  # rx_pin_uart: GPIO2   # Alternative UART RX (also ADC capable)
+  # tx_pin_uart: GPIO9   # Alternative UART TX
+  # rx_pin_uart: GPIO10  # Alternative UART RX
   
-  # Alternative I2C pins (any GPIO can be configured as I2C):
+  # Alternative I2C pins (any GPIO can be configured as I2C on ESP32-S3):
   # sda_pin_i2c: GPIO6   # Alternative I2C SDA
   # scl_pin_i2c: GPIO7   # Alternative I2C SCL
+  # sda_pin_i2c: GPIO8   # Alternative I2C SDA
+  # scl_pin_i2c: GPIO9   # Alternative I2C SCL
   
   # If your board has WS2812 RGB LED instead of simple LED:
-  # light_gpio: GPIO48   # WS2812 RGB LED pin (some S3 Zero variants)
+  # light_gpio: GPIO48   # WS2812 RGB LED pin (common on S3 Zero variants)
+  # light_gpio: GPIO38   # Alternative WS2812 pin on some variants
   
   # SPI pins configuration (if needed for SPI sensors):
+  # Any GPIO can be configured as SPI on ESP32-S3
   # mosi_pin: GPIO11  # SPI MOSI (Master Out Slave In)
   # miso_pin: GPIO13  # SPI MISO (Master In Slave Out)
   # sck_pin: GPIO12   # SPI SCK (Serial Clock)
   # cs_pin: GPIO10    # SPI CS (Chip Select)
   
-  # Native USB pins (for CDC serial communication):
-  # USB_D_PLUS: GPIO20   # USB Data Plus
-  # USB_D_MINUS: GPIO19  # USB Data Minus
+  # Native USB pins (for CDC serial communication on ESP32-S3):
+  # These are fixed hardware pins for native USB
+  # USB_D_PLUS: GPIO20   # USB Data Plus (fixed hardware pin)
+  # USB_D_MINUS: GPIO19  # USB Data Minus (fixed hardware pin)
 
 ####################################
 # End Substitutions
