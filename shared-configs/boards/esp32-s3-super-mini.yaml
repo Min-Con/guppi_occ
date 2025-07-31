@@ -3,26 +3,27 @@
 ####################################
 
 substitutions:
-  # UART pins - ESP32-S3 Super Mini UART pins (based on pinout diagram)
-  # Using available GPIO pins that support UART
-  tx_pin_uart: GPIO43  # Available UART TX pin
-  rx_pin_uart: GPIO44  # Available UART RX pin
+  # UART pins - ESP32-S3 Super Mini UART pins
+  # WARNING: GPIO43/44 are default USB serial pins - using them conflicts with programming
+  # Alternative safe UART pins recommended for production use
+  tx_pin_uart: GPIO17  # Safe UART TX pin (alternative to USB serial)
+  rx_pin_uart: GPIO18  # Safe UART RX pin (alternative to USB serial)
 
-  # LED/Light GPIO - ESP32-S3 Super Mini has WS2812 RGB LED on GPIO48
-  # light_gpio: GPIO21   # WS2812 RGB LED (confirmed from diagram)
-  light_gpio: GPIO48   # WS2812 RGB LED (confirmed from diagram)
-  # light_gpio: GPIO38   # WS2812 RGB LED (confirmed from diagram)
+  # LED/Light GPIO - ESP32-S3 Super Mini WS2812 RGB LED
+  # Most ESP32-S3 Super Mini boards have WS2812 RGB LED on GPIO48
+  light_gpio: GPIO48   # WS2812 RGB LED (standard location for most variants)
   
-  # ADC pin - ESP32-S3 Super Mini ADC pins (from diagram)
-  # Using one of the available ADC pins
-  mic_adc: GPIO1       # ADC capable pin (safer choice for ADC)
+  # ADC pin - ESP32-S3 Super Mini ADC pins
+  # Using ADC1 pins (ADC1: GPIO1-GPIO10) - safer than ADC2 when WiFi is active
+  mic_adc: GPIO1       # ADC1 capable pin (safe for WiFi use)
   
-  # Motion sensor GPIO - Using available GPIO
-  motion_gpio: GPIO4   # Available GPIO pin (moved from mic_adc)
+  # Motion sensor GPIO - General purpose digital input
+  motion_gpio: GPIO4   # Safe GPIO pin for digital input with pullup support
   
-  # I2C pins - ESP32-S3 Super Mini I2C pins (from diagram)
-  sda_pin_i2c: GPIO6   # I2C SDA pin (from diagram)
-  scl_pin_i2c: GPIO7   # I2C SCL pin (from diagram)
+  # I2C pins - ESP32-S3 Super Mini I2C configuration
+  # Any GPIO can be used for I2C on ESP32-S3
+  sda_pin_i2c: GPIO6   # I2C SDA pin (safe choice)
+  scl_pin_i2c: GPIO7   # I2C SCL pin (safe choice)
   
   # Additional safe GPIO pins available on ESP32-S3 Super Mini:
   # GPIO1-GPIO21 (most available, check specific board layout)
@@ -33,16 +34,16 @@ substitutions:
   # ADC2: GPIO11-GPIO20 (avoid when using WiFi)
   
   # Pins to avoid or use with caution:
-  # GPIO0 - Boot/Programming (has pull-up)  
-  # GPIO3 - Boot strapping pin
-  # GPIO43, GPIO44 - UART0 (USB serial/programming)
-  # GPIO19, GPIO20 - USB D+/D- pins (if using native USB)
-  # GPIO26-GPIO32 - May be used for flash/PSRAM on some boards
+  # GPIO0 - Boot/Programming (has pull-up, used for boot mode selection)
+  # GPIO3 - Boot strapping pin (affects boot mode)
+  # GPIO43, GPIO44 - UART0 (USB serial/programming) - conflicts with USB debugging
+  # GPIO19, GPIO20 - USB D+/D- pins (native USB CDC)
+  # GPIO26-GPIO32 - Reserved for flash/PSRAM on some board variants
   
-  # Alternative configurations:
-  # If you need different UART pins:
-  # tx_pin_uart: GPIO43  # UART0 TX (conflicts with USB serial)
-  # rx_pin_uart: GPIO44  # UART0 RX (conflicts with USB serial)
+  # Alternative UART configurations:
+  # For debugging via USB serial (conflicts with this UART config):
+  # tx_pin_uart: GPIO43  # UART0 TX (USB serial - debugging only)
+  # rx_pin_uart: GPIO44  # UART0 RX (USB serial - debugging only)
   
   # Alternative I2C pins (any GPIO can be I2C):
   # sda_pin_i2c: GPIO4   # Alternative SDA
@@ -76,10 +77,11 @@ esphome:
       - delay: 500ms  # Boot delay for sensor stabilization
 
 esp32:
-  # ESP32-S3 Super Mini uses esp32-s3-devkitc-1 profile for compatibility
+  # ESP32-S3 Super Mini board configuration
+  # Using esp32-s3-devkitc-1 profile for maximum compatibility
   board: esp32-s3-devkitc-1
   variant: esp32s3
-  flash_size: 4MB  # Some variants may have 8MB or 16MB
+  flash_size: 4MB  # Common size - verify your board variant (some have 8MB/16MB)
   framework:
     type: esp-idf
     version: recommended
@@ -87,13 +89,13 @@ esp32:
       # Performance optimizations
       CONFIG_COMPILER_OPTIMIZATION_PERF: y
       CONFIG_COMPILER_OPTIMIZATION_SIZE: y
-      CONFIG_ESPTOOLPY_FLASHSIZE_4MB: y  # Adjust if your board has different flash size
+      CONFIG_ESPTOOLPY_FLASHSIZE_4MB: y  # Match flash_size above - change both if different
       
-      # PSRAM configuration for ESP-IDF
-      CONFIG_SPIRAM: y
-      CONFIG_SPIRAM_MODE_OCT: y
-      CONFIG_SPIRAM_SPEED_80M: y
-      CONFIG_SPIRAM_TYPE_AUTO: y
+      # PSRAM configuration - most ESP32-S3 Super Mini boards include PSRAM
+      CONFIG_SPIRAM: y                    # Enable PSRAM support
+      CONFIG_SPIRAM_MODE_OCT: y          # Octal SPI mode for better performance
+      CONFIG_SPIRAM_SPEED_80M: y         # 80MHz PSRAM speed
+      CONFIG_SPIRAM_TYPE_AUTO: y         # Auto-detect PSRAM type
       
       # BLE support
       CONFIG_BT_BLE_42_FEATURES_SUPPORTED: y
@@ -102,32 +104,35 @@ esp32:
       # Extend the watchdog timeout
       CONFIG_ESP_TASK_WDT_TIMEOUT_S: "10"
       
-      # USB CDC On Boot - ESP32-S3 Super Mini has native USB
-      CONFIG_ESP_CONSOLE_USB_CDC: y
-      CONFIG_ESP_CONSOLE_USB_CDC_SUPPORT_ETS_PRINTF: y
+      # Native USB CDC configuration - ESP32-S3 Super Mini supports USB CDC
+      CONFIG_ESP_CONSOLE_USB_CDC: y                    # Enable USB CDC console
+      CONFIG_ESP_CONSOLE_USB_CDC_SUPPORT_ETS_PRINTF: y # Early boot messages via USB
       
-      # WiFi compatibility options
-      CONFIG_ESP32_WIFI_ENABLE_WPA3_SAE: n
-      CONFIG_ESP32_WIFI_ENABLE_WPA3_OWE_STA: n
-      CONFIG_ESP32_WIFI_SOFTAP_SAE_SUPPORT: n
+      # WiFi compatibility and stability options
+      CONFIG_ESP32_WIFI_ENABLE_WPA3_SAE: n        # Disable WPA3 SAE for compatibility
+      CONFIG_ESP32_WIFI_ENABLE_WPA3_OWE_STA: n    # Disable WPA3 OWE for compatibility
+      CONFIG_ESP32_WIFI_SOFTAP_SAE_SUPPORT: n     # Disable SAE in AP mode
       
-      # Disable power management features that can cause auth issues
-      CONFIG_ESP32_WIFI_AMPDU_TX_ENABLED: n
-      CONFIG_ESP32_WIFI_AMPDU_RX_ENABLED: n
+      # Disable WiFi power management features that can cause connection issues
+      CONFIG_ESP32_WIFI_AMPDU_TX_ENABLED: n       # Disable TX aggregation
+      CONFIG_ESP32_WIFI_AMPDU_RX_ENABLED: n       # Disable RX aggregation
 
-# ESP32-S3 Super Mini supports PSRAM (most variants have it)
+# PSRAM configuration - ESP32-S3 Super Mini PSRAM settings
+# Most ESP32-S3 Super Mini variants include 2MB or 8MB PSRAM
 psram:
-  mode: octal
-  speed: 80MHz
+  mode: octal     # Octal SPI mode for optimal performance
+  speed: 80MHz    # Standard speed for stability
 
+# UART bus configuration - for external device communication
+# Note: This conflicts with USB serial debugging if using GPIO43/44
 uart:
   id: uart_bus
-  tx_pin: ${tx_pin_uart}
-  rx_pin: ${rx_pin_uart}
-  baud_rate: 256000
+  tx_pin: ${tx_pin_uart}  # See substitutions for pin assignments
+  rx_pin: ${rx_pin_uart}  # See substitutions for pin assignments
+  baud_rate: 256000       # High-speed UART communication
   parity: NONE
   stop_bits: 1
-#  data_bits: 8
+  data_bits: 8            # Standard 8-bit data
 
 # I2C configuration (optional - add if using I2C sensors)
 # i2c:
@@ -175,18 +180,16 @@ uart:
 #       - addressable_flicker:
 
 # Option 1.1: For boards with WS2812 RGB LED (most common) - make the light configurable in Home Assistant
+# WS2812 RGB LED configuration - ESP32-S3 Super Mini onboard RGB LED
 light:
-  - platform: esp32_rmt_led_strip
-  # - platform: neopixel
-    rgb_order: GRB
-    pin: ${light_gpio}
-    num_leds: 1
-    chipset: ws2812
-    # rmt_channel parameter removed for ESP-IDF v5.x compatibility (auto-allocated)
+  - platform: esp32_rmt_led_strip  # Preferred platform for ESP-IDF v5.x
+    rgb_order: GRB                 # WS2812 color order (Green-Red-Blue)
+    pin: ${light_gpio}             # GPIO48 on most ESP32-S3 Super Mini boards
+    num_leds: 1                    # Single onboard RGB LED
+    chipset: ws2812                # WS2812B LED chipset
     id: status_light
     name: "Status Light"
-    # internal: true  # Remove this line to make it visible in Home Assistant
-    restore_mode: ALWAYS_OFF
+    restore_mode: ALWAYS_OFF       # Start with LED off after reboot
     effects:
       - addressable_rainbow:
           name: "Rainbow"
@@ -213,10 +216,9 @@ light:
           name: "Scanner"
           move_interval: 100ms
           scan_width: 1
-      # - addressable_flicker:
-      #     name: "Flicker"
-      #     alpha: 95%
-      #     intensity: 1.5%
+      - addressable_flicker:
+          name: "Flicker"
+          intensity: 1.5%
       - pulse:
           name: "Pulse"
           transition_length: 1s
