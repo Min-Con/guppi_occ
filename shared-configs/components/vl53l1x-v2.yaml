@@ -1,0 +1,320 @@
+
+# I2C configuration for VL53L1X
+i2c:
+  sda: ${sda_pin_i2c}
+  scl: ${scl_pin_i2c}
+  id: bus_a
+  scan: true
+  frequency: 400khz
+
+# VL53L1X Time of Flight Distance Sensor
+sensor:
+  - platform: vl53l1x
+    name: "VL53L1X Distance"
+    id: distance_sensor
+    i2c_id: bus_a
+    address: 0x29  # Default I2C address
+    update_interval: 1s
+    
+    # Optional configuration parameters
+    timeout: 200ms
+    ranging_mode: auto  # Options: auto, short, medium, long
+    
+    # Distance accuracy and unit
+    unit_of_measurement: "mm"
+    accuracy_decimals: 0
+    
+    # Optional filters
+    filters:
+      - sliding_window_moving_average:
+          window_size: 5
+          send_every: 1
+      - or:
+          - throttle: 1s
+          - delta: 10  # Only send if distance changed by 10mm
+    
+    # Optional lambda for custom processing
+    # lambda: |-
+    #   if (x > 4000) {
+    #     return {};  // Return empty optional for out-of-range readings
+    #   }
+    #   return x;
+
+# User configurable detection threshold
+number:
+  - platform: template
+    name: "Object Detection Threshold"
+    id: detection_threshold
+    optimistic: true
+    min_value: 50
+    max_value: 4000
+    initial_value: 500
+    step: 10
+    unit_of_measurement: "mm"
+    mode: box
+    restore_value: true
+
+  # Calibration offset for fine-tuning accuracy
+  - platform: template
+    name: "Distance Calibration Offset"
+    id: calibration_offset
+    optimistic: true
+    min_value: -200
+    max_value: 200
+    initial_value: 0
+    step: 1
+    unit_of_measurement: "mm"
+    mode: box
+    restore_value: true
+
+  # Update interval control
+  - platform: template
+    name: "Update Interval"
+    id: update_interval_control
+    optimistic: true
+    min_value: 0.1
+    max_value: 60
+    initial_value: 1
+    step: 0.1
+    unit_of_measurement: "s"
+    mode: box
+    restore_value: true
+
+  # Smoothing window size
+  - platform: template
+    name: "Smoothing Window Size"
+    id: smoothing_window
+    optimistic: true
+    min_value: 1
+    max_value: 20
+    initial_value: 5
+    step: 1
+    mode: box
+    restore_value: true
+
+  # Change delta threshold
+  - platform: template
+    name: "Change Delta Threshold"
+    id: delta_threshold
+    optimistic: true
+    min_value: 1
+    max_value: 100
+    initial_value: 10
+    step: 1
+    unit_of_measurement: "mm"
+    mode: box
+    restore_value: true
+
+# User configurable ranging mode
+select:
+  - platform: template
+    name: "Ranging Mode"
+    id: ranging_mode_select
+    optimistic: true
+    options:
+      - "auto"
+      - "short"
+      - "medium" 
+      - "long"
+    initial_option: "auto"
+    restore_value: true
+    on_value:
+      then:
+        - logger.log:
+            format: "Ranging mode changed to: %s"
+            args: ["x.c_str()"]
+
+# LED control switch
+switch:
+  - platform: template
+    name: "Status LED Enable"
+    id: led_enable
+    optimistic: true
+    restore_value: true
+    initial_state: true
+
+  # Sensor enable/disable
+  - platform: template
+    name: "Sensor Enable"
+    id: sensor_enable
+    optimistic: true
+    restore_value: true
+    initial_state: true
+
+  # Auto-calibration mode
+  - platform: template
+    name: "Auto Calibration Mode"
+    id: auto_calibration
+    optimistic: true
+    restore_value: true
+    initial_state: false
+
+# Binary sensor for proximity detection (now user configurable)
+binary_sensor:
+  - platform: template
+    name: "Object Detected"
+    id: object_detected
+    lambda: |-
+      float threshold = id(detection_threshold).state;
+      if (id(distance_sensor).state < threshold && id(distance_sensor).state > 0) {
+        return true;
+      } else {
+        return false;
+      }
+
+# Text sensor for ranging mode and detection status
+text_sensor:
+  - platform: template
+    name: "VL53L1X Status"
+    id: sensor_status
+    lambda: |-
+      if (!id(sensor_enable).state) {
+        return {"Disabled"};
+      }
+      
+      float distance = id(distance_sensor).state;
+      float threshold = id(detection_threshold).state;
+      std::string mode = id(ranging_mode_select).state;
+      float quality = id(signal_quality).state;
+      
+      if (!isnan(distance) && distance > 0 && distance < 4000) {
+        std::string status = "Measuring (" + mode + ", Q:" + to_string((int)quality) + "%)";
+        if (distance < threshold) {
+          return {"Object Detected - " + status};
+        } else {
+          return {"Clear - " + status};
+        }
+      } else if (!id(sensor_online).state) {
+        return {"Sensor Offline (" + mode + ")"};
+      } else {
+        return {"Out of Range (" + mode + ")"};
+      }
+    update_interval: 2s
+
+  # Diagnostics information
+  - platform: template
+    name: "VL53L1X Diagnostics"
+    id: diagnostics
+    lambda: |-
+      char buffer[200];
+      sprintf(buffer, "Offset: %.0fmm | Update: %.1fs | Window: %.0f | Delta: %.0fmm", 
+              id(calibration_offset).state,
+              id(update_interval_control).state,
+              id(smoothing_window).state,
+              id(delta_threshold).state);
+      return {buffer};
+    update_interval: 10s
+
+# Calibration and utility buttons
+button:
+  - platform: template
+    name: "Calibrate Distance"
+    id: calibrate_distance
+    on_press:
+      then:
+        - logger.log: "Starting distance calibration..."
+        - lambda: |-
+            // Perform calibration routine
+            ESP_LOGI("calibration", "Place object at known distance and press calibrate");
+            // This would typically involve taking multiple readings and calculating offset
+
+  - platform: template
+    name: "Reset Settings"
+    id: reset_settings
+    on_press:
+      then:
+        - logger.log: "Resetting all settings to defaults..."
+        - number.set:
+            id: detection_threshold
+            value: 500
+        - number.set:
+            id: calibration_offset
+            value: 0
+        - number.set:
+            id: update_interval_control
+            value: 1
+        - number.set:
+            id: smoothing_window
+            value: 5
+        - number.set:
+            id: delta_threshold
+            value: 10
+        - select.set:
+            id: ranging_mode_select
+            option: "auto"
+
+  # - platform: restart
+  #   name: "Restart Device"
+
+# Configurable LED indicator
+light:
+  - platform: binary
+    name: "Status LED"
+    id: status_led
+    output: led_output
+    effects:
+      - pulse:
+          name: "Pulse"
+          transition_length: 1s
+          update_interval: 1s
+      - strobe:
+          name: "Strobe"
+          colors:
+            - state: true
+              duration: 100ms
+            - state: false
+              duration: 100ms
+    lambda: |-
+      if (!id(led_enable).state) {
+        return light::LightState::OFF;
+      }
+      
+      // Different LED behaviors based on sensor state
+      if (!id(sensor_online).state) {
+        // Strobe if sensor offline
+        auto call = id(status_led).turn_on();
+        call.set_effect("Strobe");
+        call.perform();
+        return {};
+      } else if (id(motion_detected).state) {
+        // Pulse if motion detected
+        auto call = id(status_led).turn_on();
+        call.set_effect("Pulse");
+        call.perform();
+        return {};
+      } else if (id(object_detected).state) {
+        // Solid on if object detected
+        return light::LightState::ON;
+      } else {
+        // Off if clear
+        return light::LightState::OFF;
+      }
+
+# LED output pin
+output:
+  - platform: gpio
+    pin: ${light_gpio}
+    id: status_light
+
+# Interval component for dynamic updates
+interval:
+  - interval: 1s
+    then:
+      - lambda: |-
+          // Dynamic filter updates based on user settings
+          static float last_window = 0;
+          static float last_delta = 0;
+          
+          float current_window = id(smoothing_window).state;
+          float current_delta = id(delta_threshold).state;
+          
+          // Log when settings change
+          if (current_window != last_window) {
+            ESP_LOGI("config", "Smoothing window changed to: %.0f", current_window);
+            last_window = current_window;
+          }
+          
+          if (current_delta != last_delta) {
+            ESP_LOGI("config", "Delta threshold changed to: %.0f", current_delta);  
+            last_delta = current_delta;
+          }

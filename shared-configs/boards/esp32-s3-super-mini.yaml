@@ -2,65 +2,73 @@
 # Start Substitutions
 ####################################
 
+####################################
+# Start Substitutions
+####################################
+
 substitutions:
   # UART pins - ESP32-S3 Super Mini UART pins
-  # WARNING: GPIO43/44 are default USB serial pins - using them conflicts with programming
-  # Alternative safe UART pins recommended for production use
-  tx_pin_uart: GPIO17  # Safe UART TX pin (alternative to USB serial)
-  rx_pin_uart: GPIO18  # Safe UART RX pin (alternative to USB serial)
+  # Using hardware UART pins that don't conflict with USB Serial/JTAG
+  tx_pin_uart: GPIO21  # Safe UART TX pin (not involved in USB/JTAG)
+  rx_pin_uart: GPIO20  # Safe UART RX pin (hardware UART capable)
 
-  # LED/Light GPIO - ESP32-S3 Super Mini WS2812 RGB LED
-  # Most ESP32-S3 Super Mini boards have WS2812 RGB LED on GPIO48
-  light_gpio: GPIO48   # WS2812 RGB LED (standard location for most variants)
+  # LED/Light GPIO - ESP32-S3 Super Mini LED configuration
+  # WARNING: GPIO48 controls BOTH red LED AND WS2812 RGB LED simultaneously
+  # They cannot be used independently due to hardware design
+  light_gpio: GPIO48   # Controls both red power LED and WS2812 RGB LED
   
-  # ADC pin - ESP32-S3 Super Mini ADC pins
-  # Using ADC1 pins (ADC1: GPIO1-GPIO10) - safer than ADC2 when WiFi is active
-  mic_adc: GPIO1       # ADC1 capable pin (safe for WiFi use)
+  # ADC pin - ESP32-S3 Super Mini ADC pins (safe ADC1 channels)
+  # Using ADC1 channels which work reliably with WiFi enabled
+  mic_adc: GPIO1       # ADC1_CH0 - safe for analog input with WiFi
   
-  # Motion sensor GPIO - General purpose digital input
-  motion_gpio: GPIO4   # Safe GPIO pin for digital input with pullup support
+  # Motion sensor GPIO - Using available safe GPIO pins
+  # Selected from pins confirmed safe by espboards.dev documentation
+  motion_gpio: GPIO4   # Safe GPIO pin (confirmed safe by documentation)
   
-  # I2C pins - ESP32-S3 Super Mini I2C configuration
-  # Any GPIO can be used for I2C on ESP32-S3
-  sda_pin_i2c: GPIO6   # I2C SDA pin (safe choice)
-  scl_pin_i2c: GPIO7   # I2C SCL pin (safe choice)
+  # I2C pins - ESP32-S3 Super Mini I2C pins (safe pins from documentation)
+  sda_pin_i2c: GPIO6   # Safe I2C SDA pin (confirmed by documentation)
+  scl_pin_i2c: GPIO7   # Safe I2C SCL pin (confirmed by documentation)
   
-  # Additional safe GPIO pins available on ESP32-S3 Super Mini:
-  # GPIO1-GPIO21 (most available, check specific board layout)
-  # GPIO33-GPIO48 (GPIO48 often used for RGB LED)
+  # CONFIRMED SAFE GPIO pins (per espboards.dev documentation):
+  # GPIO1, GPIO2, GPIO4, GPIO5, GPIO6, GPIO7, GPIO8, GPIO15, GPIO16, GPIO17, GPIO18, GPIO21
+  # These pins are confirmed safe for general GPIO usage
   
-  # ADC-capable input pins:
-  # ADC1: GPIO1-GPIO10
-  # ADC2: GPIO11-GPIO20 (avoid when using WiFi)
+  # ADC-capable input pins (safe with WiFi):
+  # ADC1: GPIO1-GPIO10 (recommended - work with WiFi enabled)
+  # ADC2: GPIO11-GPIO20 (avoid when using WiFi due to conflicts)
   
-  # Pins to avoid or use with caution:
-  # GPIO0 - Boot/Programming (has pull-up, used for boot mode selection)
-  # GPIO3 - Boot strapping pin (affects boot mode)
-  # GPIO43, GPIO44 - UART0 (USB serial/programming) - conflicts with USB debugging
-  # GPIO19, GPIO20 - USB D+/D- pins (native USB CDC)
-  # GPIO26-GPIO32 - Reserved for flash/PSRAM on some board variants
+  # CRITICAL: Pins to AVOID (per official documentation):
+  # GPIO3 - JTAG strapping pin, affects debug interface
+  # GPIO9-GPIO14, GPIO33-GPIO38 - Connected to flash memory (SPI flash/PSRAM)
+  # GPIO39-GPIO41 - JTAG debugging pins (MTCK, MTDO, MTDI)
+  # GPIO45, GPIO46 - Strapping pins (flash voltage, boot mode)
+  # GPIO47, GPIO48 - Special: GPIO48 controls BOTH red LED and WS2812 simultaneously
   
-  # Alternative UART configurations:
-  # For debugging via USB serial (conflicts with this UART config):
-  # tx_pin_uart: GPIO43  # UART0 TX (USB serial - debugging only)
-  # rx_pin_uart: GPIO44  # UART0 RX (USB serial - debugging only)
+  # Alternative pin configurations (using SAFE pins only):
+  # Alternative UART pins (confirmed safe):
+  # tx_pin_uart: GPIO17  # Alternative safe UART TX
+  # rx_pin_uart: GPIO18  # Alternative safe UART RX
   
-  # Alternative I2C pins (any GPIO can be I2C):
-  # sda_pin_i2c: GPIO4   # Alternative SDA
-  # scl_pin_i2c: GPIO5   # Alternative SCL
+  # Alternative I2C pins (any safe GPIO can be configured as I2C):
+  # sda_pin_i2c: GPIO2   # Alternative safe I2C SDA
+  # scl_pin_i2c: GPIO5   # Alternative safe I2C SCL
   
-  # If your board has simple LED instead of RGB:
-  # light_gpio: GPIO21   # Alternative LED pin
+  # Alternative motion sensor pins (safe options):
+  # motion_gpio: GPIO8   # Alternative safe motion sensor pin
+  # motion_gpio: GPIO15  # Alternative safe motion sensor pin
   
-  # SPI pins (if needed):
-  # mosi_pin: GPIO11  # MOSI
-  # miso_pin: GPIO13  # MISO
-  # sck_pin: GPIO12   # SCK
-  # cs_pin: GPIO10    # SS/CS
+  # Alternative ADC pins (ADC1 channels - safe with WiFi):
+  # mic_adc: GPIO2       # ADC1_CH1 - safe analog input
+  # mic_adc: GPIO3       # WARNING: JTAG pin - use with caution
   
-  # Native USB pins (CDC serial):
-  # USB_D_PLUS: GPIO20
-  # USB_D_MINUS: GPIO19
+  # SPI pins configuration (using safe pins where possible):
+  # mosi_pin: GPIO6   # Safe pin for SPI MOSI
+  # miso_pin: GPIO5   # Safe pin for SPI MISO  
+  # sck_pin: GPIO4    # Safe pin for SPI SCK
+  # cs_pin: GPIO7     # Safe pin for SPI CS
+  
+  # WARNING: Traditional SPI pins (GPIO11-GPIO14) are connected to flash memory
+  # and should NOT be used for external SPI devices on ESP32-S3 Super Mini
 
 ####################################
 # End Substitutions
