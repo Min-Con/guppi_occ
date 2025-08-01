@@ -101,7 +101,7 @@ esp32:
   flash_size: 4MB  # Common size - verify your board variant (some have 8MB/16MB)
   framework:
     type: esp-idf
-    version: recommended
+    version: latest
     sdkconfig_options:
       # Performance optimizations
       CONFIG_COMPILER_OPTIMIZATION_PERF: y
