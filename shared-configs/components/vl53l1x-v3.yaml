@@ -170,12 +170,12 @@ select:
 
 # LED control switch
 switch:
-  - platform: template
-    name: "Status LED Enable"
-    id: led_enable
-    optimistic: true
-    restore_value: true
-    initial_state: true
+  # - platform: template
+  #   name: "Status LED Enable"
+  #   id: led_enable
+  #   optimistic: true
+  #   restore_value: true
+  #   initial_state: true
 
   # Sensor enable/disable
   - platform: template
