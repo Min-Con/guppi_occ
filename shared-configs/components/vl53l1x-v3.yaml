@@ -188,6 +188,7 @@ sensor:
     timing_budget: 200ms   # Will be dynamically controlled
     signal_threshold: 1500 # Will be dynamically controlled
     update_interval: 1s    # Regular updates for template sensors
+    # accuracy_decimals: 2
     accuracy_decimals: 2
     # internal: true  ## Toggle these for troubleshooting
     # internal: false
@@ -203,7 +204,8 @@ sensor:
   - platform: template
     name: "VL53L1X Distance"
     id: distance_sensor
-    unit_of_measurement: "mm"
+    # unit_of_measurement: "mm"
+    unit_of_measurement: "m"
     accuracy_decimals: 1
     lambda: |-
       return id(distance_sensor_raw).state;
