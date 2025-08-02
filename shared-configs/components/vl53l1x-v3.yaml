@@ -189,7 +189,8 @@ sensor:
     signal_threshold: 1500 # Will be dynamically controlled
     update_interval: 1s    # Regular updates for template sensors
     accuracy_decimals: 2
-    internal: true
+    # internal: true  ## Toggle these for troubleshooting
+    internal: false
     
     # ROI configuration (Region of Interest)
     roi_center:
@@ -199,38 +200,68 @@ sensor:
       x: 8
       y: 8
 
-  # Main processed distance sensor with all enhancements
-  - platform: template
-    name: "VL53L1X Distance"
-    id: distance_sensor
-    unit_of_measurement: "mm"
-    accuracy_decimals: 1
-    state_class: measurement
-    device_class: distance
-    lambda: |-
-      if (!id(sensor_enable).state) {
-        return {};  // Return nothing if sensor disabled
-      }
+# Main processed distance sensor - SIMPLIFIED VERSION
+- platform: template
+  name: "VL53L1X Distance"
+  id: distance_sensor
+  unit_of_measurement: "mm"
+  accuracy_decimals: 1
+  state_class: measurement
+  device_class: distance
+  lambda: |-
+    if (!id(sensor_enable).state) {
+      return {};
+    }
+    
+    float raw_distance = id(distance_sensor_raw).state;
+    if (isnan(raw_distance) || raw_distance <= 0) {
+      return {};
+    }
+    
+    // Apply calibration offset
+    float calibrated_distance = raw_distance + id(calibration_offset).state;
+    
+    // Simple range validation - be more permissive
+    if (calibrated_distance < 0 || calibrated_distance > 5000) {
+      return {};
+    }
+    
+    return calibrated_distance;
+  update_interval: 2s
+  # Remove filters temporarily
+
+  # # Main processed distance sensor with all enhancements
+  # - platform: template
+  #   name: "VL53L1X Distance"
+  #   id: distance_sensor
+  #   unit_of_measurement: "mm"
+  #   accuracy_decimals: 1
+  #   state_class: measurement
+  #   device_class: distance
+  #   lambda: |-
+  #     if (!id(sensor_enable).state) {
+  #       return {};  // Return nothing if sensor disabled
+  #     }
       
-      float raw_distance = id(distance_sensor_raw).state;
-      if (isnan(raw_distance) || raw_distance <= 0) {
-        return {};  // Invalid reading
-      }
+  #     float raw_distance = id(distance_sensor_raw).state;
+  #     if (isnan(raw_distance) || raw_distance <= 0) {
+  #       return {};  // Invalid reading
+  #     }
       
-      // Apply calibration offset
-      float calibrated_distance = raw_distance + id(calibration_offset).state;
+  #     // Apply calibration offset
+  #     float calibrated_distance = raw_distance + id(calibration_offset).state;
       
-      // Range validation based on distance mode
-      float max_range = 4000;  // Default HIGH mode
-      std::string mode = id(distance_mode_select).state;
-      if (mode == "LOW") max_range = 1300;
-      else if (mode == "MEDIUM") max_range = 3000;
+  #     // Range validation based on distance mode
+  #     float max_range = 4000;  // Default HIGH mode
+  #     std::string mode = id(distance_mode_select).state;
+  #     if (mode == "LOW") max_range = 1300;
+  #     else if (mode == "MEDIUM") max_range = 3000;
       
-      if (calibrated_distance < 40 || calibrated_distance > max_range) {
-        return {};  // Out of valid range
-      }
+  #     if (calibrated_distance < 40 || calibrated_distance > max_range) {
+  #       return {};  // Out of valid range
+  #     }
       
-      return calibrated_distance;
+  #     return calibrated_distance;
     
     update_interval: 1s
     
