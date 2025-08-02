@@ -1,4 +1,6 @@
-
+external_components:
+  - source: github://soldierkam/vl53l1x_sensor
+    refresh: 1s
 # I2C configuration for VL53L1X
 i2c:
   sda: ${sda_pin_i2c}
