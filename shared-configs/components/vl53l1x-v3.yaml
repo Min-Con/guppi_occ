@@ -174,8 +174,8 @@ switch:
   #   name: "Status LED Enable"
   #   id: led_enable
   #   optimistic: true
-  #   restore_value: true
-  #   initial_state: true
+  #   restore_mode: RESTORE_DEFAULT_ON
+  #   # initial_state: true
 
   # Sensor enable/disable
   - platform: template
@@ -215,26 +215,26 @@ sensor:
       x: 8
       y: 8
     
-    # Additional sensor outputs
+    # Additional sensor outputs (internal, accessed via template sensors)
     ambient_rate_sensor:
       id: "ambient_rate"
-      name: "Ambient Rate"
-      internal: !lambda "return !id(advanced_diagnostics).state;"
+      name: "Ambient Rate Raw"
+      internal: true
     
     avg_signal_rate_sensor:
       id: "avg_signal_rate"
-      name: "Average Signal Rate"
-      internal: !lambda "return !id(advanced_diagnostics).state;"
+      name: "Average Signal Rate Raw"
+      internal: true
     
     peak_signal_rate_sensor:
       id: "peak_signal_rate"
-      name: "Peak Signal Rate"
-      internal: !lambda "return !id(advanced_diagnostics).state;"
+      name: "Peak Signal Rate Raw"
+      internal: true
     
     range_status_sensor:
       id: "range_status"
-      name: "Range Status"
-      internal: !lambda "return !id(advanced_diagnostics).state;"
+      name: "Range Status Raw"
+      internal: true
 
   # Main processed distance sensor with all enhancements
   - platform: template
@@ -309,8 +309,7 @@ sensor:
       }
       
       return base_quality;
-    update_interval: 5s
-
+ 
   # Rate of change sensor (velocity approximation)
   - platform: template
     name: "VL53L1X Rate of Change"
@@ -342,14 +341,60 @@ sensor:
       return 0;
     update_interval: 2s
 
-  # WiFi signal strength for diagnostics
-  - platform: wifi_signal
-    name: "WiFi Signal"
-    update_interval: 30s
+  # Diagnostic sensor visibility controls (template sensors that can be hidden/shown)
+  - platform: template
+    name: "VL53L1X Ambient Rate"
+    id: ambient_rate_display
+    unit_of_measurement: "MCPS"
+    accuracy_decimals: 3
+    entity_category: diagnostic
+    lambda: |-
+      if (id(advanced_diagnostics).state) {
+        return id(ambient_rate).state;
+      } else {
+        return {};  // Hide when diagnostics disabled
+      }
+    update_interval: 5s
 
-  # Uptime sensor
-  - platform: uptime
-    name: "Uptime"
+  - platform: template
+    name: "VL53L1X Average Signal Rate"
+    id: avg_signal_rate_display
+    unit_of_measurement: "MCPS"
+    accuracy_decimals: 3
+    entity_category: diagnostic
+    lambda: |-
+      if (id(advanced_diagnostics).state) {
+        return id(avg_signal_rate).state;
+      } else {
+        return {};  // Hide when diagnostics disabled
+      }
+    update_interval: 5s
+
+  - platform: template
+    name: "VL53L1X Peak Signal Rate"
+    id: peak_signal_rate_display
+    unit_of_measurement: "MCPS"
+    accuracy_decimals: 3
+    entity_category: diagnostic
+    lambda: |-
+      if (id(advanced_diagnostics).state) {
+        return id(peak_signal_rate).state;
+      } else {
+        return {};  // Hide when diagnostics disabled
+      }
+    update_interval: 5s
+
+  - platform: template
+    name: "VL53L1X Range Status Code"
+    id: range_status_display
+    entity_category: diagnostic
+    lambda: |-
+      if (id(advanced_diagnostics).state) {
+        return id(range_status).state;
+      } else {
+        return {};  // Hide when diagnostics disabled
+      }
+    update_interval: 5s
 
 # Binary sensor for proximity detection (now user configurable)
 binary_sensor:
