@@ -279,7 +279,7 @@ sensor:
     accuracy_decimals: 0
     lambda: |-
       float distance = id(distance_sensor).state;
-      float range_status = id(range_status).state;
+      int range_status = (int)id(range_status).state;
       float peak_signal = id(peak_signal_rate).state;
       
       if (isnan(distance) || isnan(range_status)) return 0;
