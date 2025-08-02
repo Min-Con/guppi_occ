@@ -182,16 +182,16 @@ switch:
     name: "Sensor Enable"
     id: sensor_enable
     optimistic: true
-    restore_value: true
-    initial_state: true
+    restore_mode: RESTORE_DEFAULT_ON
+    # initial_state: true
 
   # Advanced diagnostics enable
   - platform: template
     name: "Advanced Diagnostics"
     id: advanced_diagnostics
     optimistic: true
-    restore_value: true
-    initial_state: false
+    restore_mode: RESTORE_DEFAULT_ON
+    # initial_state: true
 
 # VL53L1X Time of Flight Distance Sensor using external component
 sensor:
