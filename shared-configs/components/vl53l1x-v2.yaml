@@ -245,55 +245,55 @@ button:
   # - platform: restart
   #   name: "Restart Device"
 
-# Configurable LED indicator
-light:
-  - platform: binary
-    name: "Status LED"
-    id: status_led
-    output: led_output
-    effects:
-      - pulse:
-          name: "Pulse"
-          transition_length: 1s
-          update_interval: 1s
-      - strobe:
-          name: "Strobe"
-          colors:
-            - state: true
-              duration: 100ms
-            - state: false
-              duration: 100ms
-    lambda: |-
-      if (!id(led_enable).state) {
-        return light::LightState::OFF;
-      }
+# # Configurable LED indicator
+# light:
+#   - platform: binary
+#     name: "Status LED"
+#     id: status_led
+#     output: led_output
+#     effects:
+#       - pulse:
+#           name: "Pulse"
+#           transition_length: 1s
+#           update_interval: 1s
+#       - strobe:
+#           name: "Strobe"
+#           colors:
+#             - state: true
+#               duration: 100ms
+#             - state: false
+#               duration: 100ms
+#     lambda: |-
+#       if (!id(led_enable).state) {
+#         return light::LightState::OFF;
+#       }
       
-      // Different LED behaviors based on sensor state
-      if (!id(sensor_online).state) {
-        // Strobe if sensor offline
-        auto call = id(status_led).turn_on();
-        call.set_effect("Strobe");
-        call.perform();
-        return {};
-      } else if (id(motion_detected).state) {
-        // Pulse if motion detected
-        auto call = id(status_led).turn_on();
-        call.set_effect("Pulse");
-        call.perform();
-        return {};
-      } else if (id(object_detected).state) {
-        // Solid on if object detected
-        return light::LightState::ON;
-      } else {
-        // Off if clear
-        return light::LightState::OFF;
-      }
+#       // Different LED behaviors based on sensor state
+#       if (!id(sensor_online).state) {
+#         // Strobe if sensor offline
+#         auto call = id(status_led).turn_on();
+#         call.set_effect("Strobe");
+#         call.perform();
+#         return {};
+#       } else if (id(motion_detected).state) {
+#         // Pulse if motion detected
+#         auto call = id(status_led).turn_on();
+#         call.set_effect("Pulse");
+#         call.perform();
+#         return {};
+#       } else if (id(object_detected).state) {
+#         // Solid on if object detected
+#         return light::LightState::ON;
+#       } else {
+#         // Off if clear
+#         return light::LightState::OFF;
+#       }
 
-# LED output pin
-output:
-  - platform: gpio
-    pin: ${light_gpio}
-    id: status_light
+# # LED output pin
+# output:
+#   - platform: gpio
+#     pin: ${light_gpio}
+#     id: status_light
 
 # Interval component for dynamic updates
 interval:
