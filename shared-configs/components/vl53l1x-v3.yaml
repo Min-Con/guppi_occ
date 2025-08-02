@@ -190,7 +190,7 @@ sensor:
     update_interval: 1s    # Regular updates for template sensors
     accuracy_decimals: 2
     # internal: true  ## Toggle these for troubleshooting
-    internal: false
+    # internal: false
     
     # ROI configuration (Region of Interest)
     roi_center:
