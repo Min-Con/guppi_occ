@@ -168,30 +168,21 @@ select:
             format: "Distance mode changed to: %s"
             args: ["x.c_str()"]
 
-# LED control switch
+# Control switches with RESTORE_DEFAULT_ON
 switch:
-  # - platform: template
-  #   name: "Status LED Enable"
-  #   id: led_enable
-  #   optimistic: true
-  #   restore_mode: RESTORE_DEFAULT_ON
-  #   # initial_state: true
-
   # Sensor enable/disable
   - platform: template
     name: "Sensor Enable"
     id: sensor_enable
     optimistic: true
     restore_mode: RESTORE_DEFAULT_ON
-    # initial_state: true
 
   # Advanced diagnostics enable
   - platform: template
     name: "Advanced Diagnostics"
     id: advanced_diagnostics
     optimistic: true
-    restore_mode: RESTORE_DEFAULT_ON
-    # initial_state: true
+    restore_mode: RESTORE_DEFAULT_OFF
 
 # VL53L1X Time of Flight Distance Sensor using external component
 sensor:
@@ -309,7 +300,8 @@ sensor:
       }
       
       return base_quality;
- 
+    update_interval: 5s
+
   # Rate of change sensor (velocity approximation)
   - platform: template
     name: "VL53L1X Rate of Change"
@@ -645,73 +637,6 @@ button:
 
   - platform: restart
     name: "Restart Device"
-
-# # Configurable LED indicator
-# light:
-#   - platform: binary
-#     name: "Status LED"
-#     id: status_led
-#     output: led_output
-#     effects:
-#       - pulse:
-#           name: "Pulse"
-#           transition_length: 1s
-#           update_interval: 1s
-#       - strobe:
-#           name: "Strobe"
-#           colors:
-#             - state: true
-#               duration: 100ms
-#             - state: false
-#               duration: 100ms
-#       - lambda:
-#           name: "Quality Indicator"
-#           update_interval: 500ms
-#           lambda: |-
-#             float quality = id(signal_quality).state;
-#             auto call = id(status_led).turn_on();
-#             if (quality > 80) {
-#               call.set_brightness(1.0);  // Full brightness for high quality
-#             } else if (quality > 60) {
-#               call.set_brightness(0.7);  // Medium brightness
-#             } else {
-#               call.set_brightness(0.3);  // Low brightness for poor quality
-#             }
-#             call.perform();
-#     lambda: |-
-#       if (!id(led_enable).state) {
-#         return light::LightState::OFF;
-#       }
-      
-#       // Different LED behaviors based on sensor state
-#       if (!id(sensor_online).state) {
-#         // Strobe if sensor offline
-#         auto call = id(status_led).turn_on();
-#         call.set_effect("Strobe");
-#         call.perform();
-#         return {};
-#       } else if (id(motion_detected).state) {
-#         // Pulse if motion detected
-#         auto call = id(status_led).turn_on();
-#         call.set_effect("Pulse");
-#         call.perform();
-#         return {};
-#       } else if (id(object_detected).state) {
-#         // Quality indicator when object detected
-#         auto call = id(status_led).turn_on();
-#         call.set_effect("Quality Indicator");
-#         call.perform();
-#         return {};
-#       } else {
-#         // Off if clear
-#         return light::LightState::OFF;
-#       }
-
-# # LED output pin
-# output:
-#   - platform: gpio
-#     pin: ${light_gpio}
-#     id: led_output
 
 # Dynamic configuration updates
 interval:
