@@ -200,35 +200,45 @@ sensor:
       x: 8
       y: 8
 
-# Main processed distance sensor - SIMPLIFIED VERSION
-- platform: template
-  name: "VL53L1X Distance"
-  id: distance_sensor
-  unit_of_measurement: "mm"
-  accuracy_decimals: 1
-  state_class: measurement
-  device_class: distance
-  lambda: |-
-    if (!id(sensor_enable).state) {
-      return {};
-    }
-    
-    float raw_distance = id(distance_sensor_raw).state;
-    if (isnan(raw_distance) || raw_distance <= 0) {
-      return {};
-    }
-    
-    // Apply calibration offset
-    float calibrated_distance = raw_distance + id(calibration_offset).state;
-    
-    // Simple range validation - be more permissive
-    if (calibrated_distance < 0 || calibrated_distance > 5000) {
-      return {};
-    }
-    
-    return calibrated_distance;
-  update_interval: 2s
-  # Remove filters temporarily
+  - platform: template
+    name: "VL53L1X Distance"
+    id: distance_sensor
+    unit_of_measurement: "mm"
+    accuracy_decimals: 1
+    lambda: |-
+      return id(distance_sensor_raw).state;
+    update_interval: 2s
+
+  # # Main processed distance sensor - SIMPLIFIED VERSION
+  # - platform: template
+  #   name: "VL53L1X Distance"
+  #   id: distance_sensor
+  #   unit_of_measurement: "mm"
+  #   accuracy_decimals: 1
+  #   state_class: measurement
+  #   device_class: distance
+  #   lambda: |-
+  #     if (!id(sensor_enable).state) {
+  #       return {};
+  #     }
+      
+  #     float raw_distance = id(distance_sensor_raw).state;
+  #     if (isnan(raw_distance) || raw_distance <= 0) {
+  #       return {};
+  #     }
+      
+  #     // Apply calibration offset
+  #     float calibrated_distance = raw_distance + id(calibration_offset).state;
+      
+  #     // Simple range validation - be more permissive
+  #     if (calibrated_distance < 0 || calibrated_distance > 5000) {
+  #       return {};
+  #     }
+      
+  #     return calibrated_distance;
+  #   update_interval: 1s
+  #   # Remove filters temporarily
+
 
   # # Main processed distance sensor with all enhancements
   # - platform: template
@@ -263,13 +273,13 @@ sensor:
       
   #     return calibrated_distance;
     
-    update_interval: 1s
+    # update_interval: 1s
     
-    filters:
-      - sliding_window_moving_average:
-          window_size: 5  # Will be dynamically controlled
-          send_every: 1
-      - delta: 10  # Will be dynamically controlled
+    # filters:
+    #   - sliding_window_moving_average:
+    #       window_size: 5  # Will be dynamically controlled
+    #       send_every: 1
+    #   - delta: 10  # Will be dynamically controlled
 
   # Signal quality based on distance stability and range
   - platform: template
