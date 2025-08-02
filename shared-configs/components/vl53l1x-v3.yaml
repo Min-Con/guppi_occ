@@ -215,26 +215,26 @@ sensor:
       x: 8
       y: 8
     
-    # Additional sensor outputs
-    ambient_rate_sensor:
-      id: "ambient_rate"
-      name: "Ambient Rate"
-      internal: !lambda "return !id(advanced_diagnostics).state;"
+    # # Additional sensor outputs
+    # ambient_rate_sensor:
+    #   id: "ambient_rate"
+    #   name: "Ambient Rate"
+    #   internal: !lambda "return !id(advanced_diagnostics).state;"
     
-    avg_signal_rate_sensor:
-      id: "avg_signal_rate"
-      name: "Average Signal Rate"
-      internal: !lambda "return !id(advanced_diagnostics).state;"
+    # avg_signal_rate_sensor:
+    #   id: "avg_signal_rate"
+    #   name: "Average Signal Rate"
+    #   internal: !lambda "return !id(advanced_diagnostics).state;"
     
-    peak_signal_rate_sensor:
-      id: "peak_signal_rate"
-      name: "Peak Signal Rate"
-      internal: !lambda "return !id(advanced_diagnostics).state;"
+    # peak_signal_rate_sensor:
+    #   id: "peak_signal_rate"
+    #   name: "Peak Signal Rate"
+    #   internal: !lambda "return !id(advanced_diagnostics).state;"
     
-    range_status_sensor:
-      id: "range_status"
-      name: "Range Status"
-      internal: !lambda "return !id(advanced_diagnostics).state;"
+    # range_status_sensor:
+    #   id: "range_status"
+    #   name: "Range Status"
+    #   internal: !lambda "return !id(advanced_diagnostics).state;"
 
   # Main processed distance sensor with all enhancements
   - platform: template
