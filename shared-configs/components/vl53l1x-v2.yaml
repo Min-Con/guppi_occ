@@ -1,6 +1,3 @@
-external_components:
-  - source: github://soldierkam/vl53l1x_sensor
-    refresh: 1s
 # I2C configuration for VL53L1X
 i2c:
   sda: ${sda_pin_i2c}
@@ -11,7 +8,7 @@ i2c:
 
 # VL53L1X Time of Flight Distance Sensor
 sensor:
-  - platform: vl53l1x
+  - platform: vl53l0x
     name: "VL53L1X Distance"
     id: distance_sensor
     i2c_id: bus_a
