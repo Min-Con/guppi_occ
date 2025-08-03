@@ -272,7 +272,7 @@ sensor:
           send_every: 1
       - delta: 10
 
-  # Signal quality based on range status and signal rates
+  # Signal quality based on distance stability and signal rates
   - platform: template
     name: "VL53L1X Signal Quality"
     id: signal_quality
@@ -284,24 +284,25 @@ sensor:
       }
       
       float distance = id(distance_sensor_raw).state;
-      int range_status = (int)id(range_status).state;
       float peak_signal = id(peak_signal_rate).state;
       
-      if (isnan(distance) || isnan(range_status)) return 0;
+      if (isnan(distance) || distance <= 0) return 0;
       
-      // Base quality on range status
-      int base_quality = 0;
-      if (range_status == 0) base_quality = 100;        // Valid
-      else if (range_status == 6) base_quality = 80;    // Valid but no wraparound check
-      else if (range_status == 11) base_quality = 60;   // Multiple pulses
-      else if (range_status == 1) base_quality = 40;    // Sigma check failed
-      else if (range_status == 2) base_quality = 30;    // Low signal
-      else base_quality = 10;                           // Other issues
+      // Base quality on distance and signal strength
+      int base_quality = 50;  // Default moderate quality
+      
+      // Distance-based quality
+      if (distance < 200) base_quality = 95;           // Very close, high quality
+      else if (distance < 1000) base_quality = 85;     // Medium distance, good quality
+      else if (distance < 2000) base_quality = 70;     // Far, moderate quality  
+      else if (distance < 3000) base_quality = 50;     // Very far, lower quality
+      else base_quality = 25;                          // At limit, low quality
       
       // Adjust based on signal strength if available
       if (!isnan(peak_signal) && peak_signal > 0) {
-        if (peak_signal > 2000) base_quality = min(100, base_quality + 10);
-        else if (peak_signal < 500) base_quality = max(0, base_quality - 20);
+        if (peak_signal > 2.0) base_quality = min(100, base_quality + 15);
+        else if (peak_signal > 1.0) base_quality = min(100, base_quality + 5);
+        else if (peak_signal < 0.5) base_quality = max(0, base_quality - 20);
       }
       
       return base_quality;
@@ -453,11 +454,10 @@ binary_sensor:
     id: sensor_online
     lambda: |-
       float raw_distance = id(distance_sensor_raw).state;
-      int range_status = (int)id(range_status).state;
       static unsigned long last_valid_reading = 0;
       unsigned long now = millis();
       
-      if ((!isnan(raw_distance) && raw_distance > 0) || (!isnan(range_status) && range_status != 255)) {
+      if (!isnan(raw_distance) && raw_distance > 0) {
         last_valid_reading = now;
         return true;
       }
@@ -475,13 +475,6 @@ binary_sensor:
       float quality = id(signal_quality).state;
       return quality >= 80;
 
-  - platform: template
-    name: "Range Status Valid"
-    id: range_valid
-    lambda: |-
-      int status = (int)id(range_status).state;
-      return !isnan(status) && (status == 0 || status == 6);
-
 # Text sensors
 text_sensor:
   - platform: template
@@ -496,18 +489,10 @@ text_sensor:
       float threshold = id(detection_threshold).state;
       std::string mode = id(distance_mode_select).state;
       float quality = id(signal_quality).state;
-      int range_status = (int)id(range_status).state;
       
       if (isnan(raw_distance) || raw_distance <= 0) {
         if (!id(sensor_online).state) {
           return {"Sensor Offline (" + mode + ")"};
-        } else if (!isnan(range_status)) {
-          if (range_status == 1) return {"Sigma Check Failed (" + mode + ")"};
-          else if (range_status == 2) return {"Low Signal (" + mode + ")"};
-          else if (range_status == 3) return {"Below Detection Threshold (" + mode + ")"};
-          else if (range_status == 5) return {"Hardware Failure (" + mode + ")"};
-          else if (range_status == 14) return {"Invalid Range (" + mode + ")"};
-          else return {"Range Error " + to_string(range_status) + " (" + mode + ")"};
         } else {
           return {"Out of Range (" + mode + ")"};
         }
@@ -522,34 +507,6 @@ text_sensor:
         return {"Clear - " + status};
       }
     update_interval: 2s
-
-  - platform: template
-    name: "Range Status Description"
-    id: range_status_desc
-    lambda: |-
-      int status = (int)id(range_status).state;
-      if (isnan(status)) return {"No Data"};
-      
-      switch (status) {
-        case 0: return {"Valid Measurement"};
-        case 1: return {"Sigma Estimator Check Failed"};
-        case 2: return {"Signal Below Threshold"};
-        case 3: return {"Target Below Detection Threshold"};
-        case 4: return {"Phase Out of Bounds"};
-        case 5: return {"HW or VCSEL Failure"};
-        case 6: return {"Valid (No Wraparound Check)"};
-        case 7: return {"Wrapped Target"};
-        case 8: return {"Algorithm Overflow/Underflow"};
-        case 9: return {"Lite Ranging Specific"};
-        case 10: return {"First Interrupt (Ignore)"};
-        case 11: return {"Multiple Pulses Merged"};
-        case 12: return {"RQL Phase Fail"};
-        case 13: return {"Invalid ROI"};
-        case 14: return {"Invalid Range"};
-        case 255: return {"No Update"};
-        default: return {"Unknown Status: " + to_string(status)};
-      }
-    update_interval: 5s
 
   - platform: template
     name: "VL53L1X Diagnostics"
