@@ -1,3 +1,6 @@
+substitutions:
+  xshut_gpio: GPIO9  # GPIO pin assignment for XSHUT on VL53L1X sensor
+
 # External component for VL53L1X
 external_components:
   - source: github://soldierkam/vl53l1x_sensor
