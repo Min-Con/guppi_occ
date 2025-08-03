@@ -109,7 +109,7 @@ number:
     optimistic: true
     min_value: 0
     max_value: 15
-    initial_value: 8
+    initial_value: 3
     step: 1
     mode: box
     restore_value: true
@@ -133,7 +133,7 @@ number:
     optimistic: true
     min_value: 4
     max_value: 16
-    initial_value: 8
+    initial_value: 4
     step: 1
     mode: box
     restore_value: true
@@ -145,7 +145,7 @@ number:
     optimistic: true
     min_value: 4
     max_value: 16
-    initial_value: 8
+    initial_value: 4
     step: 1
     mode: box
     restore_value: true
@@ -214,22 +214,22 @@ sensor:
       id: "range_status"
       name: "Range Status"
 
-  # - platform: template
-  #   name: "VL53L1X Distance"
-  #   id: distance_sensor
-  #   # unit_of_measurement: "mm"
-  #   unit_of_measurement: "m"
-  #   accuracy_decimals: 1
-  #   lambda: |-
-  #     return id(distance_sensor_raw).state;
-  #   update_interval: 2s
+  - platform: template
+    name: "VL53L1X Distance"
+    id: distance_sensor
+    unit_of_measurement: "mm"
+    # unit_of_measurement: "m"
+    accuracy_decimals: 1
+    lambda: |-
+      return id(distance_sensor_raw).state;
+    update_interval: 2s
 
   # # Main processed distance sensor - SIMPLIFIED VERSION
   # - platform: template
   #   name: "VL53L1X Distance"
   #   id: distance_sensor
-  #   unit_of_measurement: "m"
-  #   accuracy_decimals: 4
+  #   unit_of_measurement: "mm"
+  #   accuracy_decimals: 2
   #   state_class: measurement
   #   device_class: distance
   #   lambda: |-
@@ -255,46 +255,46 @@ sensor:
   #   # Remove filters temporarily
 
 
-  # Main processed distance sensor with all enhancements
-  - platform: template
-    name: "VL53L1X Distance"
-    id: distance_sensor
-    unit_of_measurement: "mm"
-    accuracy_decimals: 2
-    state_class: measurement
-    device_class: distance
-    lambda: |-
-      if (!id(sensor_enable).state) {
-        return {};  // Return nothing if sensor disabled
-      }
+  # # Main processed distance sensor with all enhancements
+  # - platform: template
+  #   name: "VL53L1X Distance"
+  #   id: distance_sensor
+  #   unit_of_measurement: "mm"
+  #   accuracy_decimals: 2
+  #   state_class: measurement
+  #   device_class: distance
+  #   lambda: |-
+  #     if (!id(sensor_enable).state) {
+  #       return {};  // Return nothing if sensor disabled
+  #     }
       
-      float raw_distance = id(distance_sensor_raw).state;
-      if (isnan(raw_distance) || raw_distance <= 0) {
-        return {};  // Invalid reading
-      }
+  #     float raw_distance = id(distance_sensor_raw).state;
+  #     if (isnan(raw_distance) || raw_distance <= 0) {
+  #       return {};  // Invalid reading
+  #     }
       
-      // Apply calibration offset
-      float calibrated_distance = raw_distance + id(calibration_offset).state;
+  #     // Apply calibration offset
+  #     float calibrated_distance = raw_distance + id(calibration_offset).state;
       
-      // Range validation based on distance mode
-      float max_range = 4000;  // Default HIGH mode
-      std::string mode = id(distance_mode_select).state;
-      if (mode == "LOW") max_range = 1300;
-      else if (mode == "MEDIUM") max_range = 3000;
+  #     // Range validation based on distance mode
+  #     float max_range = 4000;  // Default HIGH mode
+  #     std::string mode = id(distance_mode_select).state;
+  #     if (mode == "LOW") max_range = 1300;
+  #     else if (mode == "MEDIUM") max_range = 3000;
       
-      if (calibrated_distance < 40 || calibrated_distance > max_range) {
-        return {};  // Out of valid range
-      }
+  #     if (calibrated_distance < 40 || calibrated_distance > max_range) {
+  #       return {};  // Out of valid range
+  #     }
       
-      return calibrated_distance;
+  #     return calibrated_distance;
     
-    update_interval: 1s
+  #   update_interval: 1s
     
-    filters:
-      - sliding_window_moving_average:
-          window_size: 5  # Will be dynamically controlled
-          send_every: 1
-      - delta: 10  # Will be dynamically controlled
+  #   filters:
+  #     - sliding_window_moving_average:
+  #         window_size: 5  # Will be dynamically controlled
+  #         send_every: 1
+  #     - delta: 10  # Will be dynamically controlled
 
   # Signal quality based on distance stability and range
   - platform: template
