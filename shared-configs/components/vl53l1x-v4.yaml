@@ -28,8 +28,8 @@ sensor:
     # - Use a high threshold (2000+ kcps) for precise distance measurement with strong signals.
     signal_threshold: 512
     update_interval: 1s
-    # address: 0x32 # default is 0x29
-    address: 0x29 # default is 0x29
+    address: 0x32 # default is 0x29
+    # address: 0x29 # default is 0x29
     accuracy_decimals: 2
     roi_center: # the x and y coordinates of the SPAD that should serve as the center of the ROI.
       x: 3
