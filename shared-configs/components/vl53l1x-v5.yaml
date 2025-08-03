@@ -244,13 +244,16 @@ sensor:
         return {};
       }
       
-      float raw_distance = id(distance_sensor_raw).state;
-      if (isnan(raw_distance) || raw_distance <= 0) {
+      float raw_distance_m = id(distance_sensor_raw).state;  // This is in meters
+      if (isnan(raw_distance_m) || raw_distance_m <= 0) {
         return {};
       }
       
+      // Convert meters to millimeters
+      float raw_distance_mm = raw_distance_m * 1000;
+      
       // Apply calibration offset
-      float calibrated_distance = raw_distance + id(calibration_offset).state;
+      float calibrated_distance = raw_distance_mm + id(calibration_offset).state;
       
       // Range validation based on distance mode
       float max_range = 4000;  // Default HIGH mode
