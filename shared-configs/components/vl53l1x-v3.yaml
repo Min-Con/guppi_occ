@@ -182,7 +182,7 @@ sensor:
   - platform: vl53l1x_sensor
     name: "VL53L1X Distance Raw"
     id: distance_sensor_raw
-    i2c_id: bus_a
+    # i2c_id: bus_a
     # address: 0x32 # default is 0x29
     # address: 0x29
     distance_mode: MEDIUM  # Will be dynamically controlled
