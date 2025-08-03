@@ -1,0 +1,699 @@
+# External component for VL53L1X
+external_components:
+  - source: github://soldierkam/vl53l1x_sensor
+    refresh: 1s
+
+# I2C configuration for VL53L1X
+i2c:
+  sda: ${sda_pin_i2c}
+  scl: ${scl_pin_i2c}
+  id: bus_a
+  scan: true
+  frequency: 400khz
+
+# User configurable detection threshold
+number:
+  - platform: template
+    name: "Object Detection Threshold"
+    id: detection_threshold
+    optimistic: true
+    min_value: 50
+    max_value: 4000
+    initial_value: 500
+    step: 10
+    unit_of_measurement: "mm"
+    mode: box
+    restore_value: true
+
+  # Calibration offset for fine-tuning accuracy
+  - platform: template
+    name: "Distance Calibration Offset"
+    id: calibration_offset
+    optimistic: true
+    min_value: -200
+    max_value: 200
+    initial_value: 0
+    step: 1
+    unit_of_measurement: "mm"
+    mode: box
+    restore_value: true
+
+  # Update interval control
+  - platform: template
+    name: "Update Interval"
+    id: update_interval_control
+    optimistic: true
+    min_value: 0.1
+    max_value: 60
+    initial_value: 1
+    step: 0.1
+    unit_of_measurement: "s"
+    mode: box
+    restore_value: true
+
+  # Smoothing window size
+  - platform: template
+    name: "Smoothing Window Size"
+    id: smoothing_window
+    optimistic: true
+    min_value: 1
+    max_value: 20
+    initial_value: 5
+    step: 1
+    mode: box
+    restore_value: true
+
+  # Change delta threshold
+  - platform: template
+    name: "Change Delta Threshold"
+    id: delta_threshold
+    optimistic: true
+    min_value: 1
+    max_value: 100
+    initial_value: 10
+    step: 1
+    unit_of_measurement: "mm"
+    mode: box
+    restore_value: true
+
+  # Signal threshold control
+  - platform: template
+    name: "Signal Threshold"
+    id: signal_threshold_control
+    optimistic: true
+    min_value: 500
+    max_value: 5000
+    initial_value: 512
+    step: 100
+    unit_of_measurement: "kcps"
+    mode: box
+    restore_value: true
+
+  # Timing budget control
+  - platform: template
+    name: "Timing Budget"
+    id: timing_budget_control
+    optimistic: true
+    min_value: 20
+    max_value: 500
+    initial_value: 200
+    step: 10
+    unit_of_measurement: "ms"
+    mode: box
+    restore_value: true
+
+  # ROI Center X
+  - platform: template
+    name: "ROI Center X"
+    id: roi_center_x
+    optimistic: true
+    min_value: 0
+    max_value: 15
+    initial_value: 3
+    step: 1
+    mode: box
+    restore_value: true
+
+  # ROI Center Y
+  - platform: template
+    name: "ROI Center Y"
+    id: roi_center_y
+    optimistic: true
+    min_value: 0
+    max_value: 15
+    initial_value: 8
+    step: 1
+    mode: box
+    restore_value: true
+
+  # ROI Size X
+  - platform: template
+    name: "ROI Width"
+    id: roi_size_x
+    optimistic: true
+    min_value: 4
+    max_value: 16
+    initial_value: 4
+    step: 1
+    mode: box
+    restore_value: true
+
+  # ROI Size Y
+  - platform: template
+    name: "ROI Height"
+    id: roi_size_y
+    optimistic: true
+    min_value: 4
+    max_value: 16
+    initial_value: 4
+    step: 1
+    mode: box
+    restore_value: true
+
+# User configurable ranging mode
+select:
+  - platform: template
+    name: "Distance Mode"
+    id: distance_mode_select
+    optimistic: true
+    options:
+      - "LOW"
+      - "MEDIUM"
+      - "HIGH"
+    initial_option: "MEDIUM"
+    restore_value: true
+    on_value:
+      then:
+        - logger.log:
+            format: "Distance mode changed to: %s"
+            args: ["x.c_str()"]
+
+# Control switches
+switch:
+  # Sensor enable/disable
+  - platform: template
+    name: "Sensor Enable"
+    id: sensor_enable
+    optimistic: true
+    restore_mode: RESTORE_DEFAULT_ON
+
+  # Advanced diagnostics enable
+  - platform: template
+    name: "Advanced Diagnostics"
+    id: advanced_diagnostics
+    optimistic: true
+    restore_mode: RESTORE_DEFAULT_OFF
+
+# VL53L1X Time of Flight Distance Sensor using external component
+sensor:
+  - platform: vl53l1x_sensor
+    name: "VL53L1X Distance Raw"
+    id: distance_sensor_raw
+    enable_pin: ${xshut_gpio}  # connected to XSHUT
+    i2c_id: bus_a
+    address: 0x32  # Use your working address
+    distance_mode: MEDIUM
+    timing_budget: 200ms
+    signal_threshold: 512
+    update_interval: 1s
+    accuracy_decimals: 2
+    internal: true
+    
+    # ROI configuration matching your working setup
+    roi_center:
+      x: 3
+      y: 8
+    roi_size:
+      x: 4
+      y: 4
+    
+    # Sub-sensors for diagnostics
+    ambient_rate_sensor:
+      id: "ambient_rate"
+      name: "Ambient Rate Raw"
+      internal: true
+    
+    avg_signal_rate_sensor:
+      id: "avg_signal_rate"
+      name: "Average Signal Rate Raw"
+      internal: true
+    
+    peak_signal_rate_sensor:
+      id: "peak_signal_rate"
+      name: "Peak Signal Rate Raw"
+      internal: true
+    
+    range_status_sensor:
+      id: "range_status"
+      name: "Range Status Raw"
+      internal: true
+
+  # Main processed distance sensor with calibration and filtering
+  - platform: template
+    name: "VL53L1X Distance"
+    id: distance_sensor
+    unit_of_measurement: "mm"
+    accuracy_decimals: 1
+    state_class: measurement
+    device_class: distance
+    lambda: |-
+      if (!id(sensor_enable).state) {
+        return {};
+      }
+      
+      float raw_distance = id(distance_sensor_raw).state;
+      if (isnan(raw_distance) || raw_distance <= 0) {
+        return {};
+      }
+      
+      // Apply calibration offset
+      float calibrated_distance = raw_distance + id(calibration_offset).state;
+      
+      // Range validation based on distance mode
+      float max_range = 4000;  // Default HIGH mode
+      std::string mode = id(distance_mode_select).state;
+      if (mode == "LOW") max_range = 1300;
+      else if (mode == "MEDIUM") max_range = 3000;
+      
+      if (calibrated_distance < 0 || calibrated_distance > max_range) {
+        return {};
+      }
+      
+      return calibrated_distance;
+    
+    update_interval: 1s
+    
+    filters:
+      - sliding_window_moving_average:
+          window_size: 5
+          send_every: 1
+      - delta: 10
+
+  # Signal quality based on range status and signal rates
+  - platform: template
+    name: "VL53L1X Signal Quality"
+    id: signal_quality
+    unit_of_measurement: "%"
+    accuracy_decimals: 0
+    lambda: |-
+      if (!id(sensor_enable).state) {
+        return 0;
+      }
+      
+      float distance = id(distance_sensor_raw).state;
+      int range_status = (int)id(range_status).state;
+      float peak_signal = id(peak_signal_rate).state;
+      
+      if (isnan(distance) || isnan(range_status)) return 0;
+      
+      // Base quality on range status
+      int base_quality = 0;
+      if (range_status == 0) base_quality = 100;        // Valid
+      else if (range_status == 6) base_quality = 80;    // Valid but no wraparound check
+      else if (range_status == 11) base_quality = 60;   // Multiple pulses
+      else if (range_status == 1) base_quality = 40;    // Sigma check failed
+      else if (range_status == 2) base_quality = 30;    // Low signal
+      else base_quality = 10;                           // Other issues
+      
+      // Adjust based on signal strength if available
+      if (!isnan(peak_signal) && peak_signal > 0) {
+        if (peak_signal > 2000) base_quality = min(100, base_quality + 10);
+        else if (peak_signal < 500) base_quality = max(0, base_quality - 20);
+      }
+      
+      return base_quality;
+    update_interval: 5s
+
+  # Rate of change sensor (velocity approximation)
+  - platform: template
+    name: "VL53L1X Rate of Change"
+    id: rate_of_change
+    unit_of_measurement: "mm/s"
+    accuracy_decimals: 1
+    lambda: |-
+      if (!id(sensor_enable).state) {
+        return 0;
+      }
+      
+      static float last_distance = 0;
+      static unsigned long last_time = 0;
+      
+      float raw_distance = id(distance_sensor_raw).state;
+      if (isnan(raw_distance) || raw_distance <= 0) {
+        return 0;
+      }
+      
+      float current_distance = raw_distance + id(calibration_offset).state;
+      unsigned long current_time = millis();
+      
+      if (last_time == 0) {
+        last_distance = current_distance;
+        last_time = current_time;
+        return 0;
+      }
+      
+      float distance_change = current_distance - last_distance;
+      float time_change = (current_time - last_time) / 1000.0;
+      
+      last_distance = current_distance;
+      last_time = current_time;
+      
+      if (time_change > 0) {
+        return distance_change / time_change;
+      }
+      return 0;
+    update_interval: 2s
+
+  # Diagnostic sensors (visible when advanced diagnostics enabled)
+  - platform: template
+    name: "VL53L1X Ambient Rate"
+    id: ambient_rate_display
+    unit_of_measurement: "MCPS"
+    accuracy_decimals: 3
+    entity_category: diagnostic
+    lambda: |-
+      if (id(advanced_diagnostics).state) {
+        return id(ambient_rate).state;
+      } else {
+        return {};
+      }
+    update_interval: 5s
+
+  - platform: template
+    name: "VL53L1X Average Signal Rate"
+    id: avg_signal_rate_display
+    unit_of_measurement: "MCPS"
+    accuracy_decimals: 3
+    entity_category: diagnostic
+    lambda: |-
+      if (id(advanced_diagnostics).state) {
+        return id(avg_signal_rate).state;
+      } else {
+        return {};
+      }
+    update_interval: 5s
+
+  - platform: template
+    name: "VL53L1X Peak Signal Rate"
+    id: peak_signal_rate_display
+    unit_of_measurement: "MCPS"
+    accuracy_decimals: 3
+    entity_category: diagnostic
+    lambda: |-
+      if (id(advanced_diagnostics).state) {
+        return id(peak_signal_rate).state;
+      } else {
+        return {};
+      }
+    update_interval: 5s
+
+  - platform: template
+    name: "VL53L1X Range Status Code"
+    id: range_status_display
+    entity_category: diagnostic
+    lambda: |-
+      if (id(advanced_diagnostics).state) {
+        return id(range_status).state;
+      } else {
+        return {};
+      }
+    update_interval: 5s
+
+  # WiFi signal strength for diagnostics
+  - platform: wifi_signal
+    name: "WiFi Signal"
+    update_interval: 30s
+    entity_category: diagnostic
+
+  # Uptime sensor
+  - platform: uptime
+    name: "Uptime"
+    entity_category: diagnostic
+
+# Binary sensors
+binary_sensor:
+  - platform: template
+    name: "Object Detected"
+    id: object_detected
+    lambda: |-
+      if (!id(sensor_enable).state) {
+        return false;
+      }
+      
+      float threshold = id(detection_threshold).state;
+      float raw_distance = id(distance_sensor_raw).state;
+      
+      if (isnan(raw_distance) || raw_distance <= 0) {
+        return false;
+      }
+      
+      float distance = raw_distance + id(calibration_offset).state;
+      return (distance < threshold && distance > 0);
+
+  - platform: template
+    name: "Motion Detected"
+    id: motion_detected
+    lambda: |-
+      if (!id(sensor_enable).state) {
+        return false;
+      }
+      
+      float rate = id(rate_of_change).state;
+      if (isnan(rate)) {
+        return false;
+      }
+      
+      return abs(rate) > 50;
+
+  - platform: template
+    name: "Sensor Online"
+    id: sensor_online
+    lambda: |-
+      float raw_distance = id(distance_sensor_raw).state;
+      int range_status = (int)id(range_status).state;
+      static unsigned long last_valid_reading = 0;
+      unsigned long now = millis();
+      
+      if ((!isnan(raw_distance) && raw_distance > 0) || (!isnan(range_status) && range_status != 255)) {
+        last_valid_reading = now;
+        return true;
+      }
+      
+      return (now - last_valid_reading) < 10000;
+
+  - platform: template
+    name: "High Quality Measurement"
+    id: high_quality
+    lambda: |-
+      if (!id(sensor_enable).state) {
+        return false;
+      }
+      
+      float quality = id(signal_quality).state;
+      return quality >= 80;
+
+  - platform: template
+    name: "Range Status Valid"
+    id: range_valid
+    lambda: |-
+      int status = (int)id(range_status).state;
+      return !isnan(status) && (status == 0 || status == 6);
+
+# Text sensors
+text_sensor:
+  - platform: template
+    name: "VL53L1X Status"
+    id: sensor_status
+    lambda: |-
+      if (!id(sensor_enable).state) {
+        return {"Disabled"};
+      }
+      
+      float raw_distance = id(distance_sensor_raw).state;
+      float threshold = id(detection_threshold).state;
+      std::string mode = id(distance_mode_select).state;
+      float quality = id(signal_quality).state;
+      int range_status = (int)id(range_status).state;
+      
+      if (isnan(raw_distance) || raw_distance <= 0) {
+        if (!id(sensor_online).state) {
+          return {"Sensor Offline (" + mode + ")"};
+        } else if (!isnan(range_status)) {
+          if (range_status == 1) return {"Sigma Check Failed (" + mode + ")"};
+          else if (range_status == 2) return {"Low Signal (" + mode + ")"};
+          else if (range_status == 3) return {"Below Detection Threshold (" + mode + ")"};
+          else if (range_status == 5) return {"Hardware Failure (" + mode + ")"};
+          else if (range_status == 14) return {"Invalid Range (" + mode + ")"};
+          else return {"Range Error " + to_string(range_status) + " (" + mode + ")"};
+        } else {
+          return {"Out of Range (" + mode + ")"};
+        }
+      }
+      
+      float distance = raw_distance + id(calibration_offset).state;
+      std::string status = "Measuring (" + mode + ", Q:" + to_string((int)quality) + "%)";
+      
+      if (distance < threshold) {
+        return {"Object Detected - " + status};
+      } else {
+        return {"Clear - " + status};
+      }
+    update_interval: 2s
+
+  - platform: template
+    name: "Range Status Description"
+    id: range_status_desc
+    lambda: |-
+      int status = (int)id(range_status).state;
+      if (isnan(status)) return {"No Data"};
+      
+      switch (status) {
+        case 0: return {"Valid Measurement"};
+        case 1: return {"Sigma Estimator Check Failed"};
+        case 2: return {"Signal Below Threshold"};
+        case 3: return {"Target Below Detection Threshold"};
+        case 4: return {"Phase Out of Bounds"};
+        case 5: return {"HW or VCSEL Failure"};
+        case 6: return {"Valid (No Wraparound Check)"};
+        case 7: return {"Wrapped Target"};
+        case 8: return {"Algorithm Overflow/Underflow"};
+        case 9: return {"Lite Ranging Specific"};
+        case 10: return {"First Interrupt (Ignore)"};
+        case 11: return {"Multiple Pulses Merged"};
+        case 12: return {"RQL Phase Fail"};
+        case 13: return {"Invalid ROI"};
+        case 14: return {"Invalid Range"};
+        case 255: return {"No Update"};
+        default: return {"Unknown Status: " + to_string(status)};
+      }
+    update_interval: 5s
+
+  - platform: template
+    name: "VL53L1X Diagnostics"
+    id: diagnostics
+    lambda: |-
+      char buffer[300];
+      sprintf(buffer, "Offset: %.0fmm | Update: %.1fs | Window: %.0f | Delta: %.0fmm | Signal: %.0fkcps | Timing: %.0fms", 
+              id(calibration_offset).state,
+              id(update_interval_control).state,
+              id(smoothing_window).state,
+              id(delta_threshold).state,
+              id(signal_threshold_control).state,
+              id(timing_budget_control).state);
+      return {buffer};
+    update_interval: 10s
+
+# Buttons
+button:
+  - platform: template
+    name: "Calibrate Distance"
+    id: calibrate_distance
+    on_press:
+      then:
+        - logger.log: "Starting distance calibration..."
+        - lambda: |-
+            ESP_LOGI("calibration", "Place object at known distance and press calibrate");
+            float sum = 0;
+            int valid_readings = 0;
+            for (int i = 0; i < 10; i++) {
+              id(distance_sensor_raw).update();
+              delay(100);
+              float reading = id(distance_sensor_raw).state;
+              if (!isnan(reading) && reading > 0) {
+                sum += reading;
+                valid_readings++;
+              }
+            }
+            if (valid_readings > 5) {
+              float avg_reading = sum / valid_readings;
+              ESP_LOGI("calibration", "Average reading: %.2f mm", avg_reading);
+            }
+
+  - platform: template
+    name: "Reset Settings"
+    id: reset_settings
+    on_press:
+      then:
+        - logger.log: "Resetting all settings to defaults..."
+        - number.set:
+            id: detection_threshold
+            value: 500
+        - number.set:
+            id: calibration_offset
+            value: 0
+        - number.set:
+            id: update_interval_control
+            value: 1
+        - number.set:
+            id: smoothing_window
+            value: 5
+        - number.set:
+            id: delta_threshold
+            value: 10
+        - number.set:
+            id: signal_threshold_control
+            value: 512
+        - number.set:
+            id: timing_budget_control
+            value: 200
+        - number.set:
+            id: roi_center_x
+            value: 3
+        - number.set:
+            id: roi_center_y
+            value: 8
+        - number.set:
+            id: roi_size_x
+            value: 4
+        - number.set:
+            id: roi_size_y
+            value: 4
+        - select.set:
+            id: distance_mode_select
+            option: "MEDIUM"
+
+  - platform: template
+    name: "Optimize for Speed"
+    id: optimize_speed
+    on_press:
+      then:
+        - logger.log: "Optimizing for fast response..."
+        - number.set:
+            id: timing_budget_control
+            value: 20
+        - select.set:
+            id: distance_mode_select
+            option: "LOW"
+        - number.set:
+            id: update_interval_control
+            value: 0.1
+
+  - platform: template
+    name: "Optimize for Accuracy"
+    id: optimize_accuracy
+    on_press:
+      then:
+        - logger.log: "Optimizing for accuracy..."
+        - number.set:
+            id: timing_budget_control
+            value: 500
+        - select.set:
+            id: distance_mode_select
+            option: "HIGH"
+        - number.set:
+            id: signal_threshold_control
+            value: 2000
+        - number.set:
+            id: smoothing_window
+            value: 10
+
+  - platform: restart
+    name: "Restart Device"
+
+# Dynamic configuration monitoring
+interval:
+  - interval: 5s
+    then:
+      - lambda: |-
+          static float last_timing = 0;
+          static float last_signal = 0;
+          static std::string last_mode = "";
+          
+          float current_timing = id(timing_budget_control).state;
+          float current_signal = id(signal_threshold_control).state;
+          std::string current_mode = id(distance_mode_select).state;
+          
+          if (current_timing != last_timing) {
+            ESP_LOGI("config", "Timing budget changed to: %.0f ms", current_timing);
+            last_timing = current_timing;
+          }
+          
+          if (current_signal != last_signal) {
+            ESP_LOGI("config", "Signal threshold changed to: %.0f kcps", current_signal);
+            last_signal = current_signal;
+          }
+          
+          if (current_mode != last_mode) {
+            ESP_LOGI("config", "Distance mode changed to: %s", current_mode.c_str());
+            last_mode = current_mode;
+          }
