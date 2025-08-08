@@ -197,9 +197,16 @@ sensor:
   # Main Distance Sensor
   - platform: vl53l1x
     id: distance_sensor
-    name: "Distance"
+    name: "TOF Distance"
     unit_of_measurement: "mm"
-    accuracy_decimals: 0
+    enable_pin: ${xshut_gpio}  # connected to XSHUT
+    i2c_id: bus_a
+    address: 0x32  # Use your working address
+    distance_mode: MEDIUM
+    timing_budget: 200ms
+    signal_threshold: 512
+    update_interval: 1s
+    accuracy_decimals: 2
     device_class: distance
     state_class: measurement
     filters:
@@ -218,7 +225,50 @@ sensor:
         - script.execute: check_object_detection
         - lambda: |-
             id(measurement_count) += 1;
+
+  # - platform: vl53l1x_sensor
+  #   name: "VL53L1X Distance Raw"
+  #   id: distance_sensor_raw
+  #   enable_pin: ${xshut_gpio}  # connected to XSHUT
+  #   i2c_id: bus_a
+  #   address: 0x32  # Use your working address
+  #   distance_mode: MEDIUM
+  #   timing_budget: 200ms
+  #   signal_threshold: 512
+  #   update_interval: 1s
+  #   accuracy_decimals: 2
+  #   internal: true
     
+  #   # ROI configuration matching your working setup
+  #   roi_center:
+  #     x: 3
+  #     y: 8
+  #   roi_size:
+  #     x: 4
+  #     y: 4
+    
+  #   # Sub-sensors for diagnostics
+  #   ambient_rate_sensor:
+  #     id: "ambient_rate"
+  #     name: "Ambient Rate Raw"
+  #     internal: true
+    
+  #   avg_signal_rate_sensor:
+  #     id: "avg_signal_rate"
+  #     name: "Average Signal Rate Raw"
+  #     internal: true
+    
+  #   peak_signal_rate_sensor:
+  #     id: "peak_signal_rate"
+  #     name: "Peak Signal Rate Raw"
+  #     internal: true
+    
+  #   range_status_sensor:
+  #     id: "range_status"
+  #     name: "Range Status Raw"
+  #     internal: true
+
+
   # Raw Velocity Sensor (calculated)
   - platform: template
     id: velocity_sensor_raw
