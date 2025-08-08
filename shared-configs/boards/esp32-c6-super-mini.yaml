@@ -4,10 +4,9 @@
 
 substitutions:
 # Specify below pin numbers for UART, GPIO, and I2C connections
-# Default values are set for the ESP32-Cs Super Mini
+# Default values are set for the ESP32-C6 Super Mini
 # Add superseding substitutions in your specific device configuration if these don't match the actual pins used.
 
-substitutions:
   # UART pins - Using standard ESP32-C6 UART pins
   # RX and TX are labeled on the board
   tx_pin_uart: GPIO16  # TX pin on board
