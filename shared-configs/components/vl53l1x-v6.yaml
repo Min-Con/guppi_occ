@@ -1060,21 +1060,21 @@ button:
   #         speed: 10
   #         width: 1
 
-# Time component for timestamps
-time:
-  - platform: homeassistant
-    id: homeassistant_time
-    on_time_sync:
-      then:
-        - logger.log: "Time synchronized with Home Assistant"
+# # Time component for timestamps
+# time:
+#   - platform: homeassistant
+#     id: homeassistant_time
+#     on_time_sync:
+#       then:
+#         - logger.log: "Time synchronized with Home Assistant"
   
-  # Fallback to SNTP if Home Assistant unavailable
-  - platform: sntp
-    id: sntp_time
-    servers:
-      - pool.ntp.org
-      - time.google.com
-    timezone: !secret timezone
+#   # Fallback to SNTP if Home Assistant unavailable
+#   - platform: sntp
+#     id: sntp_time
+#     servers:
+#       - pool.ntp.org
+#       - time.google.com
+#     timezone: !secret timezone
 
 # Intervals for periodic tasks
 interval:
