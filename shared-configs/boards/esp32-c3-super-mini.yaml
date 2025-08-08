@@ -3,17 +3,95 @@
 ####################################
 
 substitutions:
-# Specify below pin numbers for UART, GPIO, and I2C connections
-# Default values are set for the ESP32-Cs Super Mini
-# Add superseding substitutions in your specific device configuration if these don't match the actual pins used.
+  # UART pins - ESP32-C3 DevKitM-1 UART pins
+  # Using hardware UART1 pins (UART0 is used for USB Serial/JTAG)
+  tx_pin_uart: GPIO21  # Hardware UART1 TX (U1TXD) - safe for external UART
+  rx_pin_uart: GPIO20  # Hardware UART1 RX (U1RXD) - safe for external UART
+  # Alternative UART pins (any GPIO can be used for software UART):
+  # tx_pin_uart: GPIO10  # Alternative TX using software UART
+  # rx_pin_uart: GPIO4   # Alternative RX using software UART
 
-  tx_pin_uart: GPIO21
-  rx_pin_uart: GPIO20
-  light_gpio: GPIO4
-  mic_adc: GPIO0
-  motion_gpio: GPIO10
-  sda_pin_i2c: GPIO8
-  scl_pin_i2c: GPIO9
+  # LED/Light GPIO - ESP32-C3 DevKitM-1 LED configuration
+  # The board has an onboard LED connected to GPIO8 (some variants use GPIO3)
+  light_gpio: GPIO4    # Safe GPIO for external LED control
+  # Note: GPIO8 is the onboard LED on most ESP32-C3-DevKitM-1 boards
+  # Note: GPIO3 is the onboard LED on some variants (check your board)
+  
+  # ADC pin - ESP32-C3 ADC pins
+  # ESP32-C3 has 6 ADC channels on ADC1 (GPIO0-GPIO5)
+  # ADC2 channels (GPIO0-GPIO5) conflict with WiFi and should be avoided
+  mic_adc: GPIO0       # ADC1_CH0 - ADC input pin
+  
+  # Motion sensor GPIO - Using available safe GPIO pins
+  # Selected from pins that are safe and not used for critical functions
+  motion_gpio: GPIO10  # Safe GPIO pin for digital input
+  
+  # I2C pins - ESP32-C3 DevKitM-1 I2C pins
+  # Any GPIO can be used for I2C on ESP32-C3
+  sda_pin_i2c: GPIO8   # I2C SDA pin (safe for I2C)
+  scl_pin_i2c: GPIO9   # I2C SCL pin (safe for I2C)
+  
+  # CONFIRMED AVAILABLE GPIO pins on ESP32-C3 DevKitM-1:
+  # Total GPIOs: GPIO0-GPIO21 (22 pins total)
+  # Exposed on headers: GPIO0, GPIO1, GPIO2, GPIO3, GPIO4, GPIO5, GPIO6, GPIO7, 
+  #                    GPIO8, GPIO9, GPIO10, GPIO18, GPIO19, GPIO20, GPIO21
+  # Not exposed: GPIO11-GPIO17 (used internally for flash/PSRAM)
+  
+  # SAFE GPIO pins for general use:
+  # GPIO0, GPIO1, GPIO2, GPIO3, GPIO4, GPIO5, GPIO6, GPIO7, GPIO10
+  # GPIO18, GPIO19 (with USB Serial/JTAG considerations)
+  # GPIO20, GPIO21 (UART1 by default but can be repurposed)
+  
+  # ADC-capable input pins (ESP32-C3 has single ADC unit):
+  # ADC1: GPIO0-GPIO4 (5 channels) - These work reliably with WiFi
+  # Note: ESP32-C3 only has ADC1, no ADC2 unit
+  # ADC specifications: 12-bit resolution, 0-2.5V range with attenuation
+  
+  # CRITICAL: Pins to AVOID or use with caution:
+  # GPIO8 - Default strapping pin (controls boot mode) - use with caution
+  # GPIO9 - Default strapping pin (controls boot mode) - use with caution
+  # GPIO11-GPIO17 - Connected to SPI flash (NOT available for use)
+  # GPIO18, GPIO19 - USB Serial/JTAG pins (can be used if USB not needed)
+  # GPIO12-GPIO17 - Internal flash interface (NEVER use these)
+  
+  # Strapping pins (affect boot behavior if pulled during reset):
+  # GPIO2 - Strapping pin (boot mode) - can be used after boot
+  # GPIO8 - Strapping pin (boot mode) - can be used after boot with caution
+  # GPIO9 - Strapping pin (enable download boot) - use with caution
+  
+  # Alternative pin configurations:
+  # Alternative UART pins (software UART on any available GPIO):
+  # tx_pin_uart: GPIO4   # Alternative UART TX
+  # rx_pin_uart: GPIO5   # Alternative UART RX
+  
+  # Alternative I2C pins (any GPIO can be used):
+  # sda_pin_i2c: GPIO6   # Alternative I2C SDA
+  # scl_pin_i2c: GPIO7   # Alternative I2C SCL
+  
+  # Alternative motion sensor pins:
+  # motion_gpio: GPIO0   # Alternative motion sensor pin
+  # motion_gpio: GPIO1   # Alternative motion sensor pin
+  # motion_gpio: GPIO2   # Alternative motion sensor pin (strapping pin - use after boot)
+  
+  # Alternative ADC pins (ADC1 channels only):
+  # mic_adc: GPIO1       # ADC1_CH1
+  # mic_adc: GPIO2       # ADC1_CH2 
+  # mic_adc: GPIO3       # ADC1_CH3
+  # mic_adc: GPIO4       # ADC1_CH4
+  
+  # SPI pins configuration (if using external SPI devices):
+  # Note: Default hardware SPI uses GPIO2(MOSI), GPIO3(MISO), GPIO6(SCK), GPIO7(CS)
+  # mosi_pin: GPIO2   # SPI MOSI (can use any GPIO)
+  # miso_pin: GPIO3   # SPI MISO (can use any GPIO)
+  # sck_pin: GPIO6    # SPI SCK (can use any GPIO)
+  # cs_pin: GPIO7     # SPI CS (can use any GPIO)
+  
+  # PWM capable pins: All GPIOs on ESP32-C3 support PWM
+  # Hardware timers: 4 timers with 4 channels each (16 PWM channels total)
+  
+  # Touch sensor pins: ESP32-C3 does NOT have touch sensor capability
+  # DAC pins: ESP32-C3 does NOT have DAC capability
+  # Hall sensor: ESP32-C3 does NOT have hall sensor capability
 
 ####################################
 # End Substitutions
@@ -21,108 +99,357 @@ substitutions:
 
 esphome:
   platformio_options:
-    board_build.flash_mode: dio
-    board_build.flash_size: 4MB
-    board_build.f_flash: 40000000L
-
+    board_build.flash_mode: dio        # DIO mode for ESP32-C3 (QIO not recommended)
+    board_build.flash_size: 4MB        # Standard flash size for DevKitM-1
+    board_build.f_flash: 40000000L     # 40MHz flash frequency for stability
+  on_boot:
+    priority: 600
+    then:
+      - delay: 500ms  # Boot delay for sensor stabilization
 
 esp32:
+  # ESP32-C3 DevKitM-1 board configuration
+  # Using official Espressif devkit profile for maximum compatibility
   board: esp32-c3-devkitm-1
   variant: esp32c3
-  flash_size: 4MB
+  flash_size: 4MB  # Standard size - some variants may have 2MB or 8MB
   framework:
     type: esp-idf
-    version: recommended
+    version: recommended  # Use recommended version for ESP32-C3 stability
     sdkconfig_options:
       # Performance optimizations
-      CONFIG_COMPILER_OPTIMIZATION_PERF: y
-      CONFIG_COMPILER_OPTIMIZATION_SIZE: y
-      CONFIG_ESPTOOLPY_FLASHSIZE_4MB: y
-      # PSRAM configuration for ESP-IDF
-      # CONFIG_SPIRAM: y
-      # CONFIG_SPIRAM_MODE_OCT: y
-      # CONFIG_SPIRAM_SPEED_80M: y
-      # CONFIG_SPIRAM_TYPE_AUTO: y
-      # BLE support
-      CONFIG_BT_BLE_42_FEATURES_SUPPORTED: y
-      CONFIG_BT_BLE_50_FEATURES_SUPPORTED: y
-      # Extend the watchdog timeout
-      CONFIG_ESP_TASK_WDT_TIMEOUT_S: "10"
-      # USB CDC On Boot - XIAO ESP32-S3 has native USB
-      CONFIG_ESP_CONSOLE_USB_CDC: y
-      CONFIG_ESP_CONSOLE_USB_CDC_SUPPORT_ETS_PRINTF: y
-      # WiFi compatibility options for WPA3/mesh networks
-      CONFIG_ESP32_WIFI_ENABLE_WPA3_SAE: n
-      CONFIG_ESP32_WIFI_ENABLE_WPA3_OWE_STA: n
-      CONFIG_ESP32_WIFI_SOFTAP_SAE_SUPPORT: n
-      # Disable power management features that can cause auth issues
-      CONFIG_ESP32_WIFI_AMPDU_TX_ENABLED: n
-      CONFIG_ESP32_WIFI_AMPDU_RX_ENABLED: n
-
-
-
-      # # Performance optimizations
-      # # CONFIG_COMPILER_OPTIMIZATION_PERF: y
-      # # CONFIG_COMPILER_OPTIMIZATION_SIZE: y
-      # CONFIG_ESPTOOLPY_FLASHSIZE_4MB: y
-
-      # # Compiler optimizations (balanced approach)
-      # CONFIG_COMPILER_OPTIMIZATION_SIZE: "y"
-      # # Note: Removed PERF optimization as it can cause instability on ESP32 Pico
+      CONFIG_COMPILER_OPTIMIZATION_PERF: y      # Performance optimization
+      CONFIG_COMPILER_OPTIMIZATION_SIZE: y      # Size optimization
+      CONFIG_ESPTOOLPY_FLASHSIZE_4MB: y        # Match flash_size above
       
-      # # Memory management
-      # # CONFIG_ESP32_WIFI_STATIC_RX_BUFFER_NUM: "4"
-      # # CONFIG_ESP32_WIFI_DYNAMIC_RX_BUFFER_NUM: "8"
-      # # CONFIG_ESP32_WIFI_DYNAMIC_TX_BUFFER_NUM: "8"
-      # CONFIG_ESP32_WIFI_AMPDU_TX_ENABLED: "y"
-      # CONFIG_ESP32_WIFI_AMPDU_RX_ENABLED: "y"
-
-      # # WiFi compatibility options for WPA3/mesh networks
-      # CONFIG_ESP32_WIFI_ENABLE_WPA3_SAE: n
-      # CONFIG_ESP32_WIFI_ENABLE_WPA3_OWE_STA: n
-      # CONFIG_ESP32_WIFI_SOFTAP_SAE_SUPPORT: n
-
-      # # Task and system stability
-      # CONFIG_ESP_TASK_WDT_TIMEOUT_S: "10"
-      # CONFIG_ESP_TASK_WDT_CHECK_IDLE_TASK_CPU0: "y"
-      # CONFIG_ESP_TASK_WDT_CHECK_IDLE_TASK_CPU1: "y"
-      # CONFIG_ESP_INT_WDT_TIMEOUT_MS: "800"
-      # CONFIG_ESP_SYSTEM_EVENT_TASK_STACK_SIZE: "4096"
+      # ESP32-C3 specific optimizations
+      CONFIG_ESP32C3_DEFAULT_CPU_FREQ_160: y    # Set CPU to 160MHz
+      CONFIG_ESP32C3_REV_MIN: "3"              # Minimum chip revision
       
-      # # Power management for stability
-      # # CONFIG_PM_ENABLE: "y"
-      # # CONFIG_PM_DFS_INIT_AUTO: "y"
+      # PSRAM configuration - ESP32-C3 DevKitM-1 typically does NOT have PSRAM
+      # Uncomment only if your specific board variant includes PSRAM:
+      # CONFIG_SPIRAM: y                       # Enable PSRAM support
+      # CONFIG_SPIRAM_MODE_QUAD: y            # Quad SPI mode for ESP32-C3
+      # CONFIG_SPIRAM_SPEED_80M: y            # 80MHz PSRAM speed
+      # CONFIG_SPIRAM_TYPE_AUTO: y            # Auto-detect PSRAM type
       
-      # # Network stack optimizations
-      # CONFIG_LWIP_TCP_MSS: "1436"
-      # CONFIG_LWIP_TCP_RECVMBOX_SIZE: "32"
-      # CONFIG_LWIP_UDP_RECVMBOX_SIZE: "32"
-      # CONFIG_LWIP_TCPIP_RECVMBOX_SIZE: "32"
+      # BLE support - ESP32-C3 supports BLE 5.0
+      CONFIG_BT_BLE_42_FEATURES_SUPPORTED: y    # BLE 4.2 features
+      CONFIG_BT_BLE_50_FEATURES_SUPPORTED: y    # BLE 5.0 features (ESP32-C3 native)
+      
+      # Watchdog configuration
+      CONFIG_ESP_TASK_WDT_TIMEOUT_S: "10"      # 10 second watchdog timeout
+      CONFIG_ESP_TASK_WDT_CHECK_IDLE_TASK_CPU0: y  # Monitor idle task
+      CONFIG_ESP_INT_WDT_TIMEOUT_MS: "800"     # Interrupt watchdog timeout
+      
+      # USB CDC configuration - ESP32-C3 has native USB Serial/JTAG
+      CONFIG_ESP_CONSOLE_USB_CDC: y                     # Enable USB CDC console
+      CONFIG_ESP_CONSOLE_USB_CDC_SUPPORT_ETS_PRINTF: y  # Early boot messages via USB
+      CONFIG_ESP_CONSOLE_USB_SERIAL_JTAG: y            # Use USB Serial/JTAG interface
+      
+      # WiFi compatibility and stability options
+      CONFIG_ESP32_WIFI_ENABLE_WPA3_SAE: n        # Disable WPA3 SAE for compatibility
+      CONFIG_ESP32_WIFI_ENABLE_WPA3_OWE_STA: n    # Disable WPA3 OWE for compatibility
+      CONFIG_ESP32_WIFI_SOFTAP_SAE_SUPPORT: n     # Disable SAE in AP mode
+      
+      # WiFi power management and aggregation settings
+      CONFIG_ESP32_WIFI_AMPDU_TX_ENABLED: n       # Disable TX aggregation for stability
+      CONFIG_ESP32_WIFI_AMPDU_RX_ENABLED: n       # Disable RX aggregation for stability
+      
+      # Memory management optimizations for ESP32-C3 (400KB SRAM)
+      CONFIG_ESP32_WIFI_STATIC_RX_BUFFER_NUM: "4"   # Reduce WiFi RX buffers
+      CONFIG_ESP32_WIFI_DYNAMIC_RX_BUFFER_NUM: "8"  # Dynamic RX buffers
+      CONFIG_ESP32_WIFI_DYNAMIC_TX_BUFFER_NUM: "8"  # Dynamic TX buffers
+      
+      # Network stack optimizations
+      CONFIG_LWIP_TCP_MSS: "1436"                # TCP Maximum Segment Size
+      CONFIG_LWIP_TCP_RECVMBOX_SIZE: "32"       # TCP receive mailbox size
+      CONFIG_LWIP_UDP_RECVMBOX_SIZE: "32"       # UDP receive mailbox size
+      CONFIG_LWIP_TCPIP_RECVMBOX_SIZE: "32"     # TCP/IP mailbox size
 
-      # # BLE 4.2 is supported by ALL ESP32 boards that have bluetooth, the original and derivatives.
-      # CONFIG_BT_BLE_42_FEATURES_SUPPORTED: y
-      # # Also enable this on any derivative boards (S2, C3 etc) but not the original ESP32.
-      # CONFIG_BT_BLE_50_FEATURES_SUPPORTED: y
-      # # Extend the watchdog timeout, so the device reboots if the device appears locked up for over 10 seconds.
-      # # CONFIG_ESP_TASK_WDT_TIMEOUT_S: "10"
-    
+# UART bus configuration - for external device communication
+# Using UART1 (UART0 is used for USB Serial/JTAG debugging)
 uart:
   id: uart_bus
-  tx_pin: ${tx_pin_uart}
-  rx_pin: ${rx_pin_uart}
-  baud_rate: 256000
+  tx_pin: ${tx_pin_uart}  # GPIO21 - Hardware UART1 TX
+  rx_pin: ${rx_pin_uart}  # GPIO20 - Hardware UART1 RX
+  baud_rate: 256000       # High-speed UART communication
   parity: NONE
   stop_bits: 1
-#  data_bits: 8
+  data_bits: 8            # Standard 8-bit data
+  # Note: Lower baud_rate to 115200 if experiencing communication issues
 
+# I2C configuration (optional - uncomment if using I2C sensors)
+# ESP32-C3 supports single I2C bus with software implementation on any GPIO
+# i2c:
+#   id: i2c_bus
+#   sda: ${sda_pin_i2c}   # GPIO8 - I2C data line
+#   scl: ${scl_pin_i2c}   # GPIO9 - I2C clock line
+#   scan: true            # Scan for devices on boot
+#   frequency: 400kHz     # Fast mode I2C (100kHz for better compatibility)
+
+# ADC sensor configuration (optional - uncomment if using analog sensor)
+# ESP32-C3 has 5 ADC channels (GPIO0-GPIO4) with 12-bit resolution
+# sensor:
+#   - platform: adc
+#     pin: ${mic_adc}     # GPIO0 - ADC1_CH0
+#     name: "Analog Input"
+#     update_interval: 60s
+#     attenuation: auto   # Auto-select attenuation (0-2.5V range)
+#     # Attenuation options:
+#     # 0db: 0-0.75V range (most accurate)
+#     # 2.5db: 0-1.05V range
+#     # 6db: 0-1.35V range
+#     # 11db: 0-2.5V range (least accurate, most range)
+
+# GPIO binary sensor (motion sensor example)
+# binary_sensor:
+#   - platform: gpio
+#     pin: 
+#       number: ${motion_gpio}  # GPIO10
+#       mode:
+#         input: true
+#         pullup: true          # Enable internal pullup resistor
+#     name: "Motion Sensor"
+#     device_class: motion
+#     filters:
+#       - delayed_on: 10ms      # Debounce filter
+#       - delayed_off: 10ms
+
+# Light configuration - External LED control
+# ESP32-C3 DevKitM-1 has onboard LED on GPIO8 (or GPIO3 on some variants)
+# This configuration is for external LED control on GPIO4
 light:
   - platform: binary
     name: "Blue Status Light"
     output: light_output
     id: status_light
-    restore_mode: ALWAYS_OFF
- 
+    restore_mode: ALWAYS_OFF    # LED state after reboot
+    # restore_mode options:
+    # ALWAYS_OFF - Always start with LED off
+    # ALWAYS_ON - Always start with LED on  
+    # RESTORE_DEFAULT_OFF - Restore previous state, default off
+    # RESTORE_DEFAULT_ON - Restore previous state, default on
+    # RESTORE_INVERTED_DEFAULT_OFF - Restore inverted state, default off
+    # RESTORE_INVERTED_DEFAULT_ON - Restore inverted state, default on
+
+# GPIO output for simple LED control
 output:
   - platform: gpio
-    pin: ${light_gpio}
+    pin: ${light_gpio}  # GPIO4 - External LED control
     id: light_output
+    # Optional: Configure as PWM for brightness control
+    # - platform: ledc
+    #   pin: ${light_gpio}
+    #   id: light_output
+    #   frequency: 1000Hz  # PWM frequency
+
+# Alternative: WS2812 RGB LED configuration (if using addressable LED)
+# Uncomment if connecting external WS2812 LED strip
+# light:
+#   - platform: esp32_rmt_led_strip
+#     rgb_order: GRB              # WS2812 color order
+#     pin: ${light_gpio}          # GPIO4 or any available GPIO
+#     num_leds: 1                 # Number of LEDs
+#     chipset: ws2812             # LED chipset
+#     id: status_light
+#     name: "RGB Status Light"
+#     restore_mode: ALWAYS_OFF
+#     effects:
+#       - addressable_rainbow:
+#           name: "Rainbow"
+#           speed: 10
+#           width: 50
+#       - addressable_color_wipe:
+#           name: "Color Wipe"
+#       - addressable_scan:
+#           name: "Scanner"
+#       - pulse:
+#           name: "Pulse"
+#       - strobe:
+#           name: "Strobe"
+
+# SPI configuration (optional - uncomment if using SPI devices)
+# ESP32-C3 supports 3 SPI buses (SPI0 for flash, SPI1 for PSRAM, SPI2 for user)
+# spi:
+#   clk_pin: GPIO6    # SPI clock
+#   mosi_pin: GPIO2   # SPI MOSI (Master Out Slave In)
+#   miso_pin: GPIO3   # SPI MISO (Master In Slave Out)
+#   # CS pins are defined per device
+
+# PWM configuration example (all GPIO pins support PWM on ESP32-C3)
+# output:
+#   - platform: ledc
+#     pin: GPIO5
+#     id: pwm_output
+#     frequency: 1000Hz
+#     # ESP32-C3 supports up to 6 PWM channels with 14-bit resolution
+
+# Deep sleep configuration (optional - for battery powered applications)
+# deep_sleep:
+#   run_duration: 60s      # Stay awake for 60 seconds
+#   sleep_duration: 5min   # Sleep for 5 minutes
+#   # GPIO wakeup - any RTC GPIO can wake from deep sleep
+#   wakeup_pin: GPIO0      # Wake when GPIO0 goes high
+#   wakeup_pin_mode: RISING
+
+# Additional sensor examples for ESP32-C3:
+
+# Internal temperature sensor (ESP32-C3 has built-in temperature sensor)
+# sensor:
+#   - platform: internal_temperature
+#     name: "ESP32-C3 Temperature"
+#     update_interval: 60s
+
+# Pulse counter (for frequency measurement, RPM, etc.)
+# sensor:
+#   - platform: pulse_counter
+#     pin: GPIO1
+#     name: "Pulse Counter"
+#     update_interval: 60s
+#     filters:
+#       - multiply: 60  # Convert to per minute
+
+# Rotary encoder (for user input)
+# sensor:
+#   - platform: rotary_encoder
+#     name: "Rotary Encoder"
+#     pin_a: GPIO6
+#     pin_b: GPIO7
+#     resolution: 4  # Pulses per rotation
+
+
+
+####################################
+# OLD - REMOVE AFTER TESTING
+####################################
+
+
+# ####################################
+# # Start Substitutions
+# ####################################
+
+# substitutions:
+# # Specify below pin numbers for UART, GPIO, and I2C connections
+# # Default values are set for the ESP32-Cs Super Mini
+# # Add superseding substitutions in your specific device configuration if these don't match the actual pins used.
+
+#   tx_pin_uart: GPIO21
+#   rx_pin_uart: GPIO20
+#   light_gpio: GPIO4
+#   mic_adc: GPIO0
+#   motion_gpio: GPIO10
+#   sda_pin_i2c: GPIO8
+#   scl_pin_i2c: GPIO9
+
+# ####################################
+# # End Substitutions
+# ####################################
+
+# esphome:
+#   platformio_options:
+#     board_build.flash_mode: dio
+#     board_build.flash_size: 4MB
+#     board_build.f_flash: 40000000L
+
+
+# esp32:
+#   board: esp32-c3-devkitm-1
+#   variant: esp32c3
+#   flash_size: 4MB
+#   framework:
+#     type: esp-idf
+#     version: recommended
+#     sdkconfig_options:
+#       # Performance optimizations
+#       CONFIG_COMPILER_OPTIMIZATION_PERF: y
+#       CONFIG_COMPILER_OPTIMIZATION_SIZE: y
+#       CONFIG_ESPTOOLPY_FLASHSIZE_4MB: y
+#       # PSRAM configuration for ESP-IDF
+#       # CONFIG_SPIRAM: y
+#       # CONFIG_SPIRAM_MODE_OCT: y
+#       # CONFIG_SPIRAM_SPEED_80M: y
+#       # CONFIG_SPIRAM_TYPE_AUTO: y
+#       # BLE support
+#       CONFIG_BT_BLE_42_FEATURES_SUPPORTED: y
+#       CONFIG_BT_BLE_50_FEATURES_SUPPORTED: y
+#       # Extend the watchdog timeout
+#       CONFIG_ESP_TASK_WDT_TIMEOUT_S: "10"
+#       # USB CDC On Boot - XIAO ESP32-S3 has native USB
+#       CONFIG_ESP_CONSOLE_USB_CDC: y
+#       CONFIG_ESP_CONSOLE_USB_CDC_SUPPORT_ETS_PRINTF: y
+#       # WiFi compatibility options for WPA3/mesh networks
+#       CONFIG_ESP32_WIFI_ENABLE_WPA3_SAE: n
+#       CONFIG_ESP32_WIFI_ENABLE_WPA3_OWE_STA: n
+#       CONFIG_ESP32_WIFI_SOFTAP_SAE_SUPPORT: n
+#       # Disable power management features that can cause auth issues
+#       CONFIG_ESP32_WIFI_AMPDU_TX_ENABLED: n
+#       CONFIG_ESP32_WIFI_AMPDU_RX_ENABLED: n
+
+
+
+#       # # Performance optimizations
+#       # # CONFIG_COMPILER_OPTIMIZATION_PERF: y
+#       # # CONFIG_COMPILER_OPTIMIZATION_SIZE: y
+#       # CONFIG_ESPTOOLPY_FLASHSIZE_4MB: y
+
+#       # # Compiler optimizations (balanced approach)
+#       # CONFIG_COMPILER_OPTIMIZATION_SIZE: "y"
+#       # # Note: Removed PERF optimization as it can cause instability on ESP32 Pico
+      
+#       # # Memory management
+#       # # CONFIG_ESP32_WIFI_STATIC_RX_BUFFER_NUM: "4"
+#       # # CONFIG_ESP32_WIFI_DYNAMIC_RX_BUFFER_NUM: "8"
+#       # # CONFIG_ESP32_WIFI_DYNAMIC_TX_BUFFER_NUM: "8"
+#       # CONFIG_ESP32_WIFI_AMPDU_TX_ENABLED: "y"
+#       # CONFIG_ESP32_WIFI_AMPDU_RX_ENABLED: "y"
+
+#       # # WiFi compatibility options for WPA3/mesh networks
+#       # CONFIG_ESP32_WIFI_ENABLE_WPA3_SAE: n
+#       # CONFIG_ESP32_WIFI_ENABLE_WPA3_OWE_STA: n
+#       # CONFIG_ESP32_WIFI_SOFTAP_SAE_SUPPORT: n
+
+#       # # Task and system stability
+#       # CONFIG_ESP_TASK_WDT_TIMEOUT_S: "10"
+#       # CONFIG_ESP_TASK_WDT_CHECK_IDLE_TASK_CPU0: "y"
+#       # CONFIG_ESP_TASK_WDT_CHECK_IDLE_TASK_CPU1: "y"
+#       # CONFIG_ESP_INT_WDT_TIMEOUT_MS: "800"
+#       # CONFIG_ESP_SYSTEM_EVENT_TASK_STACK_SIZE: "4096"
+      
+#       # # Power management for stability
+#       # # CONFIG_PM_ENABLE: "y"
+#       # # CONFIG_PM_DFS_INIT_AUTO: "y"
+      
+#       # # Network stack optimizations
+#       # CONFIG_LWIP_TCP_MSS: "1436"
+#       # CONFIG_LWIP_TCP_RECVMBOX_SIZE: "32"
+#       # CONFIG_LWIP_UDP_RECVMBOX_SIZE: "32"
+#       # CONFIG_LWIP_TCPIP_RECVMBOX_SIZE: "32"
+
+#       # # BLE 4.2 is supported by ALL ESP32 boards that have bluetooth, the original and derivatives.
+#       # CONFIG_BT_BLE_42_FEATURES_SUPPORTED: y
+#       # # Also enable this on any derivative boards (S2, C3 etc) but not the original ESP32.
+#       # CONFIG_BT_BLE_50_FEATURES_SUPPORTED: y
+#       # # Extend the watchdog timeout, so the device reboots if the device appears locked up for over 10 seconds.
+#       # # CONFIG_ESP_TASK_WDT_TIMEOUT_S: "10"
+    
+# uart:
+#   id: uart_bus
+#   tx_pin: ${tx_pin_uart}
+#   rx_pin: ${rx_pin_uart}
+#   baud_rate: 256000
+#   parity: NONE
+#   stop_bits: 1
+# #  data_bits: 8
+
+# light:
+#   - platform: binary
+#     name: "Blue Status Light"
+#     output: light_output
+#     id: status_light
+#     restore_mode: ALWAYS_OFF
+ 
+# output:
+#   - platform: gpio
+#     pin: ${light_gpio}
+#     id: light_output

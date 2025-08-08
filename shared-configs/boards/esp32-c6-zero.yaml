@@ -3,17 +3,116 @@
 ####################################
 
 substitutions:
-# Specify below pin numbers for UART, GPIO, and I2C connections
-# Default values are set for the ESP32-C6 Zero
-# Add superseding substitutions in your specific device configuration if these don't match the actual pins used.
+  # UART pins - ESP32-C6 Zero UART pins
+  # Using hardware UART1 pins (UART0 is used for USB Serial/JTAG)
+  # ESP32-C6 has 3 UART controllers (UART0 for programming, UART1-2 for user)
+  tx_pin_uart: GPIO5   # Safe GPIO for UART TX (can use any available GPIO)
+  rx_pin_uart: GPIO4   # Safe GPIO for UART RX (can use any available GPIO)
+  # Alternative hardware UART pins:
+  # tx_pin_uart: GPIO16  # Alternative UART TX (U1TXD default)
+  # rx_pin_uart: GPIO17  # Alternative UART RX (U1RXD default)
+  # Note: LP_UART (low power) is available on GPIO4(TX)/GPIO5(RX)
 
-  tx_pin_uart: GPIO5
-  rx_pin_uart: GPIO4
-  light_gpio: GPIO8
-  mic_adc: GPIO2
-  motion_gpio: GPIO7
-  sda_pin_i2c: GPIO21
-  scl_pin_i2c: GPIO22
+  # LED/Light GPIO - ESP32-C6 Zero LED configuration
+  # The board has onboard WS2812B RGB LED and a warm LED
+  light_gpio: GPIO8    # Onboard warm/white LED control pin
+  # Note: GPIO8 controls the warm white LED on ESP32-C6 Zero
+  # Note: GPIO7 controls the WS2812B RGB LED (addressable)
+  
+  # ADC pin - ESP32-C6 ADC pins
+  # ESP32-C6 has 7 ADC channels on ADC1 (GPIO0-GPIO6)
+  # ADC1 is the only ADC unit and works reliably with WiFi
+  mic_adc: GPIO2       # ADC1_CH2 - ADC input pin
+  
+  # Motion sensor GPIO - Using available safe GPIO pins
+  # Selected from pins that are safe and not used for critical functions
+  motion_gpio: GPIO7   # Safe GPIO pin for digital input (also RGB LED pin if not using LED)
+  
+  # I2C pins - ESP32-C6 Zero I2C pins
+  # Any GPIO can be used for I2C on ESP32-C6
+  # Note: ESP32-C6 doesn't have GPIO21/22, using valid pins instead
+  sda_pin_i2c: GPIO21  # I2C SDA pin (GPIO21 is available on ESP32-C6)
+  scl_pin_i2c: GPIO22  # I2C SCL pin (GPIO22 is available on ESP32-C6)
+  # Alternative I2C pins that are definitely available:
+  # sda_pin_i2c: GPIO0   # Alternative I2C SDA
+  # scl_pin_i2c: GPIO1   # Alternative I2C SCL
+  
+  # CONFIRMED AVAILABLE GPIO pins on ESP32-C6 Zero:
+  # Total GPIOs: GPIO0-GPIO23, GPIO27-GPIO30 (28 pins total)
+  # Exposed on board: GPIO0, GPIO1, GPIO2, GPIO3, GPIO4, GPIO5, GPIO6, GPIO7,
+  #                  GPIO8, GPIO9, GPIO10, GPIO11, GPIO12, GPIO13, GPIO14, GPIO15,
+  #                  GPIO16, GPIO17, GPIO18, GPIO19, GPIO20, GPIO21, GPIO22, GPIO23
+  # Not available: GPIO24-GPIO26 (not bonded out on chip)
+  # Special pins: GPIO27-GPIO30 (used for flash/PSRAM quad SPI)
+  
+  # SAFE GPIO pins for general use:
+  # GPIO0, GPIO1, GPIO2, GPIO3, GPIO4, GPIO5, GPIO6 (with ADC capability)
+  # GPIO9, GPIO10, GPIO11, GPIO18, GPIO19, GPIO20, GPIO21, GPIO22, GPIO23
+  # GPIO15 (with strapping pin consideration)
+  
+  # ADC-capable input pins (ESP32-C6 has single ADC unit):
+  # ADC1: GPIO0-GPIO6 (7 channels) - These work reliably with WiFi
+  # ADC specifications: 12-bit resolution, 0-3.3V range with attenuation
+  # Note: ESP32-C6 has temperature sensor on ADC1_CH6 (GPIO6)
+  
+  # CRITICAL: Pins to AVOID or use with caution:
+  # GPIO7 - Connected to onboard WS2812B RGB LED (can be used if LED not needed)
+  # GPIO8 - Connected to onboard warm white LED (can be used if LED not needed)
+  # GPIO12-GPIO13 - JTAG pins (MTDI, MTCK) - use with caution
+  # GPIO14 - Strapping pin (SPI boot) - use with caution after boot
+  # GPIO15 - Strapping pin (boot mode) - use with caution after boot
+  # GPIO16-GPIO17 - Default UART1 pins (can be remapped)
+  # GPIO24-GPIO26 - Not available (not bonded out on ESP32-C6)
+  # GPIO27-GPIO30 - Connected to flash/PSRAM (NEVER use these)
+  
+  # Strapping pins (affect boot behavior if pulled during reset):
+  # GPIO4 - MTMS strapping pin (boot mode) - can be used after boot
+  # GPIO5 - MTDI strapping pin (boot mode) - can be used after boot  
+  # GPIO8 - Strapping pin (ROM messages) - controls onboard LED
+  # GPIO9 - Strapping pin (boot mode) - can be used after boot
+  # GPIO14 - Strapping pin (SPI boot wait) - can be used after boot
+  # GPIO15 - Strapping pin (boot mode select) - use with caution
+  
+  # Alternative pin configurations:
+  # Alternative UART pins (any GPIO can be used for software UART):
+  # tx_pin_uart: GPIO18  # Alternative UART TX
+  # rx_pin_uart: GPIO19  # Alternative UART RX
+  
+  # Alternative I2C pins (any GPIO can be used):
+  # sda_pin_i2c: GPIO10  # Alternative I2C SDA
+  # scl_pin_i2c: GPIO11  # Alternative I2C SCL
+  
+  # Alternative motion sensor pins:
+  # motion_gpio: GPIO9   # Alternative motion sensor pin
+  # motion_gpio: GPIO10  # Alternative motion sensor pin
+  # motion_gpio: GPIO11  # Alternative motion sensor pin
+  
+  # Alternative ADC pins (ADC1 channels only):
+  # mic_adc: GPIO0       # ADC1_CH0
+  # mic_adc: GPIO1       # ADC1_CH1
+  # mic_adc: GPIO3       # ADC1_CH3
+  # mic_adc: GPIO4       # ADC1_CH4
+  # mic_adc: GPIO5       # ADC1_CH5
+  # mic_adc: GPIO6       # ADC1_CH6 (also temperature sensor)
+  
+  # SPI pins configuration (if using external SPI devices):
+  # Default hardware SPI2 (user SPI) pins:
+  # mosi_pin: GPIO18  # SPI MOSI (FSPID)
+  # miso_pin: GPIO19  # SPI MISO (FSPIQ)
+  # sck_pin: GPIO20   # SPI SCK (FSPICLK)
+  # cs_pin: GPIO21    # SPI CS (FSPICS0)
+  # Note: Can use any GPIO for software SPI
+  
+  # PWM capable pins: All GPIOs on ESP32-C6 support LEDC PWM
+  # Hardware: 6 LEDC channels with up to 20-bit resolution
+  
+  # Touch sensor pins: ESP32-C6 does NOT have touch sensor capability
+  # DAC pins: ESP32-C6 does NOT have DAC capability
+  # Hall sensor: ESP32-C6 does NOT have hall sensor capability
+  
+  # Low Power (LP) I/O subsystem:
+  # LP_GPIO0-LP_GPIO7 available for deep sleep wake and low power operations
+  # These correspond to GPIO0-GPIO7 in low power mode
 
 ####################################
 # End Substitutions
@@ -21,63 +120,377 @@ substitutions:
 
 esphome:
   platformio_options:
-    board_build.flash_mode: qio
-    board_build.f_flash: 80000000L
+    board_build.flash_mode: qio         # QIO mode for faster flash access
+    board_build.f_flash: 80000000L      # 80MHz flash frequency
+    board_build.flash_size: 4MB         # Flash size (verify your board variant)
+  on_boot:
+    priority: 600
+    then:
+      - delay: 500ms  # Boot delay for sensor stabilization
 
 esp32:
+  # ESP32-C6 Zero board configuration
+  # Using official Espressif devkit profile adapted for Zero form factor
   board: esp32-c6-devkitc-1
   variant: esp32c6
-  flash_size: 4MB
+  flash_size: 4MB  # Standard size - ESP32-C6 Zero typically has 4MB flash
   framework:
     type: esp-idf
-    version: latest
+    version: latest  # ESP32-C6 requires latest ESP-IDF for full feature support
     sdkconfig_options:
       # Performance optimizations
-      CONFIG_COMPILER_OPTIMIZATION_PERF: y
-      CONFIG_COMPILER_OPTIMIZATION_SIZE: y
-      CONFIG_ESPTOOLPY_FLASHSIZE_4MB: y
-      # BLE support - ESP32-C6 supports BLE 5.0+
-      CONFIG_BT_ENABLED: y
-      CONFIG_BT_BLE_ENABLED: y
-      CONFIG_BT_BLE_42_FEATURES_SUPPORTED: y
-      CONFIG_BT_BLE_50_FEATURES_SUPPORTED: y
-      # Extend the watchdog timeout
-      CONFIG_ESP_TASK_WDT_TIMEOUT_S: "10"
-      # USB CDC On Boot - ESP32-C6 has native USB Serial/JTAG
-      CONFIG_ESP_CONSOLE_USB_SERIAL_JTAG: y
-      CONFIG_ESP_CONSOLE_USB_SERIAL_JTAG_ENABLED: y
-      # WiFi 6 compatibility options
-      CONFIG_ESP_WIFI_ENABLE_WPA3_SAE: y
-      CONFIG_ESP_WIFI_SOFTAP_SAE_SUPPORT: y
-      CONFIG_ESP_WIFI_ENABLE_WPA3_OWE_STA: y
-      # WiFi optimization
-      CONFIG_ESP_WIFI_SW_COEXIST_ENABLE: y
-      # Power management optimization
-      CONFIG_PM_ENABLE: n
+      CONFIG_COMPILER_OPTIMIZATION_PERF: y      # Performance optimization
+      CONFIG_COMPILER_OPTIMIZATION_SIZE: y      # Size optimization
+      CONFIG_ESPTOOLPY_FLASHSIZE_4MB: y        # Match flash_size above
+      
       # ESP32-C6 specific optimizations
-      CONFIG_ESP_PHY_ENABLE_USB: y
-      CONFIG_ESP_SYSTEM_PANIC_PRINT_REBOOT: y    
+      CONFIG_ESP32C6_DEFAULT_CPU_FREQ_160: y    # Set CPU to 160MHz (max for C6)
+      CONFIG_ESP32C6_REV_MIN: "0"              # Minimum chip revision
+      CONFIG_ESP_PHY_ENABLE_USB: y             # Enable USB PHY support
+      CONFIG_ESP_SYSTEM_PANIC_PRINT_REBOOT: y  # Print panic info before reboot
+      
+      # PSRAM configuration - ESP32-C6 Zero typically does NOT have PSRAM
+      # Uncomment only if your specific board variant includes PSRAM:
+      # CONFIG_SPIRAM: y                       # Enable PSRAM support
+      # CONFIG_SPIRAM_MODE_QUAD: y            # Quad SPI mode for ESP32-C6
+      # CONFIG_SPIRAM_SPEED_80M: y            # 80MHz PSRAM speed
+      
+      # Bluetooth/BLE support - ESP32-C6 supports BLE 5.3
+      CONFIG_BT_ENABLED: y                      # Enable Bluetooth
+      CONFIG_BT_BLE_ENABLED: y                  # Enable BLE
+      CONFIG_BT_BLE_42_FEATURES_SUPPORTED: y    # BLE 4.2 features
+      CONFIG_BT_BLE_50_FEATURES_SUPPORTED: y    # BLE 5.0+ features
+      # Note: ESP32-C6 supports BLE 5.3 with LE Audio, Mesh 1.1, and other advanced features
+      
+      # IEEE 802.15.4 support (Thread/Zigbee) - ESP32-C6 unique feature
+      # Uncomment to enable Thread/Zigbee support:
+      # CONFIG_IEEE802154_ENABLED: y           # Enable 802.15.4 radio
+      # CONFIG_IEEE802154_RX_BUFFER_SIZE: "20" # RX buffer size
+      
+      # Watchdog configuration
+      CONFIG_ESP_TASK_WDT_TIMEOUT_S: "10"      # 10 second watchdog timeout
+      CONFIG_ESP_TASK_WDT_CHECK_IDLE_TASK_CPU0: y  # Monitor idle task
+      CONFIG_ESP_INT_WDT_TIMEOUT_MS: "800"     # Interrupt watchdog timeout
+      
+      # USB Serial/JTAG configuration - ESP32-C6 has native USB Serial/JTAG
+      CONFIG_ESP_CONSOLE_USB_SERIAL_JTAG: y           # Use USB Serial/JTAG console
+      CONFIG_ESP_CONSOLE_USB_SERIAL_JTAG_ENABLED: y   # Enable USB Serial/JTAG
+      CONFIG_ESP_CONSOLE_SECONDARY_NONE: y            # No secondary console
+      
+      # WiFi 6 (802.11ax) support - ESP32-C6 unique features
+      CONFIG_ESP_WIFI_ENABLE_WPA3_SAE: y         # Enable WPA3-SAE (WiFi 6 requirement)
+      CONFIG_ESP_WIFI_SOFTAP_SAE_SUPPORT: y      # WPA3-SAE in AP mode
+      CONFIG_ESP_WIFI_ENABLE_WPA3_OWE_STA: y     # Enable WPA3-OWE (enhanced open)
+      CONFIG_ESP_WIFI_SW_COEXIST_ENABLE: y       # Software coexistence for BLE+WiFi
+      
+      # WiFi 6 specific features
+      CONFIG_ESP_WIFI_11AX_SUPPORT: y            # 802.11ax (WiFi 6) support
+      CONFIG_ESP_WIFI_MBSSID_TX_SUPPORT: y       # Multiple BSSID support
+      CONFIG_ESP_WIFI_ENABLE_OFDMA: y            # OFDMA for better multi-device performance
+      CONFIG_ESP_WIFI_ENABLE_TWT: y              # Target Wake Time for power saving
+      
+      # Power management - disabled for stability
+      CONFIG_PM_ENABLE: n                        # Disable dynamic power management
+      # To enable power management for battery applications:
+      # CONFIG_PM_ENABLE: y
+      # CONFIG_PM_DFS_INIT_AUTO: y               # Auto frequency scaling
+      # CONFIG_PM_POWER_DOWN_CPU_IN_LIGHT_SLEEP: y  # CPU power down in light sleep
+      
+      # Memory management optimizations for ESP32-C6 (320KB SRAM)
+      CONFIG_ESP32_WIFI_STATIC_RX_BUFFER_NUM: "6"   # WiFi RX buffers
+      CONFIG_ESP32_WIFI_DYNAMIC_RX_BUFFER_NUM: "16" # Dynamic RX buffers
+      CONFIG_ESP32_WIFI_DYNAMIC_TX_BUFFER_NUM: "16" # Dynamic TX buffers
+      CONFIG_ESP32_WIFI_TX_BUFFER_TYPE: "1"         # Dynamic TX buffer allocation
+      CONFIG_ESP32_WIFI_RX_BA_WIN: "6"             # Block ACK window
+      
+      # Network stack optimizations
+      CONFIG_LWIP_TCP_MSS: "1436"                # TCP Maximum Segment Size
+      CONFIG_LWIP_TCP_RECVMBOX_SIZE: "32"       # TCP receive mailbox size
+      CONFIG_LWIP_UDP_RECVMBOX_SIZE: "32"       # UDP receive mailbox size
+      CONFIG_LWIP_TCPIP_RECVMBOX_SIZE: "32"     # TCP/IP mailbox size
+      
+      # Low power coprocessor (LP core) - ESP32-C6 has LP RISC-V core
+      # Uncomment to enable LP core for ultra-low power operations:
+      # CONFIG_ULP_COPROC_ENABLED: y             # Enable ULP coprocessor
+      # CONFIG_ULP_COPROC_TYPE_LP_CORE: y        # Use LP RISC-V core
+      # CONFIG_ULP_COPROC_RESERVE_MEM: "8192"    # Reserved memory for LP core
 
-
+# UART bus configuration - for external device communication
+# Using software UART on safe GPIO pins
 uart:
   id: uart_bus
-  tx_pin: ${tx_pin_uart}
-  rx_pin: ${rx_pin_uart}
-  baud_rate: 256000
+  tx_pin: ${tx_pin_uart}  # GPIO5 - Software UART TX
+  rx_pin: ${rx_pin_uart}  # GPIO4 - Software UART RX
+  baud_rate: 256000       # High-speed UART communication
   parity: NONE
   stop_bits: 1
-#  data_bits: 8
+  data_bits: 8            # Standard 8-bit data
+  # Note: Lower baud_rate to 115200 if experiencing communication issues
+  # Hardware flow control available on any GPIO if needed:
+  # rx_buffer_size: 256   # Increase buffer if receiving large amounts of data
 
+# I2C configuration (optional - uncomment if using I2C sensors)
+# ESP32-C6 supports 2 I2C buses with software implementation on any GPIO
+# i2c:
+#   id: i2c_bus
+#   sda: ${sda_pin_i2c}   # GPIO21 - I2C data line
+#   scl: ${scl_pin_i2c}   # GPIO22 - I2C clock line
+#   scan: true            # Scan for devices on boot
+#   frequency: 400kHz     # Fast mode I2C (100kHz for better compatibility)
+#   # Optional: Configure I2C bus 2
+#   # - id: i2c_bus2
+#   #   sda: GPIO0
+#   #   scl: GPIO1
+#   #   frequency: 100kHz
+
+# ADC sensor configuration (optional - uncomment if using analog sensor)
+# ESP32-C6 has 7 ADC channels (GPIO0-GPIO6) with 12-bit resolution
+# sensor:
+#   - platform: adc
+#     pin: ${mic_adc}     # GPIO2 - ADC1_CH2
+#     name: "Analog Input"
+#     update_interval: 60s
+#     attenuation: auto   # Auto-select attenuation
+#     # Attenuation options for ESP32-C6:
+#     # 0db: 0-950mV range (most accurate)
+#     # 2.5db: 0-1250mV range
+#     # 6db: 0-1750mV range
+#     # 11db: 0-3100mV range (full VDD range, least accurate)
+
+# Internal temperature sensor (ESP32-C6 built-in)
+# sensor:
+#   - platform: internal_temperature
+#     name: "ESP32-C6 Temperature"
+#     update_interval: 60s
+#     # Temperature sensor range: -40°C to 125°C
+
+# GPIO binary sensor (motion sensor example)
+# binary_sensor:
+#   - platform: gpio
+#     pin: 
+#       number: ${motion_gpio}  # GPIO7 (if not using RGB LED)
+#       mode:
+#         input: true
+#         pullup: true          # Enable internal pullup resistor
+#     name: "Motion Sensor"
+#     device_class: motion
+#     filters:
+#       - delayed_on: 10ms      # Debounce filter
+#       - delayed_off: 10ms
+
+# Light configuration - Onboard warm white LED control
+# ESP32-C6 Zero has both warm white LED (GPIO8) and WS2812B RGB LED (GPIO7)
 light:
   - platform: binary
     name: "Blue Status Light"
     output: light_output
     id: status_light
-    #restore_mode: ALWAYS_ON
-    restore_mode: RESTORE_DEFAULT_ON
-    #restore_mode: ALWAYS_OFF
- 
+    restore_mode: RESTORE_DEFAULT_ON    # Restore previous state, default on
+    # restore_mode options:
+    # ALWAYS_OFF - Always start with LED off
+    # ALWAYS_ON - Always start with LED on  
+    # RESTORE_DEFAULT_OFF - Restore previous state, default off
+    # RESTORE_DEFAULT_ON - Restore previous state, default on
+    # RESTORE_INVERTED_DEFAULT_OFF - Restore inverted state, default off
+    # RESTORE_INVERTED_DEFAULT_ON - Restore inverted state, default on
+
+# GPIO output for warm white LED control
 output:
   - platform: gpio
-    pin: ${light_gpio}
+    pin: ${light_gpio}  # GPIO8 - Onboard warm white LED
     id: light_output
+    # Optional: Configure as PWM for brightness control
+    # - platform: ledc
+    #   pin: ${light_gpio}
+    #   id: light_output
+    #   frequency: 1000Hz  # PWM frequency
+    #   channel: 0         # LEDC channel (0-5)
+
+# WS2812B RGB LED configuration (onboard RGB LED on GPIO7)
+# Uncomment to use the onboard RGB LED instead of warm white LED
+# light:
+#   - platform: esp32_rmt_led_strip
+#     rgb_order: GRB              # WS2812B color order
+#     pin: GPIO7                  # Onboard RGB LED pin
+#     num_leds: 1                 # Single onboard LED
+#     chipset: ws2812             # WS2812B chipset
+#     id: rgb_status_light
+#     name: "RGB Status Light"
+#     restore_mode: ALWAYS_OFF
+#     effects:
+#       - addressable_rainbow:
+#           name: "Rainbow"
+#           speed: 10
+#           width: 50
+#       - addressable_color_wipe:
+#           name: "Color Wipe"
+#       - addressable_scan:
+#           name: "Scanner"
+#       - pulse:
+#           name: "Pulse"
+#       - strobe:
+#           name: "Strobe"
+#       - random:
+#           name: "Random"
+
+# SPI configuration (optional - uncomment if using SPI devices)
+# ESP32-C6 supports 2 SPI buses (SPI0/1 for flash, SPI2 for user)
+# spi:
+#   id: spi_bus
+#   clk_pin: GPIO20   # SPI clock (FSPICLK)
+#   mosi_pin: GPIO18  # SPI MOSI (FSPID)
+#   miso_pin: GPIO19  # SPI MISO (FSPIQ)
+#   # CS pins are defined per device
+#   # Hardware SPI2 supports up to 80MHz clock
+
+# PWM configuration example (all GPIO pins support LEDC PWM on ESP32-C6)
+# output:
+#   - platform: ledc
+#     pin: GPIO5
+#     id: pwm_output
+#     frequency: 1000Hz
+#     channel: 0
+#     # ESP32-C6 supports 6 LEDC channels with up to 20-bit resolution
+
+# Deep sleep configuration (optional - for battery powered applications)
+# ESP32-C6 supports multiple wake sources including LP core
+# deep_sleep:
+#   run_duration: 60s      # Stay awake for 60 seconds
+#   sleep_duration: 5min   # Sleep for 5 minutes
+#   # GPIO wakeup - any RTC GPIO can wake from deep sleep
+#   wakeup_pin: GPIO0      # Wake when GPIO0 goes high
+#   wakeup_pin_mode: RISING
+#   # LP I/O wakeup (low power GPIO 0-7)
+#   # lp_gpio_wakeup:
+#   #   - number: 0
+#   #     allow_other_uses: true
+#   #     mode: input
+
+# Thread/Zigbee configuration (ESP32-C6 unique feature)
+# Note: Thread/Zigbee support requires special ESPHome configuration
+# and is mutually exclusive with WiFi/BLE in most cases
+
+# Remote control receiver (ESP32-C6 has RMT peripheral)
+# remote_receiver:
+#   pin: GPIO3
+#   dump: all
+#   # RMT supports up to 4 TX and 4 RX channels
+
+# Pulse counter (for frequency measurement, RPM, etc.)
+# sensor:
+#   - platform: pulse_counter
+#     pin: GPIO1
+#     name: "Pulse Counter"
+#     update_interval: 60s
+#     count_mode:
+#       rising_edge: INCREMENT
+#       falling_edge: DISABLE
+
+# Rotary encoder (for user input)
+# sensor:
+#   - platform: rotary_encoder
+#     name: "Rotary Encoder"
+#     pin_a: GPIO10
+#     pin_b: GPIO11
+#     resolution: 4  # Pulses per rotation
+
+# ESP32-C6 specific features:
+# - WiFi 6 (802.11ax) with OFDMA, TWT, BSS coloring
+# - BLE 5.3 with LE Audio, Mesh 1.1, Long Range, 2Mbps PHY
+# - IEEE 802.15.4 radio for Thread/Zigbee
+# - LP RISC-V core for ultra-low power operation
+# - Temperature sensor with ±2°C accuracy
+# - 6 LEDC PWM channels with 20-bit resolution
+# - 2 I2C, 2 SPI, 3 UART interfaces
+# - USB Serial/JTAG for programming and debugging
+
+
+
+
+####################################
+# OLD - REMOVE AFTER TESTING
+####################################
+
+# ####################################
+# # Start Substitutions
+# ####################################
+
+# substitutions:
+# # Specify below pin numbers for UART, GPIO, and I2C connections
+# # Default values are set for the ESP32-C6 Zero
+# # Add superseding substitutions in your specific device configuration if these don't match the actual pins used.
+
+#   tx_pin_uart: GPIO5
+#   rx_pin_uart: GPIO4
+#   light_gpio: GPIO8
+#   mic_adc: GPIO2
+#   motion_gpio: GPIO7
+#   sda_pin_i2c: GPIO21
+#   scl_pin_i2c: GPIO22
+
+# ####################################
+# # End Substitutions
+# ####################################
+
+# esphome:
+#   platformio_options:
+#     board_build.flash_mode: qio
+#     board_build.f_flash: 80000000L
+
+# esp32:
+#   board: esp32-c6-devkitc-1
+#   variant: esp32c6
+#   flash_size: 4MB
+#   framework:
+#     type: esp-idf
+#     version: latest
+#     sdkconfig_options:
+#       # Performance optimizations
+#       CONFIG_COMPILER_OPTIMIZATION_PERF: y
+#       CONFIG_COMPILER_OPTIMIZATION_SIZE: y
+#       CONFIG_ESPTOOLPY_FLASHSIZE_4MB: y
+#       # BLE support - ESP32-C6 supports BLE 5.0+
+#       CONFIG_BT_ENABLED: y
+#       CONFIG_BT_BLE_ENABLED: y
+#       CONFIG_BT_BLE_42_FEATURES_SUPPORTED: y
+#       CONFIG_BT_BLE_50_FEATURES_SUPPORTED: y
+#       # Extend the watchdog timeout
+#       CONFIG_ESP_TASK_WDT_TIMEOUT_S: "10"
+#       # USB CDC On Boot - ESP32-C6 has native USB Serial/JTAG
+#       CONFIG_ESP_CONSOLE_USB_SERIAL_JTAG: y
+#       CONFIG_ESP_CONSOLE_USB_SERIAL_JTAG_ENABLED: y
+#       # WiFi 6 compatibility options
+#       CONFIG_ESP_WIFI_ENABLE_WPA3_SAE: y
+#       CONFIG_ESP_WIFI_SOFTAP_SAE_SUPPORT: y
+#       CONFIG_ESP_WIFI_ENABLE_WPA3_OWE_STA: y
+#       # WiFi optimization
+#       CONFIG_ESP_WIFI_SW_COEXIST_ENABLE: y
+#       # Power management optimization
+#       CONFIG_PM_ENABLE: n
+#       # ESP32-C6 specific optimizations
+#       CONFIG_ESP_PHY_ENABLE_USB: y
+#       CONFIG_ESP_SYSTEM_PANIC_PRINT_REBOOT: y    
+
+
+# uart:
+#   id: uart_bus
+#   tx_pin: ${tx_pin_uart}
+#   rx_pin: ${rx_pin_uart}
+#   baud_rate: 256000
+#   parity: NONE
+#   stop_bits: 1
+# #  data_bits: 8
+
+# light:
+#   - platform: binary
+#     name: "Blue Status Light"
+#     output: light_output
+#     id: status_light
+#     #restore_mode: ALWAYS_ON
+#     restore_mode: RESTORE_DEFAULT_ON
+#     #restore_mode: ALWAYS_OFF
+ 
+# output:
+#   - platform: gpio
+#     pin: ${light_gpio}
+#     id: light_output
