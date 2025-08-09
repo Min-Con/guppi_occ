@@ -1,29 +1,15 @@
-##########################################################################################
-# ESP32-S3 + VL53L1X (Averyy custom component) — Focused Sensor Configuration (Option B)
-#
-# Highlights in this version:
-# - Template binary/text sensors are *driven* via publish_state() in distance.on_value
-#   (no polling, no component.update calls on non-polling components).
-# - Top-level vl53l1x component holds bus/address/update_interval; sensor platform only
-#   defines the distance reading.
-##########################################################################################
+# ——— ESP32-S3 + VL53L1X (Averyy) — Option B, ESPHome 2025.7.5-validated ———
 
 substitutions:
-  # I²C pins (edit these if your board uses different ones)
   # sda_pin_i2c: GPIO8
   # scl_pin_i2c: GPIO9
-
-  # Optional: XSHUT pin (not used here, reserved for future)
-  xshut_gpio: GPIO9
+  xshut_gpio: GPIO9  # reserved (not used here)
 
 external_components:
   - source: github://Averyy/esphome-custom-components
     components: [vl53l1x]
     refresh: 1d
 
-##########################################################################################
-# Connectivity hooks (minimal)
-##########################################################################################
 mqtt:
   broker: !secret mqtt_broker
   port: !secret mqtt_port
@@ -35,9 +21,11 @@ mqtt:
   will_message:  { topic: esp32s3-tof/status, payload: offline }
   on_message:
     - topic: esp32s3-tof/control/calibrate
-      then: { - button.press: calibrate_sensor }
+      then:
+        - button.press: calibrate_sensor
     - topic: esp32s3-tof/control/restart
-      then: { - switch.turn_on: restart_switch }
+      then:
+        - switch.turn_on: restart_switch
     - topic: esp32s3-tof/control/set_roi
       then:
         - lambda: |-
@@ -53,17 +41,13 @@ api:
             id(roi_x_spads) = x_spads;
             id(roi_y_spads) = y_spads;
             id(roi_center_index) = center;
-
     - service: advanced_calibration
       variables: { offset: int, crosstalk: int }
       then:
         - lambda: |-
             ESP_LOGD("api", "Advanced calibration: offset=%d, crosstalk=%d", offset, crosstalk);
-            // Placeholder: requires driver support to take effect.
+            // Placeholder only; needs driver hooks to apply.
 
-##########################################################################################
-# I²C BUS
-##########################################################################################
 i2c:
   - id: bus_a
     sda: ${sda_pin_i2c}
@@ -71,53 +55,32 @@ i2c:
     frequency: 400kHz
     scan: true
 
-##########################################################################################
-# GLOBALS
-##########################################################################################
 globals:
-  # Velocity calc state
   - { id: last_distance,           type: float,          restore_value: no,  initial_value: '0.0' }
   - { id: last_measurement_time,   type: unsigned long,  restore_value: no,  initial_value: '0'   }
-
-  # Simple recursive filter state
   - { id: kalman_estimate,         type: float,          restore_value: no,  initial_value: '0.0' }
   - { id: kalman_error_estimate,   type: float,          restore_value: no,  initial_value: '1.0' }
+  - { id: zone1_threshold,         type: float,          restore_value: yes, initial_value: '1000.0' }
+  - { id: zone2_threshold,         type: float,          restore_value: yes, initial_value: '2000.0' }
+  - { id: zone3_threshold,         type: float,          restore_value: yes, initial_value: '3000.0' }
+  - { id: roi_x_spads,             type: int,            restore_value: yes, initial_value: '16'  }
+  - { id: roi_y_spads,             type: int,            restore_value: yes, initial_value: '16'  }
+  - { id: roi_center_index,        type: int,            restore_value: yes, initial_value: '199' }
+  - { id: measurement_count,       type: unsigned long,  restore_value: yes, initial_value: '0'   }
+  - { id: error_count,             type: unsigned long,  restore_value: yes, initial_value: '0'   }
+  - { id: pref_distance_mode,      type: int,            restore_value: yes, initial_value: '2'   } # 0/1/2
+  - { id: pref_timing_budget_ms,   type: int,            restore_value: yes, initial_value: '50'  }
 
-  # Zone thresholds (mm)
-  - { id: zone1_threshold, type: float, restore_value: yes, initial_value: '1000.0' }
-  - { id: zone2_threshold, type: float, restore_value: yes, initial_value: '2000.0' }
-  - { id: zone3_threshold, type: float, restore_value: yes, initial_value: '3000.0' }
-
-  # ROI info (not applied to driver in this build)
-  - { id: roi_x_spads,      type: int, restore_value: yes, initial_value: '16'  }
-  - { id: roi_y_spads,      type: int, restore_value: yes, initial_value: '16'  }
-  - { id: roi_center_index, type: int, restore_value: yes, initial_value: '199' }
-
-  # Counters
-  - { id: measurement_count, type: unsigned long, restore_value: yes, initial_value: '0' }
-  - { id: error_count,       type: unsigned long, restore_value: yes, initial_value: '0' }
-
-  # Runtime prefs (applied post-reboot when we add the shim)
-  - { id: pref_distance_mode,     type: int, restore_value: yes, initial_value: '2' }   # 0/1/2
-  - { id: pref_timing_budget_ms,  type: int, restore_value: yes, initial_value: '50' }
-
-##########################################################################################
-# VL53L1X CORE COMPONENT (required by the platform sensor)
-##########################################################################################
+# Required top-level custom component
 vl53l1x:
   id: tof_sensor
-  i2c_id: bus_a
-  address: 0x32           # Use 0x29 if that's your module's default
-  update_interval: 100ms  # Power Mode script tweaks this at runtime
-  # distance_mode: long    # If schema errors here, comment out (driver may not expose)
-  # timing_budget: 50ms    # If schema errors here, comment out
 
-##########################################################################################
-# SENSORS
-##########################################################################################
 sensor:
-  # Distance from the VL53L1X. All derived logic fires from its on_value handler.
   - platform: vl53l1x
+    i2c_id: bus_a
+    address: 0x32            # change to 0x29 if that's your module
+    update_interval: 100ms   # runtime-adjustable via Power Mode script
+
     distance:
       id: distance_sensor
       name: "Distance"
@@ -128,16 +91,10 @@ sensor:
       filters:
         - median: { window_size: 5, send_every: 1 }
         - delta: 5.0
-        - clamp:
-            min_value: 50
-            max_value: 4000
-            ignore_out_of_range: false
+        - clamp: { min_value: 50, max_value: 4000, ignore_out_of_range: false }
       on_value:
         then:
-          # 1) Update velocity + acceleration first (Velocity template publishes inside script)
           - script.execute: calculate_velocity
-
-          # 2) Compute zones/object + publish to template binary sensors
           - lambda: |-
               const float d = id(distance_sensor).state;
               const bool valid = (!isnan(d) && d > 50.0f);
@@ -145,17 +102,16 @@ sensor:
               const float z2 = id(zone2_threshold);
               const float z3 = id(zone3_threshold);
 
-              const bool obj = valid && (d <= z3);
-              const bool in_z1 = valid && (d <= z1);
-              const bool in_z2 = valid && (d > z1 && d <= z2);
-              const bool in_z3 = valid && (d > z2 && d <= z3);
+              const bool obj  = valid && (d <= z3);
+              const bool in1  = valid && (d <= z1);
+              const bool in2  = valid && (d > z1 && d <= z2);
+              const bool in3  = valid && (d > z2 && d <= z3);
 
               id(object_detected).publish_state(obj);
-              id(zone1_detected).publish_state(in_z1);
-              id(zone2_detected).publish_state(in_z2);
-              id(zone3_detected).publish_state(in_z3);
+              id(zone1_detected).publish_state(in1);
+              id(zone2_detected).publish_state(in2);
+              id(zone3_detected).publish_state(in3);
 
-              // Movement flags from current velocity (already updated by calculate_velocity)
               if (id(velocity_sensor).has_state()) {
                 const float v = id(velocity_sensor).state;
                 id(moving_towards).publish_state(v < -50.0f);
@@ -163,16 +119,14 @@ sensor:
                 id(motion_detected).publish_state(fabsf(v) > 50.0f);
               }
 
-              // Active Zone text
-              if (in_z1)      id(active_zone).publish_state("Zone 1 (Close)");
-              else if (in_z2) id(active_zone).publish_state("Zone 2 (Medium)");
-              else if (in_z3) id(active_zone).publish_state("Zone 3 (Far)");
+              if (in1)        id(active_zone).publish_state("Zone 1 (Close)");
+              else if (in2)   id(active_zone).publish_state("Zone 2 (Medium)");
+              else if (in3)   id(active_zone).publish_state("Zone 3 (Far)");
               else if (obj)   id(active_zone).publish_state("Beyond Zone 3");
               else            id(active_zone).publish_state("No Object");
 
               id(measurement_count) += 1;
 
-  # Derived (no polling; values are pushed by scripts)
   - platform: template
     id: velocity_sensor_raw
     name: "Velocity Raw"
@@ -192,7 +146,7 @@ sensor:
     filters:
       - sliding_window_moving_average: { window_size: 5, send_every: 1 }
       - lambda: |-
-          if (fabsf(x) < 10.0f) return 0.0f;  // squash jitter
+          if (fabsf(x) < 10.0f) return 0.0f;
           return x;
 
   - platform: template
@@ -203,10 +157,9 @@ sensor:
     icon: "mdi:axis-arrow"
     update_interval: never
 
-  # Diagnostics (computed locally)
   - platform: template
-    name: "Effective SPAD Count"
     id: effective_spad_count
+    name: "Effective SPAD Count"
     accuracy_decimals: 0
     entity_category: diagnostic
     icon: "mdi:grid"
@@ -225,11 +178,11 @@ sensor:
     lambda: |-
       static unsigned long last_count = 0, last_time = 0;
       const unsigned long now = millis();
-      const unsigned long dt = now - last_time;
+      const unsigned long dt  = now - last_time;
       if (dt > 0) {
         const float rate = (id(measurement_count) - last_count) * 1000.0f / (float)dt;
         last_count = id(measurement_count);
-        last_time = now;
+        last_time  = now;
         return rate;
       }
       return 0;
@@ -258,13 +211,10 @@ sensor:
     lambda: |-
       return heap_caps_get_free_size(MALLOC_CAP_INTERNAL) / 1024.0f;
 
-##########################################################################################
-# NUMBERS — thresholds + timing budget preference
-##########################################################################################
 number:
   - platform: template
-    name: "Zone 1 Threshold"
     id: zone1_threshold_number
+    name: "Zone 1 Threshold"
     optimistic: true
     min_value: 50
     max_value: 4000
@@ -279,14 +229,14 @@ number:
         - globals.set: { id: zone1_threshold, value: !lambda 'return x;' }
         - lambda: |-
             if (x >= id(zone2_threshold)) {
-              const float new_z2 = x + 50.0f;
-              id(zone2_threshold) = new_z2;
-              id(zone2_threshold_number).publish_state(new_z2);
+              const float nz2 = x + 50.0f;
+              id(zone2_threshold) = nz2;
+              id(zone2_threshold_number).publish_state(nz2);
             }
 
   - platform: template
-    name: "Zone 2 Threshold"
     id: zone2_threshold_number
+    name: "Zone 2 Threshold"
     optimistic: true
     min_value: 50
     max_value: 4000
@@ -301,19 +251,19 @@ number:
         - globals.set: { id: zone2_threshold, value: !lambda 'return x;' }
         - lambda: |-
             if (x <= id(zone1_threshold)) {
-              const float new_z1 = x - 50.0f;
-              id(zone1_threshold) = new_z1;
-              id(zone1_threshold_number).publish_state(new_z1);
+              const float nz1 = x - 50.0f;
+              id(zone1_threshold) = nz1;
+              id(zone1_threshold_number).publish_state(nz1);
             }
             if (x >= id(zone3_threshold)) {
-              const float new_z3 = x + 50.0f;
-              id(zone3_threshold) = new_z3;
-              id(zone3_threshold_number).publish_state(new_z3);
+              const float nz3 = x + 50.0f;
+              id(zone3_threshold) = nz3;
+              id(zone3_threshold_number).publish_state(nz3);
             }
 
   - platform: template
-    name: "Zone 3 Threshold"
     id: zone3_threshold_number
+    name: "Zone 3 Threshold"
     optimistic: true
     min_value: 50
     max_value: 4000
@@ -328,14 +278,14 @@ number:
         - globals.set: { id: zone3_threshold, value: !lambda 'return x;' }
         - lambda: |-
             if (x <= id(zone2_threshold)) {
-              const float new_z2 = x - 50.0f;
-              id(zone2_threshold) = new_z2;
-              id(zone2_threshold_number).publish_state(new_z2);
+              const float nz2 = x - 50.0f;
+              id(zone2_threshold) = nz2;
+              id(zone2_threshold_number).publish_state(nz2);
             }
 
   - platform: template
-    name: "Timing Budget (ms)"
     id: timing_budget_number
+    name: "Timing Budget (ms)"
     optimistic: true
     min_value: 20
     max_value: 500
@@ -350,53 +300,14 @@ number:
         - globals.set: { id: pref_timing_budget_ms, value: !lambda 'return (int)x;' }
         - script.execute: schedule_apply_runtime_prefs
 
-##########################################################################################
-# BINARY SENSORS — states are pushed (no lambdas needed)
-##########################################################################################
 binary_sensor:
-  - platform: template
-    id: object_detected
-    name: "Object Detected"
-    device_class: occupancy
-    icon: "mdi:target"
-
-  - platform: template
-    id: zone1_detected
-    name: "Zone 1 Detected"
-    device_class: occupancy
-    icon: "mdi:numeric-1-circle"
-
-  - platform: template
-    id: zone2_detected
-    name: "Zone 2 Detected"
-    device_class: occupancy
-    icon: "mdi:numeric-2-circle"
-
-  - platform: template
-    id: zone3_detected
-    name: "Zone 3 Detected"
-    device_class: occupancy
-    icon: "mdi:numeric-3-circle"
-
-  - platform: template
-    id: moving_towards
-    name: "Moving Towards"
-    device_class: moving
-    icon: "mdi:arrow-down-bold"
-
-  - platform: template
-    id: moving_away
-    name: "Moving Away"
-    device_class: moving
-    icon: "mdi:arrow-up-bold"
-
-  - platform: template
-    id: motion_detected
-    name: "Motion Detected"
-    device_class: motion
-    icon: "mdi:motion-sensor"
-
-  # Health proxy: raise problem if Error Rate ≥ 10%
+  - { platform: template, id: object_detected, name: "Object Detected", device_class: occupancy, icon: "mdi:target" }
+  - { platform: template, id: zone1_detected, name: "Zone 1 Detected", device_class: occupancy, icon: "mdi:numeric-1-circle" }
+  - { platform: template, id: zone2_detected, name: "Zone 2 Detected", device_class: occupancy, icon: "mdi:numeric-2-circle" }
+  - { platform: template, id: zone3_detected, name: "Zone 3 Detected", device_class: occupancy, icon: "mdi:numeric-3-circle" }
+  - { platform: template, id: moving_towards, name: "Moving Towards", device_class: moving, icon: "mdi:arrow-down-bold" }
+  - { platform: template, id: moving_away, name: "Moving Away", device_class: moving, icon: "mdi:arrow-up-bold" }
+  - { platform: template, id: motion_detected, name: "Motion Detected", device_class: motion, icon: "mdi:motion-sensor" }
   - platform: template
     id: sensor_problem
     name: "Sensor Problem"
@@ -407,20 +318,9 @@ binary_sensor:
       if (id(error_rate).has_state() && id(error_rate).state >= 10.0f) return true;
       return false;
 
-##########################################################################################
-# TEXT SENSORS — states are pushed (no lambdas needed)
-##########################################################################################
 text_sensor:
-  - platform: template
-    id: active_zone
-    name: "Active Zone"
-    icon: "mdi:map-marker-radius"
-
-  - platform: template
-    id: movement_status
-    name: "Movement Status"
-    icon: "mdi:motion"
-
+  - { platform: template, id: active_zone,     name: "Active Zone",     icon: "mdi:map-marker-radius" }
+  - { platform: template, id: movement_status, name: "Movement Status", icon: "mdi:motion" }
   - platform: template
     id: distance_mode_display
     name: "Current Distance Mode"
@@ -432,7 +332,6 @@ text_sensor:
         case 1: return {"medium"};
         default: return {"long"};
       }
-
   - platform: template
     id: roi_config_display
     name: "ROI Configuration"
@@ -442,7 +341,6 @@ text_sensor:
       char buf[50];
       sprintf(buf, "%dx%d SPADs, Center: %d", id(roi_x_spads), id(roi_y_spads), id(roi_center_index));
       return {buf};
-
   - platform: template
     id: system_status
     name: "System Status"
@@ -454,9 +352,6 @@ text_sensor:
       else if (id(error_rate).state > 5.0f) return {"Degraded Performance"};
       else return {"Operational"};
 
-##########################################################################################
-# SELECTS — prefs (distance mode/power)
-##########################################################################################
 select:
   - platform: template
     id: distance_mode_select
@@ -471,8 +366,7 @@ select:
       then:
         - lambda: |-
             ESP_LOGI("config", "Distance mode changed to: %s", x.c_str());
-            int m = 2;
-            if (x == "short") m = 0; else if (x == "medium") m = 1;
+            int m = 2; if (x == "short") m = 0; else if (x == "medium") m = 1;
             id(pref_distance_mode) = m;
         - script.execute: schedule_apply_runtime_prefs
 
@@ -489,9 +383,6 @@ select:
       then:
         - script.execute: apply_power_mode
 
-##########################################################################################
-# SCRIPTS — velocity & prefs
-##########################################################################################
 script:
   - id: calculate_velocity
     mode: single
@@ -504,10 +395,9 @@ script:
             const unsigned long dt = now - id(last_measurement_time);
             if (dt > 50) {
               const float dd = d - id(last_distance);
-              float raw_v = (dd / (float)dt) * 1000.0f;  // mm/s
+              float raw_v = (dd / (float)dt) * 1000.0f;
               if (fabsf(raw_v) > 5000.0f) raw_v = (raw_v > 0.0f ? 5000.0f : -5000.0f);
 
-              // Simple recursive filter
               const float meas_err = 50.0f;
               const float k = id(kalman_error_estimate) / (id(kalman_error_estimate) + meas_err);
               id(kalman_estimate) = id(kalman_estimate) + k * (raw_v - id(kalman_estimate));
@@ -533,7 +423,6 @@ script:
               }
             }
           }
-
           id(last_distance) = d;
           id(last_measurement_time) = now;
 
@@ -541,11 +430,11 @@ script:
     mode: single
     then:
       - lambda: |-
-          std::string mode = id(power_mode_select).state;
+          const std::string mode = id(power_mode_select).state;
           ESP_LOGI("config", "Applying power mode: %s", mode.c_str());
-          if (mode == "Performance")      id(tof_sensor).set_update_interval(50);
-          else if (mode == "Balanced")    id(tof_sensor).set_update_interval(100);
-          else                             id(tof_sensor).set_update_interval(250);
+          if (mode == "Performance")       id(tof_sensor).set_update_interval(50);
+          else if (mode == "Balanced")     id(tof_sensor).set_update_interval(100);
+          else                              id(tof_sensor).set_update_interval(250);
 
   - id: schedule_apply_runtime_prefs
     mode: restart
@@ -554,9 +443,6 @@ script:
       - delay: 2s
       - switch.turn_on: restart_switch
 
-##########################################################################################
-# CONTROL SURFACES — restart + test buttons
-##########################################################################################
 switch:
   - platform: restart
     id: restart_switch
@@ -570,64 +456,29 @@ switch:
     restore_mode: RESTORE_DEFAULT_ON
     icon: "mdi:power"
     entity_category: config
-    turn_on_action:  { - logger.log: "Sensor enable (placeholder — add driver hook if needed)" }
-    turn_off_action: { - logger.log: "Sensor disable (placeholder — add driver hook if needed)" }
+    turn_on_action:
+      - logger.log: "Sensor enable (placeholder — add driver hook if needed)"
+    turn_off_action:
+      - logger.log: "Sensor disable (placeholder — add driver hook if needed)"
 
-button:
-  - platform: template
-    id: calibrate_sensor
-    name: "Calibrate Sensor"
-    entity_category: config
-    icon: "mdi:tune"
-    on_press:
-      - logger.log: "Calibration: reset counters & sample"
-      - lambda: |-
-          id(measurement_count) = 0;
-          id(error_count) = 0;
-          id(last_distance) = 0.0f;
-          id(last_measurement_time) = 0;
-          id(kalman_estimate) = 0.0f;
-          id(kalman_error_estimate) = 1.0f;
-      - repeat: { count: 10, then: [ delay: 100ms ] }
-
-  - platform: template
-    name: "Reset Zone Thresholds"
-    entity_category: config
-    icon: "mdi:restore"
-    on_press:
-      - number.set: { id: zone1_threshold_number, value: 1000 }
-      - number.set: { id: zone2_threshold_number, value: 2000 }
-      - number.set: { id: zone3_threshold_number, value: 3000 }
-      - logger.log: "Zone thresholds reset to defaults"
-
-  - platform: template
-    name: "Clear Statistics"
-    entity_category: diagnostic
-    icon: "mdi:delete"
-    on_press:
-      - lambda: |-
-          id(measurement_count) = 0;
-          id(error_count) = 0;
-          ESP_LOGI("button", "Statistics cleared");
-
-##########################################################################################
-# TIME + PERIODIC TASKS
-##########################################################################################
 time:
   - platform: homeassistant
     id: homeassistant_time
-    on_time_sync: { then: [ logger.log: "Time synchronized with Home Assistant" ] }
+    on_time_sync:
+      then:
+        - logger.log: "Time synchronized with Home Assistant"
 
   - platform: sntp
     id: sntp_time
     servers: [pool.ntp.org, time.google.com]
-    timezone: !secret timezone   # e.g., America/New_York
+    timezone: !secret timezone  # e.g., America/New_York
 
 interval:
   - interval: 30s
     then:
       - if:
-          condition: { mqtt.connected: {} }
+          condition:
+            mqtt.connected:
           then:
             - mqtt.publish:
                 topic: esp32s3-tof/heartbeat
