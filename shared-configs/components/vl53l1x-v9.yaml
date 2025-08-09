@@ -10,8 +10,8 @@
 
 substitutions:
   # I²C pins (edit these if your board uses different ones)
-  sda_pin_i2c: GPIO8
-  scl_pin_i2c: GPIO9
+  # sda_pin_i2c: GPIO8
+  # scl_pin_i2c: GPIO9
 
   # Optional: XSHUT pin (not used here, reserved for future)
   xshut_gpio: GPIO9
