@@ -724,7 +724,7 @@ switch:
     name: "Auto Calibration"
     id: auto_calibration
     optimistic: true
-    restore_state: false
+    restore_mode: RESTORE_DEFAULT_OFF
     icon: "mdi:auto-fix"
     entity_category: config
 
@@ -732,7 +732,7 @@ switch:
     name: "Debug Mode"
     id: debug_mode
     optimistic: true
-    restore_state: false
+    restore_mode: RESTORE_DEFAULT_OFF
     icon: "mdi:bug"
     entity_category: diagnostic
     turn_on_action:
