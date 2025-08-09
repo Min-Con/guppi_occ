@@ -174,11 +174,11 @@ globals:
 ##########################################################################################
 vl53l1x:
   id: tof_sensor
-  i2c_id: bus_a
+  # i2c_id: bus_a
   address: 0x32           # Your working I²C address (0x29 is the default)
-  distance_mode: long     # comment out if schema error
-  timing_budget: 50ms     # comment out if schema error
-  update_interval: 100ms
+  # distance_mode: long     # comment out if schema error
+  # timing_budget: 50ms     # comment out if schema error
+  # update_interval: 100ms
 
 ##########################################################################################
 # VL53L1X SENSOR — Averyy custom component
@@ -190,9 +190,9 @@ sensor:
     # id: tof_sensor
     # i2c_id: bus_a
     # address: 0x32           # Your working I²C address (0x29 is the ST default)
-    # distance_mode: long     # <-- comment out if schema error
-    # timing_budget: 50ms     # <-- comment out if schema error
-    # update_interval: 100ms  # Polling cadence; Power Mode select can change this at runtime
+    distance_mode: long     # <-- comment out if schema error
+    timing_budget: 50ms     # <-- comment out if schema error
+    update_interval: 100ms  # Polling cadence; Power Mode select can change this at runtime
 
     # Primary distance value (mm). Diagnostics and derived values below depend on this.
     distance:
