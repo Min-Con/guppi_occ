@@ -1,59 +1,10 @@
 substitutions:
   xshut_gpio: GPIO9  # GPIO pin assignment for XSHUT on VL53L1X sensor
 
-esphome:
-  name: esp32s3-tof-sensor
-  friendly_name: "TOF Distance Sensor"
-  comment: "ESP32-S3 Super Mini with VL53L1X for object detection and ranging"
-  platformio_options:
-    board_build.flash_mode: dio
-    board_build.f_flash: 80000000L
-  on_boot:
-    - priority: 600
-      then:
-        - logger.log: "Initializing VL53L1X TOF Sensor..."
-        - delay: 500ms
-        - script.execute: check_sensor_status
-        - script.execute: load_saved_settings
-    - priority: -100
-      then:
-        - logger.log: "Boot sequence complete"
-        - script.execute: publish_device_info
-
-esp32:
-  board: esp32-s3-devkitc-1
-  variant: esp32s3
-  framework:
-    type: esp-idf
-    version: recommended
-    sdkconfig_options:
-      CONFIG_ESP32S3_DEFAULT_CPU_FREQ_240: "y"
-      CONFIG_ESP32S3_DATA_CACHE_64KB: "y"
-      CONFIG_ESP32S3_DATA_CACHE_LINE_64B: "y"
-      CONFIG_FREERTOS_HZ: "1000"
-      CONFIG_COMPILER_OPTIMIZATION_SIZE: "y"
-      CONFIG_COMPILER_OPTIMIZATION_ASSERTIONS_DISABLE: "y"
-      CONFIG_PM_ENABLE: "y"
-      CONFIG_PM_DFS_INIT_AUTO: "y"
-
 external_components:
   - source: github://Averyy/esphome-custom-components
     components: [vl53l1x]
     refresh: 1d
-
-wifi:
-  ssid: !secret wifi_ssid
-  password: !secret wifi_password
-  fast_connect: true
-  power_save_mode: none
-  domain: ".local"
-  reboot_timeout: 10min
-  output_power: 20.0
-  ap:
-    ssid: "TOF-Sensor-Fallback"
-    password: "tof12345678"
-
-captive_portal:
 
 mqtt:
   broker: !secret mqtt_broker
@@ -81,20 +32,7 @@ mqtt:
             std::string payload = x;
             ESP_LOGD("mqtt", "ROI command received: %s", payload.c_str());
 
-logger:
-  level: INFO
-  baud_rate: 115200
-  logs:
-    i2c: WARN
-    vl53l1x: DEBUG
-    mqtt: INFO
-    wifi: INFO
-    sensor: DEBUG
-
 api:
-  encryption:
-    key: !secret api_encryption_key
-  reboot_timeout: 5min
   services:
     - service: set_roi_config
       variables:
@@ -116,20 +54,6 @@ api:
         - lambda: |-
             ESP_LOGD("api", "Advanced calibration: offset=%d, crosstalk=%d",
                      offset, crosstalk);
-
-ota:
-  - platform: esphome
-    password: !secret ota_password
-    safe_mode: true
-    reboot_timeout: 10min
-    num_attempts: 5
-
-web_server:
-  port: 80
-  auth:
-    username: admin
-    password: !secret web_password
-  include_internal: true
 
 i2c:
   - id: bus_a
@@ -345,32 +269,6 @@ sensor:
         return (id(error_count) * 100.0f) / (float)id(measurement_count);
       }
       return 0;
-
-  - platform: wifi_signal
-    name: "WiFi Signal"
-    update_interval: 60s
-    entity_category: diagnostic
-    icon: "mdi:wifi"
-
-  - platform: internal_temperature
-    name: "CPU Temperature"
-    entity_category: diagnostic
-    icon: "mdi:thermometer"
-
-  - platform: uptime
-    name: "Uptime"
-    entity_category: diagnostic
-    icon: "mdi:clock-outline"
-
-  - platform: template
-    name: "Free Memory"
-    id: free_heap
-    unit_of_measurement: "kB"
-    entity_category: diagnostic
-    icon: "mdi:memory"
-    update_interval: 30s
-    lambda: |-
-      return heap_caps_get_free_size(MALLOC_CAP_INTERNAL) / 1024.0f
 
 number:
   - platform: template
@@ -615,25 +513,6 @@ text_sensor:
       else if (id(error_rate).state > 5.0f) return {"Degraded Performance"};
       else return {"Operational"};
 
-  - platform: version
-    name: "ESPHome Version"
-    entity_category: diagnostic
-    hide_timestamp: true
-
-  - platform: wifi_info
-    ip_address:
-      name: "IP Address"
-      entity_category: diagnostic
-      icon: "mdi:network"
-    ssid:
-      name: "Connected SSID"
-      entity_category: diagnostic
-      icon: "mdi:wifi"
-    mac_address:
-      name: "MAC Address"
-      entity_category: diagnostic
-      icon: "mdi:network"
-
 select:
   # Prefs-backed mode; we store int 0/1/2 and reboot to apply
   - platform: template
@@ -863,12 +742,6 @@ switch:
       - logger.log: "Debug mode disabled"
       - logger.set_level: { level: INFO }
 
-  - platform: restart
-    name: "Restart Device"
-    id: restart_switch
-    entity_category: diagnostic
-    icon: "mdi:restart"
-
 button:
   - platform: template
     name: "Calibrate Sensor"
@@ -905,25 +778,19 @@ button:
     on_press:
       - script.execute: run_diagnostics
 
-  - platform: factory_reset
-    name: "Factory Reset"
-    entity_category: diagnostic
-    icon: "mdi:factory"
-    disabled_by_default: true
-
   - platform: safe_mode
     name: "Safe Mode Boot"
     entity_category: diagnostic
     icon: "mdi:shield"
 
-light:
-  - platform: status_led
-    name: "Status LED"
-    id: status_led
-    pin:
-      number: ${light_gpio}
-      inverted: true
-    entity_category: config
+# light:
+#   - platform: status_led
+#     name: "Status LED"
+#     id: status_led
+#     pin:
+#       number: ${light_gpio}
+#       inverted: true
+#     entity_category: config
 
 time:
   - platform: homeassistant
