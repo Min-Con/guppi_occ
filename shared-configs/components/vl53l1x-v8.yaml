@@ -166,32 +166,32 @@ sensor:
           - script.execute: check_object_detection
           - lambda: |-
               id(measurement_count) += 1;
-    signal_rate:
-      name: "Signal Rate"
-      id: signal_rate
-      unit_of_measurement: "MCPS"
-      accuracy_decimals: 1
-      entity_category: diagnostic
-      icon: "mdi:signal"
-    ambient_rate:
-      name: "Ambient Rate"
-      id: ambient_rate
-      unit_of_measurement: "MCPS"
-      accuracy_decimals: 1
-      entity_category: diagnostic
-      icon: "mdi:brightness-6"
-    range_status:
-      name: "Range Status"
-      id: range_status
-      entity_category: diagnostic
-      icon: "mdi:check-circle"
-      on_value:
-        then:
-          - lambda: |-
-              if (x != 0) {
-                id(error_count) += 1;
-                ESP_LOGW("sensor", "Range error: %f", x);
-              }
+    # signal_rate:
+    #   name: "Signal Rate"
+    #   id: signal_rate
+    #   unit_of_measurement: "MCPS"
+    #   accuracy_decimals: 1
+    #   entity_category: diagnostic
+    #   icon: "mdi:signal"
+    # ambient_rate:
+    #   name: "Ambient Rate"
+    #   id: ambient_rate
+    #   unit_of_measurement: "MCPS"
+    #   accuracy_decimals: 1
+    #   entity_category: diagnostic
+    #   icon: "mdi:brightness-6"
+    # range_status:
+    #   name: "Range Status"
+    #   id: range_status
+    #   entity_category: diagnostic
+    #   icon: "mdi:check-circle"
+    #   on_value:
+    #     then:
+    #       - lambda: |-
+    #           if (x != 0) {
+    #             id(error_count) += 1;
+    #             ESP_LOGW("sensor", "Range error: %f", x);
+    #           }
 
   - platform: template
     id: velocity_sensor_raw
