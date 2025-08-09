@@ -187,7 +187,7 @@ vl53l1x:
 ##########################################################################################
 sensor:
   - platform: vl53l1x
-    id: tof_sensor
+    # id: tof_sensor
     i2c_id: bus_a
     address: 0x32           # Your working I²C address (0x29 is the ST default)
     # distance_mode: long     # <-- comment out if schema error
