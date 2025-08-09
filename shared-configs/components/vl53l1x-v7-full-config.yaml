@@ -1,0 +1,251 @@
+substitutions:
+  dev_name: tof_s3_supermini
+  friendly_name: "ToF S3 SuperMini"
+  # Defaults you can tweak at runtime in HA anyway:
+  zone1_default_mm: "1000"
+  zone2_default_mm: "2000"
+  zone3_default_mm: "3500"
+  max_valid_mm: "4000"   # VL53L1X practical max (datasheet) 
+
+esphome:
+  name: ${dev_name}
+  friendly_name: ${friendly_name}
+  min_version: 2025.6.0
+  on_boot:
+    priority: -100
+    then:
+      # Power up VL53L1X cleanly: hold XSHUT high, wait >1.2ms per datasheet
+      - output.turn_on: xshut_pin
+      - delay: 5ms
+  on_shutdown:
+    then:
+      - output.turn_off: xshut_pin
+
+esp32:
+  board: esp32-s3-devkitc-1
+  variant: esp32s3
+  framework:
+    type: esp-idf
+    version: recommended
+
+logger:
+  level: WARN
+
+api:
+ota:
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+# External component from your repo (VL53L1X)
+external_components:
+  - source: github://Averyy/esphome-custom-components
+    components: [vl53l1x]
+
+# XSHUT control (optional but recommended for deterministic bring-up)
+output:
+  - platform: gpio
+    id: xshut_pin
+    pin: GPIO7
+    inverted: false
+
+# I²C bus (Super Mini common pins: SDA=8, SCL=9 — verify your board)
+i2c:
+  - id: bus_a
+    sda: GPIO8
+    scl: GPIO9
+    scan: true
+    frequency: 400kHz
+    timeout: 50ms
+
+# VL53L1X driver config (per the repo's API)
+vl53l1x:
+  distance_mode: long          # short|medium|long; long maximizes range
+  update_interval: 100ms       # tune as needed
+
+# Globals to compute velocity
+globals:
+  - id: last_dist_mm
+    type: float
+    restore_value: no
+    initial_value: "0.0"
+  - id: last_ts_ms
+    type: uint32_t
+    restore_value: no
+    initial_value: "0"
+
+sensor:
+  # Raw distance in mm with sanity checks and median-ish smoothing
+  - platform: vl53l1x
+    i2c_id: bus_a
+    distance:
+      id: distance_mm
+      name: "${friendly_name} Distance"
+      unit_of_measurement: "mm"
+      accuracy_decimals: 0
+      entity_category: diagnostic
+      filters:
+        # drop obviously invalid readings
+        - lambda: |-
+            if (x <= 0 || x > ${max_valid_mm} || isnan(x)) return {};
+            return x;
+        # robust smoothing; send every 5th reading
+        - quantile:
+            window_size: 9
+            send_every: 5
+            send_first_at: 5
+            quantile: 0.5
+      on_value:
+        then:
+          - lambda: |-
+              const uint32_t now = millis();
+              if (id(last_ts_ms) == 0) {
+                id(last_ts_ms) = now;
+                id(last_dist_mm) = x;
+                return;
+              }
+              const float dt_s = (now - id(last_ts_ms)) / 1000.0f;
+              if (dt_s <= 0.0f) return;
+              const float dv = x - id(last_dist_mm);     // + if farther
+              float v = dv / dt_s;                       // mm/s (+ away)
+              id(last_ts_ms) = now;
+              id(last_dist_mm) = x;
+              // clamp tiny jitter
+              if (fabsf(v) < 5.0f) v = 0.0f;
+              id(velocity_mm_s).publish_state(v);
+              // Direction text
+              if (v > 0.0f) {
+                id(direction_txt).publish_state("moving away");
+              } else if (v < 0.0f) {
+                id(direction_txt).publish_state("approaching");
+              } else {
+                id(direction_txt).publish_state("stationary");
+              }
+
+    # Expose range status if supported by the component
+    # (This key is present in the repo’s description; if it compiles, you’ll see it.)
+    range_status:
+      name: "${friendly_name} Range Status"
+      id: range_status
+      entity_category: diagnostic
+      icon: mdi:crosshairs-question
+
+  # Computed velocity (publish-only; updated from distance on_value)
+  - platform: template
+    id: velocity_mm_s
+    name: "${friendly_name} Velocity"
+    unit_of_measurement: "mm/s"
+    accuracy_decimals: 0
+    update_interval: never
+    icon: mdi:speedometer
+
+  # Nice-to-have diagnostics
+  - platform: wifi_signal
+    name: "${friendly_name} WiFi RSSI"
+    update_interval: 60s
+    entity_category: diagnostic
+  - platform: uptime
+    name: "${friendly_name} Uptime"
+    update_interval: 60s
+    entity_category: diagnostic
+  - platform: internal_temperature
+    name: "${friendly_name} MCU Temperature"
+    update_interval: 60s
+    entity_category: diagnostic
+
+text_sensor:
+  - platform: template
+    id: direction_txt
+    name: "${friendly_name} Direction"
+    icon: mdi:arrow-decision
+
+# User-configurable zone thresholds (mm)
+number:
+  - platform: template
+    id: zone1_max
+    name: "${friendly_name} Zone 1 Max (mm)"
+    min_value: 50
+    max_value: 4000
+    step: 10
+    optimistic: true
+    restore_value: true
+    initial_value: ${zone1_default_mm}
+    mode: box
+    entity_category: config
+
+  - platform: template
+    id: zone2_max
+    name: "${friendly_name} Zone 2 Max (mm)"
+    min_value: 60
+    max_value: 4000
+    step: 10
+    optimistic: true
+    restore_value: true
+    initial_value: ${zone2_default_mm}
+    mode: box
+    entity_category: config
+
+  - platform: template
+    id: zone3_max
+    name: "${friendly_name} Zone 3 Max (mm)"
+    min_value: 70
+    max_value: 4000
+    step: 10
+    optimistic: true
+    restore_value: true
+    initial_value: ${zone3_default_mm}
+    mode: box
+    entity_category: config
+
+# Object detected + zoned binary sensors
+binary_sensor:
+  # Any valid reading within Zone 3 max
+  - platform: template
+    id: object_detected
+    name: "${friendly_name} Object Detected"
+    device_class: occupancy
+    lambda: |-
+      const float d = id(distance_mm).state;
+      if (isnan(d) || d <= 0) return false;
+      return d <= id(zone3_max).state;
+
+  # Zones are mutually exclusive bands:
+  # Z1:      0 < d ≤ Z1_MAX
+  # Z2: Z1_MAX < d ≤ Z2_MAX
+  # Z3: Z2_MAX < d ≤ Z3_MAX
+  - platform: template
+    id: zone1_active
+    name: "${friendly_name} Zone 1"
+    device_class: occupancy
+    lambda: |-
+      const float d = id(distance_mm).state;
+      if (isnan(d) || d <= 0) return false;
+      return d <= id(zone1_max).state;
+
+  - platform: template
+    id: zone2_active
+    name: "${friendly_name} Zone 2"
+    device_class: occupancy
+    lambda: |-
+      const float d = id(distance_mm).state;
+      if (isnan(d) || d <= 0) return false;
+      const float z1 = id(zone1_max).state;
+      return (d > z1) && (d <= id(zone2_max).state);
+
+  - platform: template
+    id: zone3_active
+    name: "${friendly_name} Zone 3"
+    device_class: occupancy
+    lambda: |-
+      const float d = id(distance_mm).state;
+      if (isnan(d) || d <= 0) return false;
+      const float z2 = id(zone2_max).state;
+      return (d > z2) && (d <= id(zone3_max).state)
+
+# Optional LED to visualize detection (uncomment and wire to a real pin/LED)
+/*
+light:
+  - platform: status_led
+    name: "${friendly_name} Status LED"
+    pin: GPIO4
+*/
