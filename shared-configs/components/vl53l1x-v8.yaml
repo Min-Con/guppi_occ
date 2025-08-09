@@ -712,7 +712,7 @@ switch:
     name: "Sensor Enable"
     id: sensor_enable
     optimistic: true
-    restore_state: true
+    restore_mode: RESTORE_DEFAULT_ON
     icon: "mdi:power"
     entity_category: config
     turn_on_action:
