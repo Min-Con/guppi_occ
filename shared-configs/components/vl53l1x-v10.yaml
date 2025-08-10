@@ -1,0 +1,299 @@
+substitutions:
+  # i2c_sda: GPIO8
+  # i2c_scl: GPIO9
+  vl53_addr: "0x29"   # change to "0x32" if your breakout is preconfigured that way
+
+logger:
+  level: INFO
+  logs:
+    i2c: WARN
+    sensor: INFO
+
+# Pull the shim from your repo (placeholder URL below)
+external_components:
+  - source: github://YOUR_GITHUB_USER/YOUR_REPO_NAME
+    components: [sparkfun_vl53l1x]
+    refresh: 1d
+
+
+i2c:
+  - id: bus_a
+    sda: ${i2c_sda}
+    scl: ${i2c_scl}
+    frequency: 400kHz
+    scan: true
+
+# Tiny global state for velocity + zones + runtime prefs
+globals:
+  - { id: last_d_mm, type: float, restore_value: no,  initial_value: '0.0' }
+  - { id: last_ms,   type: unsigned long, restore_value: no, initial_value: '0' }
+  - { id: v_est,     type: float, restore_value: no,  initial_value: '0.0' }
+  - { id: v_err,     type: float, restore_value: no,  initial_value: '1.0' }
+
+  - { id: z1_mm, type: float, restore_value: yes, initial_value: '1000.0' }
+  - { id: z2_mm, type: float, restore_value: yes, initial_value: '2000.0' }
+  - { id: z3_mm, type: float, restore_value: yes, initial_value: '3000.0' }
+
+  # Persisted prefs → applied at runtime by the shim
+  - { id: pref_distance_mode,    type: int, restore_value: yes, initial_value: '2' }   # 0/1/2
+  - { id: pref_timing_budget_ms, type: int, restore_value: yes, initial_value: '50' }
+
+##########################################################################################
+# VL53L1X distance (mm) via the shim
+##########################################################################################
+sensor:
+  - platform: sparkfun_vl53l1x
+    i2c_id: bus_a
+    address: ${vl53_addr}
+    update_interval: 100ms
+    distance:
+      id: distance_mm
+      name: "TOF Distance"
+      unit_of_measurement: "mm"
+      accuracy_decimals: 0
+      device_class: distance
+      state_class: measurement
+      filters:
+        - median: { window_size: 5, send_every: 1 }
+        - delta: 5.0
+        - clamp: { min_value: 50, max_value: 4000, ignore_out_of_range: false }
+      on_value:
+        then:
+          # 1) Velocity and acceleration from distance time series
+          - lambda: |-
+              const float d = id(distance_mm).state;
+              const unsigned long now = millis();
+              if (!isnan(d) && id(last_ms) > 0) {
+                const unsigned long dt = now - id(last_ms);
+                if (dt > 40) {
+                  const float dd = d - id(last_d_mm);
+                  float v_raw = (dd / (float)dt) * 1000.0f;    // mm/s
+                  if (fabsf(v_raw) > 5000.0f) v_raw = (v_raw > 0.0f ? 5000.0f : -5000.0f);
+                  const float meas_err = 60.0f;
+                  const float k = id(v_err) / (id(v_err) + meas_err);
+                  id(v_est) = id(v_est) + k * (v_raw - id(v_est));
+                  id(v_err) = (1.0f - k) * id(v_err);
+                  id(velocity_mmps_raw).publish_state(v_raw);
+                  id(velocity_mmps).publish_state(id(v_est));
+                  static float last_v = 0.0f;
+                  static unsigned long last_v_ts = 0;
+                  if (last_v_ts > 0) {
+                    const unsigned long dvt = now - last_v_ts;
+                    if (dvt > 100) {
+                      const float a = ((id(v_est) - last_v) / (float)dvt) * 1000.0f;
+                      id(accel_mmps2).publish_state(a);
+                      last_v = id(v_est);
+                      last_v_ts = now;
+                    }
+                  } else {
+                    last_v = id(v_est);
+                    last_v_ts = now;
+                    id(accel_mmps2).publish_state(0.0f);
+                  }
+                }
+              }
+              id(last_d_mm) = d;
+              id(last_ms)   = now;
+
+          # 2) Presence (within z3), zone membership, motion flags, UX text
+          - lambda: |-
+              const float d = id(distance_mm).state;
+              const bool valid = (!isnan(d) && d > 50.0f);
+              const float z1 = id(z1_mm), z2 = id(z2_mm), z3 = id(z3_mm);
+              const bool within = valid && (d <= z3);
+              const bool in1 = valid && (d <= z1);
+              const bool in2 = valid && (d > z1 && d <= z2);
+              const bool in3 = valid && (d > z2 && d <= z3);
+              id(object_detected).publish_state(within);
+              id(zone1).publish_state(in1);
+              id(zone2).publish_state(in2);
+              id(zone3).publish_state(in3);
+              if (id(velocity_mmps).has_state()) {
+                const float v = id(velocity_mmps).state;
+                id(approaching).publish_state(v < -50.0f);
+                id(receding).publish_state(v >  50.0f);
+                id(motion).publish_state(fabsf(v) > 50.0f);
+              }
+              if (in1)        id(active_zone).publish_state("Zone 1 (Close)");
+              else if (in2)   id(active_zone).publish_state("Zone 2 (Medium)");
+              else if (in3)   id(active_zone).publish_state("Zone 3 (Far)");
+              else if (within) id(active_zone).publish_state("Beyond Zone 3");
+              else            id(active_zone).publish_state("No Object");
+
+  # Derived values (pushed; no polling)
+  - platform: template
+    id: velocity_mmps_raw
+    name: "Velocity Raw"
+    internal: true
+    unit_of_measurement: "mm/s"
+    accuracy_decimals: 1
+    update_interval: never
+
+  - platform: template
+    id: velocity_mmps
+    name: "Velocity"
+    unit_of_measurement: "mm/s"
+    accuracy_decimals: 1
+    icon: mdi:speedometer
+    state_class: measurement
+    update_interval: never
+    filters:
+      - sliding_window_moving_average: { window_size: 5, send_every: 1 }
+      - lambda: |-
+          if (fabsf(x) < 10.0f) return 0.0f;
+          return x;
+
+  - platform: template
+    id: accel_mmps2
+    name: "Acceleration"
+    unit_of_measurement: "mm/s²"
+    accuracy_decimals: 0
+    icon: mdi:axis-arrow
+    update_interval: never
+
+##########################################################################################
+# Presence & zones & direction (binary sensors)
+##########################################################################################
+binary_sensor:
+  - { platform: template, id: object_detected, name: "Object Detected", device_class: occupancy, icon: mdi:target }
+  - { platform: template, id: zone1,           name: "Zone 1 Detected", device_class: occupancy, icon: mdi:numeric-1-circle }
+  - { platform: template, id: zone2,           name: "Zone 2 Detected", device_class: occupancy, icon: mdi:numeric-2-circle }
+  - { platform: template, id: zone3,           name: "Zone 3 Detected", device_class: occupancy, icon: mdi:numeric-3-circle }
+  - { platform: template, id: motion,          name: "Motion Detected", device_class: motion,    icon: mdi:motion-sensor }
+  - { platform: template, id: approaching,     name: "Approaching",     device_class: moving,    icon: mdi:arrow-down-bold }
+  - { platform: template, id: receding,        name: "Receding",        device_class: moving,    icon: mdi:arrow-up-bold }
+
+##########################################################################################
+# UX text + user config (zones, timing, distance mode) + runtime apply via shim
+##########################################################################################
+text_sensor:
+  - { platform: template, id: active_zone, name: "Active Zone", icon: mdi:map-marker-radius }
+  - platform: template
+    id: distance_mode_text
+    name: "Distance Mode"
+    icon: mdi:ruler
+    entity_category: diagnostic
+    lambda: |-
+      switch (id(pref_distance_mode)) {
+        case 0: return {"short"};
+        case 1: return {"medium"};
+        default: return {"long"};
+      }
+
+number:
+  - platform: template
+    id: zone1_mm_number
+    name: "Zone 1 Threshold (mm)"
+    min_value: 50
+    max_value: 4000
+    step: 50
+    unit_of_measurement: "mm"
+    initial_value: 1000
+    restore_value: true
+    entity_category: config
+    on_value:
+      then:
+        - globals.set: { id: z1_mm, value: !lambda 'return x;' }
+        - lambda: |-
+            if (x >= id(z2_mm)) {
+              const float nz2 = x + 50.0f;
+              id(z2_mm) = nz2;
+              id(zone2_mm_number).publish_state(nz2);
+            }
+
+  - platform: template
+    id: zone2_mm_number
+    name: "Zone 2 Threshold (mm)"
+    min_value: 50
+    max_value: 4000
+    step: 50
+    unit_of_measurement: "mm"
+    initial_value: 2000
+    restore_value: true
+    entity_category: config
+    on_value:
+      then:
+        - globals.set: { id: z2_mm, value: !lambda 'return x;' }
+        - lambda: |-
+            if (x <= id(z1_mm)) {
+              const float nz1 = x - 50.0f;
+              id(z1_mm) = nz1;
+              id(zone1_mm_number).publish_state(nz1);
+            }
+            if (x >= id(z3_mm)) {
+              const float nz3 = x + 50.0f;
+              id(z3_mm) = nz3;
+              id(zone3_mm_number).publish_state(nz3);
+            }
+
+  - platform: template
+    id: zone3_mm_number
+    name: "Zone 3 Threshold (mm)"
+    min_value: 50
+    max_value: 4000
+    step: 50
+    unit_of_measurement: "mm"
+    initial_value: 3000
+    restore_value: true
+    entity_category: config
+    on_value:
+      then:
+        - globals.set: { id: z3_mm, value: !lambda 'return x;' }
+        - lambda: |-
+            if (x <= id(z2_mm)) {
+              const float nz2 = x - 50.0f;
+              id(z2_mm) = nz2;
+              id(zone2_mm_number).publish_state(nz2);
+            }
+
+  - platform: template
+    id: timing_budget_ms
+    name: "Timing Budget (ms)"
+    min_value: 20
+    max_value: 500
+    step: 10
+    initial_value: 50
+    restore_value: true
+    entity_category: config
+    icon: mdi:timer-settings
+    on_value:
+      then:
+        - globals.set: { id: pref_timing_budget_ms, value: !lambda 'return (int)x;' }
+        - script.execute: apply_runtime_prefs
+
+select:
+  - platform: template
+    id: distance_mode_select
+    name: "Distance Mode"
+    options: ["short", "medium", "long"]
+    initial_option: "long"
+    optimistic: true
+    restore_value: true
+    entity_category: config
+    icon: mdi:tape-measure
+    on_value:
+      then:
+        - lambda: |-
+            int m = 2; if (x == "short") m = 0; else if (x == "medium") m = 1;
+            id(pref_distance_mode) = m;
+        - script.execute: apply_runtime_prefs
+
+script:
+  - id: apply_runtime_prefs
+    mode: single
+    then:
+      - lambda: |-
+          // call the shim’s runtime reconfig
+          // (platform instance is auto-registered; grab by ID through App.get_component? Not needed:
+          //  ESPHome binds methods directly on the C++ object behind the sensor entry)
+          ESP_LOGI("cfg", "Applying VL53L1X prefs: mode=%d, tBudget=%dms",
+                   id(pref_distance_mode), id(pref_timing_budget_ms));
+          // Find the component instance hosting distance_mm
+          // (ESPHome links the C++ object; we can get it from the sensor backend)
+          auto *comp = reinterpret_cast<esphome::sparkfun_vl53l1x::SparkfunVL53L1X*>(
+              id(distance_mm).get_parent());
+          if (comp != nullptr) {
+            comp->apply_prefs(id(pref_distance_mode), id(pref_timing_budget_ms));
+          } else {
+            ESP_LOGW("cfg", "VL53L1X component not found; prefs not applied");
+          }
