@@ -21,6 +21,10 @@ esphome:
     build_flags: -DBOARD_HAS_PSRAM
     board_build.flash_mode: qio
     board_build.f_flash: 80000000L
+  on_boot:
+    priority: 600
+    then:
+      - delay: 500ms  # Boot delay for sensor stabilization
 
 esp32:
   board: seeed_xiao_esp32s3
@@ -28,7 +32,7 @@ esp32:
   flash_size: 8MB
   framework:
     type: esp-idf
-    version: latest
+    version: recommended
 #    platform_version: "6.8.1"
     sdkconfig_options:
       # Performance optimizations
