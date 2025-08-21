@@ -67,7 +67,7 @@ esp32:
     # type: arduino  # Can also use esp-idf
     # Uncomment below lines if using esp-idf instead of arduino
     type: esp-idf
-    version: latest
+    version: recommended
     sdkconfig_options:
       # Performance optimizations
       CONFIG_COMPILER_OPTIMIZATION_PERF: y

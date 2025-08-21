@@ -29,7 +29,7 @@ esp32:
   flash_size: 8MB
   framework:
     type: esp-idf
-    version: latest
+    version: recommended
 #    platform_version: "6.8.1"
     sdkconfig_options:
       # Performance optimizations

@@ -57,7 +57,7 @@ esp32:
   flash_size: 4MB
   framework:
     type: esp-idf
-    version: latest
+    version: recommended
     sdkconfig_options:
       # Performance optimizations
       CONFIG_COMPILER_OPTIMIZATION_PERF: y

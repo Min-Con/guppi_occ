@@ -152,7 +152,7 @@ esp32:
   flash_size: 4MB  # Standard 4MB flash (verify your specific board)
   framework:
     type: esp-idf
-    version: latest  # ESP32-C6 requires latest ESP-IDF for full feature support
+    version: recommended  # ESP32-C6 requires latest ESP-IDF for full feature support
     sdkconfig_options:
       # Performance optimizations
       CONFIG_COMPILER_OPTIMIZATION_PERF: y      # Performance optimization

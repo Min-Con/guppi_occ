@@ -160,7 +160,7 @@ esp32:
   flash_size: 4MB      # WROOM-32 standard (some variants have 8MB or 16MB)
   framework:
     type: esp-idf
-    version: latest    # Use 'recommended' for stability, 'latest' for features
+    version: recommended    # Use 'recommended' for stability, 'latest' for features
     sdkconfig_options:
       # Flash configuration
       CONFIG_ESPTOOLPY_FLASHSIZE_4MB: y        # Match flash_size above
