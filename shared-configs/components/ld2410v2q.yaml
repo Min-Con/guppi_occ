@@ -1,0 +1,344 @@
+substitutions:
+  sensor_type: LD2410C
+
+# LD2410 Configuration
+ld2410:
+  # throttle: 200ms # Increase throttle to reduce CPU load
+  id: ld2410_radar
+  uart_id: uart_bus
+
+# User configurable radar configuration parameters
+number:
+  - platform: ld2410
+    timeout:
+      id: timeout
+      name: Timeout
+    light_threshold:
+      name: Light Threshold
+    max_move_distance_gate:
+      id: max_move_distance_gate
+      name: Max Move Distance (m)
+    max_still_distance_gate:
+      id: max_still_distance_gate
+      name: Max Still Distance (m)
+
+    g0:
+      move_threshold:
+        name: g0 move threshold
+      still_threshold:
+        name: g0 still threshold
+    g1:
+      move_threshold:
+        name: g1 move threshold
+      still_threshold:
+        name: g1 still threshold
+    g2:
+      move_threshold:
+        name: g2 move threshold
+      still_threshold:
+        name: g2 still threshold
+    g3:
+      move_threshold:
+        name: g3 move threshold
+      still_threshold:
+        name: g3 still threshold
+    g4:
+      move_threshold:
+        name: g4 move threshold
+      still_threshold:
+        name: g4 still threshold
+    g5:
+      move_threshold:
+        name: g5 move threshold
+      still_threshold:
+        name: g5 still threshold
+    g6:
+      move_threshold:
+        name: g6 move threshold
+      still_threshold:
+        name: g6 still threshold
+    g7:
+      move_threshold:
+        name: g7 move threshold
+      still_threshold:
+        name: g7 still threshold
+    g8:
+      move_threshold:
+        name: g8 move threshold
+      still_threshold:
+        name: g8 still threshold
+
+  - platform: template
+    name: "Zone 1 Start"
+    id: z1_start
+    device_class: distance
+    min_value: 0
+    max_value: 800
+    step: 1
+    mode: box
+    update_interval: never
+    optimistic: true
+    restore_value: true
+    initial_value: 0
+    # icon: "mdi:arrow-collapse-right"
+    entity_category: CONFIG
+    unit_of_measurement: "cm"
+
+  - platform: template
+    name: "End Zone 1"
+    id: z1_end
+    device_class: distance
+    min_value: 0
+    max_value: 800
+    step: 1
+    mode: box
+    update_interval: never
+    optimistic: true
+    restore_value: true
+    initial_value: 50
+    # icon: "mdi:arrow-collapse-right"
+    entity_category: CONFIG
+    unit_of_measurement: "cm"
+
+  - platform: template
+    name: "End Zone 2"
+    id: z2_end
+    device_class: distance
+    min_value: 0
+    max_value: 800
+    step: 1
+    mode: box
+    update_interval: never
+    optimistic: true
+    restore_value: true
+    initial_value: 150
+    # icon: "mdi:arrow-collapse-right"
+    entity_category: CONFIG
+    unit_of_measurement: "cm"
+
+  - platform: template
+    name: "End Zone 3"
+    id: z3_end
+    device_class: distance
+    min_value: 0
+    max_value: 800
+    step: 1
+    mode: box
+    update_interval: never
+    optimistic: true
+    restore_value: true
+    initial_value: 250
+    # icon: "mdi:arrow-collapse-right"
+    entity_category: CONFIG
+    unit_of_measurement: "cm"
+
+sensor:
+  # LD2410 radar sensor readings
+  - platform: ld2410
+    light:
+      name: Light
+#      id: light
+    moving_distance:
+      name: "Moving Distance"
+      id: moving_distance
+#      icon: mdi:radar
+      unit_of_measurement: "cm"
+    still_distance:
+      name: "Still Distance"
+      id: still_distance
+#      icon: mdi:radar
+      unit_of_measurement: "cm"
+    moving_energy:
+      name: "Move Energy"
+      id: moving_energy
+#      icon: mdi:radar
+      unit_of_measurement: "mJ"
+      internal: true
+    still_energy:
+      name: "Still Energy"
+      id: still_energy
+#      icon: mdi:radar
+      unit_of_measurement: "mJ"
+      internal: true
+    detection_distance:
+      name: "Detection Distance"
+      id: detection_distance
+#      icon: mdi:radar
+      unit_of_measurement: "cm"
+    g0:
+      move_energy:
+        name: g0 move energy
+      still_energy:
+        name: g0 still energy
+      internal: true
+    g1:
+      move_energy:
+        name: g1 move energy
+      still_energy:
+        name: g1 still energy
+      internal: true
+    g2:
+      move_energy:
+        name: g2 move energy
+      still_energy:
+        name: g2 still energy
+      internal: true
+    g3:
+      move_energy:
+        name: g3 move energy
+      still_energy:
+        name: g3 still energy
+      internal: true
+    g4:
+      move_energy:
+        name: g4 move energy
+      still_energy:
+        name: g4 still energy
+      internal: true
+    g5:
+      move_energy:
+        name: g5 move energy
+      still_energy:
+        name: g5 still energy
+      internal: true
+    g6:
+      move_energy:
+        name: g6 move energy
+      still_energy:
+        name: g6 still energy
+      internal: true
+    g7:
+      move_energy:
+        name: g7 move energy
+      still_energy:
+        name: g7 still energy
+      internal: true
+    g8:
+      move_energy:
+        name: g8 move energy
+      still_energy:
+        name: g8 still energy
+      internal: true
+
+binary_sensor:
+  # LD2410 radar binary sensors
+  - platform: ld2410
+    has_target:
+      name: Target Detected
+      id: has_target
+      filters:
+        - delayed_on: 300ms
+        - delayed_off: 5s  # Prevents rapid on/off toggles
+    has_moving_target:
+      name: Moving Target Detected
+      id: has_moving_target
+      filters:
+        - delayed_on: 200ms
+        - delayed_off: 2s  # Moving targets can change state more frequently
+    has_still_target:
+      name: Still Target Detected
+      id: has_still_target
+      filters:
+        - delayed_on: 500ms  # Longer delay for still targets to reduce false positives
+        - delayed_off: 10s   # Longer persistence for still targets
+    out_pin_presence_status:
+      name: IO Presence
+      id: out_pin_presence_status
+    # motion_gpio_state:
+    #   name: ${sensor_type} GPIO Motion State
+    #   id: motion_gpio_state
+
+  # Radar zone presence based on detection distance and configured zone boundaries
+  - platform: template
+    name: "Zone 1 Presence"
+    id: zone_1_presence
+    device_class: presence
+    # icon: mdi:motion-sensor
+    lambda: |-
+      if ((id(has_target).state) && ((id(detection_distance).state < id(z1_end).state) && (id(detection_distance).state > id(z1_start).state))) {
+        return true;
+      } else {
+        return false;
+      }
+  - platform: template
+    name: "Zone 2 Presence"
+    id: zone_2_presence
+    device_class: presence
+    # icon: mdi:motion-sensor
+    lambda: |-
+      if ((id(has_target).state) && ((id(z1_end).state < id(detection_distance).state) && (id(detection_distance).state < id(z2_end).state))) {
+        return true;
+      } else {
+        return false;
+      }
+  - platform: template
+    name: "Zone 3 Presence"
+    id: zone_3_presence
+    device_class: presence
+    # icon: mdi:motion-sensor
+    lambda: |-
+      if ((id(has_target).state) && ((id(z2_end).state < id(detection_distance).state) && (id(detection_distance).state < id(z3_end).state))) {
+        return true;
+      } else {
+        return false;
+      }
+
+  - platform: gpio
+    pin: 
+      number: "${motion_gpio}"  # OUT pin of LD2410 connected here
+      mode: INPUT_PULLUP
+    name: ${sensor_type} GPIO Motion Detection
+    #name: "Motion Detected"
+    id: ${sensor_type}_motion_gpio
+    #id: motion_detected
+    device_class: motion
+    filters:
+      - delayed_on: 50ms  # Debounce filter to avoid false triggers.
+      - delayed_off: 50ms
+
+  - platform: template
+    name: "Presence Detected"
+    id: has_presence
+    # icon: mdi:motion-sensor
+    device_class: presence
+    lambda: |-
+      return id(has_target).state ||
+             id(has_moving_target).state ||
+             id(has_still_target).state ||
+             id(${sensor_type}_motion_gpio).state;
+
+text_sensor:
+  - platform: ld2410
+    version:
+      name: "Radar Firmware Version"
+    mac_address:
+      name: "Radar MAC Address"
+
+button:
+  - platform: ld2410
+    factory_reset:
+      name: "Factory Reset Radar"
+    restart:
+      name: "Restart Radar"
+    query_params:
+      name: query params
+
+switch:
+  - platform: ld2410
+    bluetooth:
+      name: "Radar Bluetooth"
+      id: bluetooth
+    engineering_mode:
+      name: "Radar Engineering Mode"
+
+select:
+  - platform: ld2410
+    distance_resolution:
+      name: "Gate Size"
+#      disabled_by_default: true
+    baud_rate:
+      name: baud rate
+    light_function:
+      name: Light Function
+    out_pin_level:
+      name: Out Pin Level
