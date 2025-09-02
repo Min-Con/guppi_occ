@@ -147,7 +147,7 @@ sensor:
             window_size: 5
             send_every: 1
         - delta: 5        # only publish if change >= 5 cm
-        - throttle: 1     # and no more than once per second
+        - throttle: 1s    # and no more than once per second
         - heartbeat: 60   # send a heartbeat every 60 seconds
     still_distance:
       name: "Still Distance"
@@ -158,7 +158,7 @@ sensor:
             window_size: 5
             send_every: 1
         - delta: 5        # only publish if change >= 5 cm
-        - throttle: 1     # and no more than once per second
+        - throttle: 1s    # and no more than once per second
         - heartbeat: 60   # send a heartbeat every 60 seconds
     moving_energy:
       name: "Move Energy"
