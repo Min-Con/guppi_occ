@@ -145,10 +145,10 @@ sensor:
       filters:
         - median:
             window_size: 5
-            send_every: 1s
+            send_every: 1
         - delta: 5        # only publish if change >= 5 cm
-        - throttle: 1s    # and no more than once per second
-        - heartbeat: 60s   # send a heartbeat every 60 seconds
+        - throttle: 1     # and no more than once per second
+        - heartbeat: 60   # send a heartbeat every 60 seconds
     still_distance:
       name: "Still Distance"
       id: still_distance
@@ -156,10 +156,10 @@ sensor:
       filters:
         - median:
             window_size: 5
-            send_every: 1s
+            send_every: 1
         - delta: 5        # only publish if change >= 5 cm
-        - throttle: 1s    # and no more than once per second
-        - heartbeat: 60s   # send a heartbeat every 60 seconds
+        - throttle: 1     # and no more than once per second
+        - heartbeat: 60   # send a heartbeat every 60 seconds
     moving_energy:
       name: "Move Energy"
       id: moving_energy
