@@ -56,27 +56,27 @@ esp32:
       CONFIG_COMPILER_OPTIMIZATION_PERF: y
       CONFIG_COMPILER_OPTIMIZATION_SIZE: y
       CONFIG_ESPTOOLPY_FLASHSIZE_4MB: y
-      # BLE support - ESP32-C6 supports BLE 5.3+
-      CONFIG_BT_ENABLED: y
-      CONFIG_BT_BLE_ENABLED: y
-      CONFIG_BT_BLE_42_FEATURES_SUPPORTED: y
-      CONFIG_BT_BLE_50_FEATURES_SUPPORTED: y
+      # # BLE support - ESP32-C6 supports BLE 5.3+
+      # CONFIG_BT_ENABLED: y
+      # CONFIG_BT_BLE_ENABLED: y
+      # CONFIG_BT_BLE_42_FEATURES_SUPPORTED: y
+      # CONFIG_BT_BLE_50_FEATURES_SUPPORTED: y
       # Extend the watchdog timeout
       CONFIG_ESP_TASK_WDT_TIMEOUT_S: "10"
       # USB Serial/JTAG - XIAO ESP32-C6 has native USB
       CONFIG_ESP_CONSOLE_USB_SERIAL_JTAG: y
       CONFIG_ESP_CONSOLE_USB_SERIAL_JTAG_ENABLED: y
-      # WiFi 6 compatibility options
-      CONFIG_ESP_WIFI_ENABLE_WPA3_SAE: y
-      CONFIG_ESP_WIFI_SOFTAP_SAE_SUPPORT: y
-      CONFIG_ESP_WIFI_ENABLE_WPA3_OWE_STA: y
-      # Thread/Zigbee support (ESP32-C6 specific)
-      CONFIG_ZB_ENABLED: n  # Disable by default, enable if using Zigbee
-      CONFIG_OPENTHREAD_ENABLED: n  # Disable by default, enable if using Thread
-      # WiFi optimization
-      CONFIG_ESP_WIFI_SW_COEXIST_ENABLE: y
-      # Power management optimization
-      CONFIG_PM_ENABLE: n
+      # # WiFi 6 compatibility options
+      # CONFIG_ESP_WIFI_ENABLE_WPA3_SAE: y
+      # CONFIG_ESP_WIFI_SOFTAP_SAE_SUPPORT: y
+      # CONFIG_ESP_WIFI_ENABLE_WPA3_OWE_STA: y
+      # # Thread/Zigbee support (ESP32-C6 specific)
+      # CONFIG_ZB_ENABLED: n  # Disable by default, enable if using Zigbee
+      CONFIG_OPENTHREAD_ENABLED: y  # Disable by default, enable if using Thread
+      # # WiFi optimization
+      # CONFIG_ESP_WIFI_SW_COEXIST_ENABLE: y
+      # # Power management optimization
+      # CONFIG_PM_ENABLE: n
       # ESP32-C6 specific optimizations
       CONFIG_ESP_PHY_ENABLE_USB: y
       CONFIG_ESP_SYSTEM_PANIC_PRINT_REBOOT: y
