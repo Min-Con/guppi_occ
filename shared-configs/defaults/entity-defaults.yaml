@@ -32,13 +32,6 @@ sensor:
     entity_category: "diagnostic"
     update_interval: 30s
 
-  # WiFi signal strength sensor
-  - platform: wifi_signal
-    name: RSSI
-    id: wifi_signal_db
-    update_interval: 60s
-    entity_category: "diagnostic"
-
   # Internal ESP temperature sensor
   - platform: internal_temperature
     name: "ESP Temperature"

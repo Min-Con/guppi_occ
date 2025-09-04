@@ -30,3 +30,11 @@ wifi:
     password: !secret fallback_ap_password
 
 captive_portal:
+
+sensor:
+  # WiFi signal strength sensor
+  - platform: wifi_signal
+    name: RSSI
+    id: wifi_signal_db
+    update_interval: 60s
+    entity_category: "diagnostic"
