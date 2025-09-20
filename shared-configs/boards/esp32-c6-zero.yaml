@@ -31,11 +31,11 @@ substitutions:
   # I2C pins - ESP32-C6 Zero I2C pins
   # Any GPIO can be used for I2C on ESP32-C6
   # Note: ESP32-C6 doesn't have GPIO21/22, using valid pins instead
-  sda_pin_i2c: GPIO21  # I2C SDA pin (GPIO21 is available on ESP32-C6)
-  scl_pin_i2c: GPIO22  # I2C SCL pin (GPIO22 is available on ESP32-C6)
+  # sda_pin_i2c: GPIO21  # I2C SDA pin (GPIO21 is available on ESP32-C6)
+  # scl_pin_i2c: GPIO22  # I2C SCL pin (GPIO22 is available on ESP32-C6)
   # Alternative I2C pins that are definitely available:
-  # sda_pin_i2c: GPIO0   # Alternative I2C SDA
-  # scl_pin_i2c: GPIO1   # Alternative I2C SCL
+  sda_pin_i2c: GPIO0   # Alternative I2C SDA
+  scl_pin_i2c: GPIO1   # Alternative I2C SCL
   
   # CONFIRMED AVAILABLE GPIO pins on ESP32-C6 Zero:
   # Total GPIOs: GPIO0-GPIO23, GPIO27-GPIO30 (28 pins total)
