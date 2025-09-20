@@ -3,17 +3,38 @@
 ####################################
 
 substitutions:
-# Specify below pin numbers for UART, GPIO, and I2C connections
-# Default values are set for the ESP32-S3 Zero
-# Add superseding substitutions in your specific device configuration if these don't match the actual pins used.
+  # UART pins - ESP32-S3 Zero default UART pins
+  # These use the on-board USB serial connection and can be changed if needed
+  tx_pin_uart: GPIO43  # Hardware UART TX
+  rx_pin_uart: GPIO44  # Hardware UART RX
 
-  tx_pin_uart: GPIO43
-  rx_pin_uart: GPIO44
-  light_gpio: GPIO21
-  mic_adc: GPIO36
+  # LED/Light GPIO - ESP32-S3 Zero provides a simple blue status LED
+  light_gpio: GPIO21   # Onboard LED
+
+  # ADC pin for microphone or other analog input
+  mic_adc: GPIO36      # ADC1 channel
+
+  # Motion sensor GPIO - free GPIO pin
   motion_gpio: GPIO8
-  sda_pin_i2c: GPIO4
-  scl_pin_i2c: GPIO5
+
+  # I2C pins - default I2C bus pins for this board
+  sda_pin_i2c: GPIO4   # SDA
+  scl_pin_i2c: GPIO5   # SCL
+
+  # Additional safe GPIO pins available on ESP32-S3 Zero:
+  # GPIO1-GPIO21 (check your specific board layout)
+  # GPIO33-GPIO48 (when not used by flash/PSRAM)
+
+  # ADC-capable input pins:
+  # ADC1: GPIO1-GPIO10
+  # ADC2: GPIO11-GPIO20 (avoid when using WiFi)
+
+  # Pins to avoid or use with caution:
+  # GPIO0 - Boot/Programming (has pull-up)
+  # GPIO3 - Boot strapping pin
+  # GPIO43, GPIO44 - UART0 (USB serial/programming)
+  # GPIO19, GPIO20 - USB D+/D- pins (if using native USB)
+  # GPIO26-GPIO32 - May be used for flash/PSRAM on some boards
 
 ####################################
 # End Substitutions
