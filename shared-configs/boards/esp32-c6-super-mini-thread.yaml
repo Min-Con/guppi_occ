@@ -186,9 +186,9 @@ esp32:
       # IEEE 802.15.4 support (Thread/Zigbee) - ESP32-C6 unique feature
       # Note: Enabling this may conflict with WiFi/BLE coexistence
       # Uncomment ONLY if building Thread/Zigbee application:
-      # CONFIG_IEEE802154_ENABLED: y           # Enable 802.15.4 radio
-      # CONFIG_IEEE802154_RX_BUFFER_SIZE: "20" # RX buffer size
-      # CONFIG_OPENTHREAD_ENABLED: y           # Enable Thread protocol
+      CONFIG_IEEE802154_ENABLED: y           # Enable 802.15.4 radio
+      CONFIG_IEEE802154_RX_BUFFER_SIZE: "20" # RX buffer size
+      CONFIG_OPENTHREAD_ENABLED: y           # Enable Thread protocol
       
       # Watchdog configuration
       CONFIG_ESP_TASK_WDT_TIMEOUT_S: "10"      # 10 second watchdog timeout
@@ -201,17 +201,17 @@ esp32:
       CONFIG_ESP_CONSOLE_SECONDARY_NONE: y            # No secondary console
       
       # WiFi 6 (802.11ax) support - ESP32-C6 advanced features
-      CONFIG_ESP_WIFI_ENABLE_WPA3_SAE: y         # WPA3-Personal security
-      CONFIG_ESP_WIFI_SOFTAP_SAE_SUPPORT: y      # WPA3 in AP mode
-      CONFIG_ESP_WIFI_ENABLE_WPA3_OWE_STA: y     # Opportunistic Wireless Encryption
-      CONFIG_ESP_WIFI_SW_COEXIST_ENABLE: y       # WiFi/BLE coexistence
+      # CONFIG_ESP_WIFI_ENABLE_WPA3_SAE: y         # WPA3-Personal security
+      # CONFIG_ESP_WIFI_SOFTAP_SAE_SUPPORT: y      # WPA3 in AP mode
+      # CONFIG_ESP_WIFI_ENABLE_WPA3_OWE_STA: y     # Opportunistic Wireless Encryption
+      # CONFIG_ESP_WIFI_SW_COEXIST_ENABLE: y       # WiFi/BLE coexistence
       
       # WiFi 6 specific features for better performance
-      CONFIG_ESP_WIFI_11AX_SUPPORT: y            # 802.11ax (WiFi 6) protocol
-      CONFIG_ESP_WIFI_MBSSID_TX_SUPPORT: y       # Multiple BSSID support
-      CONFIG_ESP_WIFI_ENABLE_OFDMA: y            # OFDMA for multi-device efficiency
-      CONFIG_ESP_WIFI_ENABLE_TWT: y              # Target Wake Time for power saving
-      CONFIG_ESP_WIFI_ENABLE_BSS_COLOR: y        # BSS coloring to reduce interference
+      # CONFIG_ESP_WIFI_11AX_SUPPORT: y            # 802.11ax (WiFi 6) protocol
+      # CONFIG_ESP_WIFI_MBSSID_TX_SUPPORT: y       # Multiple BSSID support
+      # CONFIG_ESP_WIFI_ENABLE_OFDMA: y            # OFDMA for multi-device efficiency
+      # CONFIG_ESP_WIFI_ENABLE_TWT: y              # Target Wake Time for power saving
+      # CONFIG_ESP_WIFI_ENABLE_BSS_COLOR: y        # BSS coloring to reduce interference
       
       # Power management - disabled for stability (enable for battery applications)
       CONFIG_PM_ENABLE: n                        # Dynamic power management disabled
@@ -228,12 +228,12 @@ esp32:
       # LP core can run while main CPU sleeps for ultra-low power sensing
       
       # Memory management for ESP32-C6 (320KB SRAM)
-      CONFIG_ESP32_WIFI_STATIC_RX_BUFFER_NUM: "6"   # WiFi static RX buffers
-      CONFIG_ESP32_WIFI_DYNAMIC_RX_BUFFER_NUM: "16" # Dynamic RX buffers
-      CONFIG_ESP32_WIFI_DYNAMIC_TX_BUFFER_NUM: "16" # Dynamic TX buffers
-      CONFIG_ESP32_WIFI_TX_BUFFER_TYPE: "1"         # Dynamic TX allocation
-      CONFIG_ESP32_WIFI_RX_BA_WIN: "6"             # Block ACK window size
-      CONFIG_ESP32_WIFI_CACHE_TX_BUFFER_NUM: "16"  # TX buffer cache
+      # CONFIG_ESP32_WIFI_STATIC_RX_BUFFER_NUM: "6"   # WiFi static RX buffers
+      # CONFIG_ESP32_WIFI_DYNAMIC_RX_BUFFER_NUM: "16" # Dynamic RX buffers
+      # CONFIG_ESP32_WIFI_DYNAMIC_TX_BUFFER_NUM: "16" # Dynamic TX buffers
+      # CONFIG_ESP32_WIFI_TX_BUFFER_TYPE: "1"         # Dynamic TX allocation
+      # CONFIG_ESP32_WIFI_RX_BA_WIN: "6"             # Block ACK window size
+      # CONFIG_ESP32_WIFI_CACHE_TX_BUFFER_NUM: "16"  # TX buffer cache
       
       # Network stack optimizations
       CONFIG_LWIP_TCP_MSS: "1436"                # TCP Maximum Segment Size

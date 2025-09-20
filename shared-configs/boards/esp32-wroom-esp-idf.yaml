@@ -3,17 +3,136 @@
 ####################################
 
 substitutions:
-# Specify below pin numbers for UART, GPIO, and I2C connections
-# Delete if not needed
-# Add superseding substitutions in your specific device configuration if these don't match the actual pins used.
-
-  tx_pin_uart: GPIO17
-  rx_pin_uart: GPIO16
-  light_gpio: GPIO2
-  mic_adc: GPIO36
-  motion_gpio: GPIO4
-  sda_pin_i2c: GPIO21
-  scl_pin_i2c: GPIO22
+  # UART pins - ESP32 WROOM-32 UART pins
+  # Using hardware UART2 pins (UART0 is used for USB-to-Serial programming)
+  # UART1 pins conflict with SPI flash and should not be used
+  tx_pin_uart: GPIO17  # Hardware UART2 TX (U2TXD) - safe for external UART
+  rx_pin_uart: GPIO16  # Hardware UART2 RX (U2RXD) - safe for external UART
+  # Alternative UART configurations (any GPIO can be used for software UART):
+  # tx_pin_uart: GPIO4   # Alternative software UART TX
+  # rx_pin_uart: GPIO5   # Alternative software UART RX
+  # Hardware flow control pins if needed:
+  # rts_pin: GPIO18     # UART2 RTS
+  # cts_pin: GPIO19     # UART2 CTS
+  
+  # LED/Light GPIO - ESP32 WROOM-32 LED configuration
+  # Most development boards have an onboard LED on GPIO2
+  light_gpio: GPIO2    # Onboard blue LED on most ESP32 DevKit boards
+  # Note: GPIO2 is also a strapping pin - must be LOW or floating at boot
+  # Alternative LED pins if GPIO2 conflicts with boot:
+  # light_gpio: GPIO13  # Alternative safe LED pin
+  # light_gpio: GPIO25  # Alternative safe LED pin
+  
+  # ADC pins - ESP32 WROOM-32 ADC pins
+  # Using ADC1 which works reliably with WiFi enabled
+  # ADC2 channels conflict with WiFi and should be avoided when WiFi is active
+  mic_adc: GPIO36      # ADC1_CH0 (VP/SENSOR_VP) - input only pin
+  # Alternative ADC1 pins:
+  # mic_adc: GPIO39     # ADC1_CH3 (VN/SENSOR_VN) - input only pin
+  # mic_adc: GPIO34     # ADC1_CH6 - input only pin
+  # mic_adc: GPIO35     # ADC1_CH7 - input only pin
+  # mic_adc: GPIO32     # ADC1_CH4 - full GPIO with ADC
+  # mic_adc: GPIO33     # ADC1_CH5 - full GPIO with ADC
+  
+  # Motion sensor GPIO - Using available safe GPIO pins
+  motion_gpio: GPIO4   # Safe GPIO for digital input
+  
+  # I2C pins - ESP32 WROOM-32 default I2C pins
+  # These are the standard I2C pins used by most ESP32 libraries and boards
+  sda_pin_i2c: GPIO21  # Default I2C SDA pin
+  scl_pin_i2c: GPIO22  # Default I2C SCL pin
+  # Alternative I2C pins (any GPIO can be used):
+  # sda_pin_i2c: GPIO25  # Alternative I2C SDA
+  # scl_pin_i2c: GPIO26  # Alternative I2C SCL
+  
+  # CONFIRMED AVAILABLE GPIO pins on ESP32 WROOM-32:
+  # Total GPIOs: 34 pins (GPIO0-GPIO39, but not all are usable)
+  # Usable pins: GPIO0, GPIO2, GPIO4, GPIO5, GPIO12, GPIO13, GPIO14, GPIO15,
+  #             GPIO16, GPIO17, GPIO18, GPIO19, GPIO21, GPIO22, GPIO23,
+  #             GPIO25, GPIO26, GPIO27, GPIO32, GPIO33
+  # Input-only: GPIO34, GPIO35, GPIO36(VP), GPIO39(VN) - NO pull-up/down, NO output
+  
+  # SAFE GPIO pins for general use (no boot conflicts):
+  # GPIO4, GPIO5, GPIO13, GPIO14, GPIO16, GPIO17, GPIO18, GPIO19,
+  # GPIO21, GPIO22, GPIO23, GPIO25, GPIO26, GPIO27, GPIO32, GPIO33
+  # These pins have no special boot functions and are safe for any use
+  
+  # ADC-capable pins (ESP32 has two ADC units):
+  # ADC1 (works with WiFi): GPIO32-GPIO39 (channels 4-7, 0, 3)
+  #   GPIO32 (ADC1_CH4), GPIO33 (ADC1_CH5), GPIO34 (ADC1_CH6),
+  #   GPIO35 (ADC1_CH7), GPIO36/VP (ADC1_CH0), GPIO39/VN (ADC1_CH3)
+  # ADC2 (conflicts with WiFi): GPIO0, GPIO2, GPIO4, GPIO12-GPIO15, GPIO25-GPIO27
+  #   GPIO0 (ADC2_CH1), GPIO2 (ADC2_CH2), GPIO4 (ADC2_CH0),
+  #   GPIO12 (ADC2_CH5), GPIO13 (ADC2_CH4), GPIO14 (ADC2_CH6),
+  #   GPIO15 (ADC2_CH3), GPIO25 (ADC2_CH8), GPIO26 (ADC2_CH9), GPIO27 (ADC2_CH7)
+  # ADC specifications: 12-bit resolution, 0-3.3V range with attenuation
+  
+  # CRITICAL: Pins to AVOID or use with caution:
+  # GPIO0 - Strapping pin (boot mode) - must be HIGH for normal boot
+  # GPIO1 - TX0 (USB-to-Serial TX) - used for programming/debugging
+  # GPIO2 - Strapping pin (must be LOW/floating at boot) - onboard LED
+  # GPIO3 - RX0 (USB-to-Serial RX) - used for programming/debugging  
+  # GPIO5 - Strapping pin (timing of SDIO slave) - usually safe
+  # GPIO6-GPIO11 - Connected to SPI flash (NEVER use these!)
+  # GPIO12 - Strapping pin (flash voltage) - must be LOW for 3.3V flash
+  # GPIO15 - Strapping pin (boot messages) - must be HIGH for normal boot
+  # GPIO34-GPIO39 - Input only pins (no output capability, no pull-ups)
+  
+  # Strapping pins (affect boot behavior if pulled during reset):
+  # GPIO0 - HIGH for normal boot, LOW for download mode
+  # GPIO2 - Must be LOW or floating (connected to onboard LED)
+  # GPIO5 - SDIO timing (usually safe to use after boot)
+  # GPIO12 - Flash voltage select (LOW=3.3V, HIGH=1.8V) - IMPORTANT!
+  # GPIO15 - Boot message output (HIGH=normal, LOW=silent boot)
+  
+  # Alternative pin configurations:
+  # Alternative UART pins (software UART on any available GPIO):
+  # tx_pin_uart: GPIO25  # Alternative UART TX
+  # rx_pin_uart: GPIO26  # Alternative UART RX
+  
+  # Alternative I2C pins (any GPIO can be used):
+  # sda_pin_i2c: GPIO32  # Alternative I2C SDA
+  # scl_pin_i2c: GPIO33  # Alternative I2C SCL
+  
+  # Alternative motion sensor pins:
+  # motion_gpio: GPIO13  # Alternative motion sensor pin
+  # motion_gpio: GPIO14  # Alternative motion sensor pin
+  # motion_gpio: GPIO27  # Alternative motion sensor pin
+  
+  # Alternative ADC pins (ADC1 for WiFi compatibility):
+  # mic_adc: GPIO32      # ADC1_CH4 - with output capability
+  # mic_adc: GPIO33      # ADC1_CH5 - with output capability
+  # mic_adc: GPIO34      # ADC1_CH6 - input only
+  # mic_adc: GPIO35      # ADC1_CH7 - input only
+  # mic_adc: GPIO39      # ADC1_CH3 (VN) - input only
+  
+  # SPI pins configuration (hardware VSPI pins):
+  # Default VSPI (SPI3) pins - recommended for external SPI:
+  # mosi_pin: GPIO23  # VSPI MOSI
+  # miso_pin: GPIO19  # VSPI MISO
+  # sck_pin: GPIO18   # VSPI SCK
+  # cs_pin: GPIO5     # VSPI CS (or any GPIO)
+  # Alternative HSPI (SPI2) pins:
+  # mosi_pin: GPIO13  # HSPI MOSI (check GPIO12 strap!)
+  # miso_pin: GPIO12  # HSPI MISO (WARNING: strapping pin!)
+  # sck_pin: GPIO14   # HSPI SCK
+  # cs_pin: GPIO15    # HSPI CS (strapping pin!)
+  
+  # DAC pins (Digital to Analog Converter):
+  # ESP32 has 2x 8-bit DAC channels:
+  # dac1_pin: GPIO25  # DAC1 - 8-bit DAC output
+  # dac2_pin: GPIO26  # DAC2 - 8-bit DAC output
+  
+  # Touch sensor pins (capacitive touch):
+  # ESP32 has 10 touch channels on specific GPIOs:
+  # T0: GPIO4, T1: GPIO0, T2: GPIO2, T3: GPIO15, T4: GPIO13,
+  # T5: GPIO12, T6: GPIO14, T7: GPIO27, T8: GPIO33, T9: GPIO32
+  
+  # PWM capable pins: All output-capable GPIOs support LEDC PWM
+  # Hardware: 16 LEDC channels (8 high-speed, 8 low-speed)
+  
+  # Hall sensor: ESP32 has built-in hall effect sensor
+  # Uses ADC1_CH0 (GPIO36/VP) and ADC1_CH3 (GPIO39/VN) internally
 
 ####################################
 # End Substitutions
@@ -21,79 +140,412 @@ substitutions:
 
 esphome:
   platformio_options:
-    board_build.flash_mode: dio
-  #   board_build.flash_size: 4MB
-  #   board_build.f_flash: 40000000L
-  #   board_build.f_cpu: 160000000L
+    board_build.flash_mode: dio         # DIO mode for WROOM-32 (QIO may not work)
+    board_build.flash_size: 4MB         # Standard WROOM-32 has 4MB flash
+    board_build.f_flash: 40000000L      # 40MHz flash frequency for stability
+    board_build.f_cpu: 160000000L       # CPU frequency (160MHz default, 240MHz max)
+  on_boot:
+    priority: 600
+    then:
+      - delay: 500ms  # Boot delay for sensor stabilization
 
 esp32:
-  # board: esp32dev
-  board: nodemcu-32s
-  variant: esp32
-  flash_size: 4MB
+  # ESP32 WROOM-32 board configuration
+  # Using nodemcu-32s for better compatibility with WROOM-32 modules
+  board: nodemcu-32s   # Compatible with most ESP32 WROOM-32 dev boards
+  # Alternative board options:
+  # board: esp32dev    # Generic ESP32 development board
+  # board: esp32doit-devkit-v1  # For DOIT ESP32 DevKit V1
+  variant: esp32       # Original ESP32 variant
+  flash_size: 4MB      # WROOM-32 standard (some variants have 8MB or 16MB)
   framework:
     type: esp-idf
-    version: latest
+    version: recommended    # Use 'recommended' for stability, 'latest' for features
     sdkconfig_options:
-      CONFIG_ESPTOOLPY_FLASHSIZE_4MB: y
-      CONFIG_COMPILER_OPTIMIZATION_SIZE: y
-      CONFIG_ESP_TASK_WDT_TIMEOUT_S: "10"
+      # Flash configuration
+      CONFIG_ESPTOOLPY_FLASHSIZE_4MB: y        # Match flash_size above
+      CONFIG_ESPTOOLPY_FLASHFREQ_40M: y        # 40MHz flash frequency
+      CONFIG_ESPTOOLPY_FLASHMODE_DIO: y        # DIO flash mode
+      
+      # Performance optimizations
+      CONFIG_COMPILER_OPTIMIZATION_SIZE: y      # Size optimization
+      # CONFIG_COMPILER_OPTIMIZATION_PERF: y    # Uncomment for performance over size
+      CONFIG_ESP32_DEFAULT_CPU_FREQ_160: y     # Default 160MHz CPU
+      # CONFIG_ESP32_DEFAULT_CPU_FREQ_240: y    # Uncomment for 240MHz CPU
+      
+      # PSRAM configuration - ESP32 WROOM-32 does NOT have PSRAM
+      # Only ESP32-WROVER modules have PSRAM
+      # Do not enable unless you have WROVER module:
+      # CONFIG_SPIRAM: y
+      # CONFIG_SPIRAM_MODE_QUAD: y
+      # CONFIG_SPIRAM_TYPE_AUTO: y
+      # CONFIG_SPIRAM_SPEED_40M: y
+      
+      # Bluetooth configuration - Original ESP32 supports BT Classic + BLE 4.2
+      CONFIG_BT_ENABLED: y                      # Enable Bluetooth
+      CONFIG_BT_BLE_ENABLED: y                  # Enable BLE
+      CONFIG_BT_BLE_42_FEATURES_SUPPORTED: y    # BLE 4.2 features
+      # Note: Original ESP32 does NOT support BLE 5.0
+      # CONFIG_BT_BLE_50_FEATURES_SUPPORTED: n  # Not supported
+      CONFIG_BT_CLASSIC_ENABLED: y              # Bluetooth Classic support
+      CONFIG_BT_A2DP_ENABLE: y                  # A2DP profile for audio
+      CONFIG_BT_SPP_ENABLED: y                  # Serial Port Profile
+      
+      # Watchdog configuration
+      CONFIG_ESP_TASK_WDT_TIMEOUT_S: "10"      # 10 second watchdog timeout
+      CONFIG_ESP_TASK_WDT_CHECK_IDLE_TASK_CPU0: y  # Monitor CPU0 idle task
+      CONFIG_ESP_TASK_WDT_CHECK_IDLE_TASK_CPU1: y  # Monitor CPU1 idle task
+      CONFIG_ESP_INT_WDT_TIMEOUT_MS: "800"     # Interrupt watchdog
+      
+      # WiFi configuration - ESP32 supports 802.11 b/g/n
+      CONFIG_ESP32_WIFI_STATIC_RX_BUFFER_NUM: "10"  # WiFi RX buffers
+      CONFIG_ESP32_WIFI_DYNAMIC_RX_BUFFER_NUM: "32" # Dynamic RX buffers
+      CONFIG_ESP32_WIFI_DYNAMIC_TX_BUFFER_NUM: "32" # Dynamic TX buffers
+      CONFIG_ESP32_WIFI_TX_BUFFER_TYPE: "1"         # Dynamic TX allocation
+      CONFIG_ESP32_WIFI_CACHE_TX_BUFFER_NUM: "32"   # TX buffer cache
+      
       # WiFi compatibility options for WPA3/mesh networks
-      CONFIG_ESP32_WIFI_ENABLE_WPA3_SAE: n
-      CONFIG_ESP32_WIFI_ENABLE_WPA3_OWE_STA: n
-      CONFIG_ESP32_WIFI_SOFTAP_SAE_SUPPORT: n
-      # Disable power management features that can cause auth issues
-      CONFIG_ESP32_WIFI_AMPDU_TX_ENABLED: n
-      CONFIG_ESP32_WIFI_AMPDU_RX_ENABLED: n
-      # # Disable problematic features that can cause crashes
-      # CONFIG_ESP32_DEFAULT_CPU_FREQ_160: y
-      # CONFIG_ESP32_DEFAULT_CPU_FREQ_240: n
+      CONFIG_ESP32_WIFI_ENABLE_WPA3_SAE: n        # Disable WPA3 (not well supported)
+      CONFIG_ESP32_WIFI_ENABLE_WPA3_OWE_STA: n    # Disable WPA3 OWE
+      CONFIG_ESP32_WIFI_SOFTAP_SAE_SUPPORT: n     # Disable SAE in AP mode
+      
+      # Disable power management features that can cause connection issues
+      CONFIG_ESP32_WIFI_AMPDU_TX_ENABLED: n       # Disable TX aggregation
+      CONFIG_ESP32_WIFI_AMPDU_RX_ENABLED: n       # Disable RX aggregation
+      # To re-enable for better throughput (may cause stability issues):
+      # CONFIG_ESP32_WIFI_AMPDU_TX_ENABLED: y
+      # CONFIG_ESP32_WIFI_AMPDU_RX_ENABLED: y
+      
+      # Power management - disabled for stability
+      CONFIG_PM_ENABLE: n                        # Disable dynamic frequency scaling
+      # To enable power management for battery applications:
+      # CONFIG_PM_ENABLE: y
+      # CONFIG_PM_DFS_INIT_AUTO: y
+      # CONFIG_PM_USE_RTC_TIMER_REF: y
+      
+      # Memory management for dual-core ESP32 (520KB SRAM)
+      CONFIG_ESP32_IRAM_SIZE: "0x10000"          # 64KB IRAM
+      CONFIG_ESP32_DRAM_SIZE: "0x50000"          # 320KB DRAM
+      
+      # FreeRTOS configuration for dual-core
+      CONFIG_FREERTOS_HZ: "100"                  # FreeRTOS tick rate
+      CONFIG_FREERTOS_UNICORE: n                 # Use both cores
+      # For single-core operation (saves power):
+      # CONFIG_FREERTOS_UNICORE: y
+      
+      # Network stack optimizations
+      CONFIG_LWIP_TCP_MSS: "1436"                # TCP Maximum Segment Size
+      CONFIG_LWIP_TCP_RECVMBOX_SIZE: "32"       # TCP receive mailbox
+      CONFIG_LWIP_UDP_RECVMBOX_SIZE: "32"       # UDP receive mailbox
+      CONFIG_LWIP_TCPIP_RECVMBOX_SIZE: "32"     # TCP/IP task mailbox
+      
+      # Hardware features
+      CONFIG_ESP32_REV_MIN: "0"                  # Support all chip revisions
+      CONFIG_ESP32_DEEP_SLEEP_WAKEUP_DELAY: "2000" # Deep sleep wakeup delay (μs)
+      
+      # Brownout detector
+      CONFIG_ESP32_BROWNOUT_DET: y               # Enable brownout detector
+      CONFIG_ESP32_BROWNOUT_DET_LVL_SEL_0: y     # ~2.43V brownout threshold
 
-
-# esp32:
-#   board: esp32dev
-#   variant: esp32
-#   flash_size: 4MB
-#   framework:
-#     type: esp-idf
-#     version: recommended
-#     sdkconfig_options:
-#       # Performance optimizations
-#       CONFIG_COMPILER_OPTIMIZATION_PERF: y
-#       CONFIG_COMPILER_OPTIMIZATION_SIZE: y
-#       CONFIG_ESPTOOLPY_FLASHSIZE_4MB: y
-#       # BLE 4.2 is supported by ALL ESP32 boards that have bluetooth, the original and derivatives.
-#       CONFIG_BT_BLE_42_FEATURES_SUPPORTED: y
-#       # Remove BLE 5.0 support as original ESP32 doesn't support it
-#       # CONFIG_BT_BLE_50_FEATURES_SUPPORTED: y
-#       # Extend the watchdog timeout, so the device reboots if the device appears locked up for over 10 seconds.
-#       CONFIG_ESP_TASK_WDT_TIMEOUT_S: "10"
-
-# Remove PSRAM configuration as ESP32 WROOM-32 doesn't have PSRAM
-# psram:
-#   mode: quad
-#   speed: 80MHz
-
+# UART bus configuration - for external device communication
+# Using hardware UART2 (UART0 is for programming, UART1 is for flash)
 uart:
   id: uart_bus
-  tx_pin: ${tx_pin_uart}
-    # number: ${tx_pin_uart}
-  rx_pin: ${rx_pin_uart}
-    # number: ${rx_pin_uart}
-  baud_rate: 256000
+  tx_pin: ${tx_pin_uart}  # GPIO17 - Hardware UART2 TX
+  rx_pin: ${rx_pin_uart}  # GPIO16 - Hardware UART2 RX
+  baud_rate: 256000       # High-speed UART communication
   parity: NONE
   stop_bits: 1
+  data_bits: 8            # Standard 8-bit data
+  # rx_buffer_size: 256   # Increase if receiving large data
+  # Hardware flow control (optional):
+  # rts_pin: GPIO18       # UART2 RTS
+  # cts_pin: GPIO19       # UART2 CTS
+  # Note: Lower baud_rate to 115200 if experiencing issues
 
+# I2C configuration (optional - uncomment if using I2C sensors)
+# ESP32 has 2 I2C controllers with flexible pin mapping
+# i2c:
+#   id: i2c_bus
+#   sda: ${sda_pin_i2c}   # GPIO21 - Standard I2C SDA
+#   scl: ${scl_pin_i2c}   # GPIO22 - Standard I2C SCL
+#   scan: true            # Scan for devices on boot
+#   frequency: 400kHz     # Fast mode (100kHz for compatibility)
+#   # Optional second I2C bus:
+#   # - id: i2c_bus2
+#   #   sda: GPIO25
+#   #   scl: GPIO26
+#   #   frequency: 100kHz
+
+# ADC sensor configuration (optional - uncomment if using analog sensor)
+# Using ADC1 for WiFi compatibility
+# sensor:
+#   - platform: adc
+#     pin: ${mic_adc}     # GPIO36/VP - ADC1_CH0
+#     name: "Analog Input"
+#     update_interval: 60s
+#     attenuation: auto   # Auto-select attenuation
+#     # Attenuation options for 3.3V system:
+#     # 0db: 100mV - 950mV (highest precision)
+#     # 2.5db: 100mV - 1250mV
+#     # 6db: 150mV - 1750mV
+#     # 11db: 150mV - 2450mV (3.3V with divider)
+#     # Note: ESP32 ADC is non-linear, especially at extremes
+#     filters:
+#       - sliding_window_moving_average:
+#           window_size: 10
+#           send_every: 10
+#       # Calibration for better accuracy:
+#       - calibrate_linear:
+#           - 0.0 -> 0.0
+#           - 3.3 -> 3.3
+
+# Hall sensor (built-in magnetic field sensor)
+# sensor:
+#   - platform: esp32_hall
+#     name: "Hall Sensor"
+#     update_interval: 60s
+#     # Detects magnetic fields near the chip
+
+# Touch sensor configuration (capacitive touch)
+# binary_sensor:
+#   - platform: esp32_touch
+#     name: "Touch Pad"
+#     pin: GPIO4          # T0 touch channel
+#     threshold: 1000     # Adjust based on testing
+#     # Available touch pins: GPIO0(T1), GPIO2(T2), GPIO4(T0),
+#     # GPIO12(T5), GPIO13(T4), GPIO14(T6), GPIO15(T3),
+#     # GPIO27(T7), GPIO32(T9), GPIO33(T8)
+
+# GPIO binary sensor (motion sensor example)
+# binary_sensor:
+#   - platform: gpio
+#     pin: 
+#       number: ${motion_gpio}  # GPIO4
+#       mode:
+#         input: true
+#         pullup: true          # Internal pull-up
+#     name: "Motion Sensor"
+#     device_class: motion
+#     filters:
+#       - delayed_on: 10ms      # Debounce
+#       - delayed_off: 10ms
+
+# Light configuration - Onboard LED (usually GPIO2)
 light:
   - platform: binary
     name: "Blue Status Light"
     output: light_output
     id: status_light
-    restore_mode: ALWAYS_OFF
- 
+    restore_mode: ALWAYS_OFF    # LED off after reboot
+    # Warning: GPIO2 must be LOW or floating at boot!
+
+# GPIO output for LED control
 output:
   - platform: gpio
-    pin: ${light_gpio}
+    pin: ${light_gpio}  # GPIO2 - Onboard LED (check boot state!)
     id: light_output
+    # Alternative PWM configuration for brightness:
+    # - platform: ledc
+    #   pin: ${light_gpio}
+    #   id: light_output
+    #   frequency: 1000Hz
+    #   channel: 0          # LEDC channel 0-15
+
+# DAC output (8-bit analog output)
+# output:
+#   - platform: esp32_dac
+#     pin: GPIO25         # DAC1
+#     id: dac_output
+#   - platform: esp32_dac
+#     pin: GPIO26         # DAC2
+#     id: dac_output2
+
+# PWM output example (LEDC)
+# output:
+#   - platform: ledc
+#     pin: GPIO13
+#     id: pwm_output
+#     frequency: 5000Hz
+#     channel: 0          # 0-7 high speed, 8-15 low speed
+#     # ESP32 LEDC: 16 channels, up to 20-bit resolution
+
+# SPI configuration (optional - for external SPI devices)
+# Using VSPI (SPI3) - recommended for external devices
+# spi:
+#   id: spi_bus
+#   clk_pin: GPIO18   # VSPI SCK
+#   mosi_pin: GPIO23  # VSPI MOSI
+#   miso_pin: GPIO19  # VSPI MISO
+#   # CS pin defined per device
+#   # interface: hardware  # Use hardware SPI
+
+# WS2812 LED strip (if using addressable LEDs)
+# light:
+#   - platform: esp32_rmt_led_strip
+#     rgb_order: GRB
+#     pin: GPIO13         # Any output pin
+#     num_leds: 10        # Number of LEDs
+#     chipset: ws2812
+#     id: led_strip
+#     name: "LED Strip"
+#     effects:
+#       - addressable_rainbow:
+#       - addressable_color_wipe:
+#       - addressable_scan:
+
+# Deep sleep configuration (for battery applications)
+# deep_sleep:
+#   run_duration: 60s      # Stay awake
+#   sleep_duration: 5min   # Sleep time
+#   wakeup_pin: GPIO33     # RTC GPIO for wake
+#   wakeup_pin_mode: RISING
+#   # Touch wakeup:
+#   # touch_wakeup:
+#   #   threshold: 1000
+#   #   pin: GPIO4        # T0 touch pin
+
+# Remote control (using RMT peripheral)
+# remote_receiver:
+#   pin: GPIO35         # Input-only pin
+#   dump: all
+#   # ESP32 RMT: 8 channels, can be TX or RX
+
+# Pulse counter (for frequency/RPM)
+# sensor:
+#   - platform: pulse_counter
+#     pin: GPIO34       # Input-only pin
+#     name: "Pulse Counter"
+#     update_interval: 60s
+#     unit_of_measurement: "pulses/min"
+#     filters:
+#       - multiply: 60
+
+# Rotary encoder
+# sensor:
+#   - platform: rotary_encoder
+#     name: "Rotary Encoder"
+#     pin_a: GPIO25
+#     pin_b: GPIO26
+#     resolution: 4
+
+# ESP32 WROOM-32 specific features summary:
+# - Dual-core Xtensa LX6 @ 240MHz max
+# - 520KB SRAM, 4MB flash (standard)
+# - WiFi 802.11 b/g/n, Bluetooth 4.2 + BLE
+# - 34 GPIO pins (not all usable)
+# - 18 ADC channels (12-bit), 2 DAC channels (8-bit)
+# - 10 capacitive touch channels
+# - 16 PWM channels (LEDC)
+# - 3 UART, 2 I2C, 4 SPI interfaces
+# - Hall effect sensor
+# - Temperature sensor (legacy, not accurate)
+# - RTC with deep sleep support
+# - Secure boot and flash encryption capable
+
+
+
+
+####################################
+# OLD - REMOVE AFTER TESTING
+####################################
+
+# ####################################
+# # Start Substitutions
+# ####################################
+
+# substitutions:
+# # Specify below pin numbers for UART, GPIO, and I2C connections
+# # Delete if not needed
+# # Add superseding substitutions in your specific device configuration if these don't match the actual pins used.
+
+#   tx_pin_uart: GPIO17
+#   rx_pin_uart: GPIO16
+#   light_gpio: GPIO2
+#   mic_adc: GPIO36
+#   motion_gpio: GPIO4
+#   sda_pin_i2c: GPIO21
+#   scl_pin_i2c: GPIO22
+
+# ####################################
+# # End Substitutions
+# ####################################
+
+# esphome:
+#   platformio_options:
+#     board_build.flash_mode: dio
+#   #   board_build.flash_size: 4MB
+#   #   board_build.f_flash: 40000000L
+#   #   board_build.f_cpu: 160000000L
+
+# esp32:
+#   # board: esp32dev
+#   board: nodemcu-32s
+#   variant: esp32
+#   flash_size: 4MB
+#   framework:
+#     type: esp-idf
+#     version: latest
+#     sdkconfig_options:
+#       CONFIG_ESPTOOLPY_FLASHSIZE_4MB: y
+#       CONFIG_COMPILER_OPTIMIZATION_SIZE: y
+#       CONFIG_ESP_TASK_WDT_TIMEOUT_S: "10"
+#       # WiFi compatibility options for WPA3/mesh networks
+#       CONFIG_ESP32_WIFI_ENABLE_WPA3_SAE: n
+#       CONFIG_ESP32_WIFI_ENABLE_WPA3_OWE_STA: n
+#       CONFIG_ESP32_WIFI_SOFTAP_SAE_SUPPORT: n
+#       # Disable power management features that can cause auth issues
+#       CONFIG_ESP32_WIFI_AMPDU_TX_ENABLED: n
+#       CONFIG_ESP32_WIFI_AMPDU_RX_ENABLED: n
+#       # # Disable problematic features that can cause crashes
+#       # CONFIG_ESP32_DEFAULT_CPU_FREQ_160: y
+#       # CONFIG_ESP32_DEFAULT_CPU_FREQ_240: n
+
+
+# # esp32:
+# #   board: esp32dev
+# #   variant: esp32
+# #   flash_size: 4MB
+# #   framework:
+# #     type: esp-idf
+# #     version: recommended
+# #     sdkconfig_options:
+# #       # Performance optimizations
+# #       CONFIG_COMPILER_OPTIMIZATION_PERF: y
+# #       CONFIG_COMPILER_OPTIMIZATION_SIZE: y
+# #       CONFIG_ESPTOOLPY_FLASHSIZE_4MB: y
+# #       # BLE 4.2 is supported by ALL ESP32 boards that have bluetooth, the original and derivatives.
+# #       CONFIG_BT_BLE_42_FEATURES_SUPPORTED: y
+# #       # Remove BLE 5.0 support as original ESP32 doesn't support it
+# #       # CONFIG_BT_BLE_50_FEATURES_SUPPORTED: y
+# #       # Extend the watchdog timeout, so the device reboots if the device appears locked up for over 10 seconds.
+# #       CONFIG_ESP_TASK_WDT_TIMEOUT_S: "10"
+
+# # Remove PSRAM configuration as ESP32 WROOM-32 doesn't have PSRAM
+# # psram:
+# #   mode: quad
+# #   speed: 80MHz
+
+# uart:
+#   id: uart_bus
+#   tx_pin: ${tx_pin_uart}
+#     # number: ${tx_pin_uart}
+#   rx_pin: ${rx_pin_uart}
+#     # number: ${rx_pin_uart}
+#   baud_rate: 256000
+#   parity: NONE
+#   stop_bits: 1
+
+# light:
+#   - platform: binary
+#     name: "Blue Status Light"
+#     output: light_output
+#     id: status_light
+#     restore_mode: ALWAYS_OFF
+ 
+# output:
+#   - platform: gpio
+#     pin: ${light_gpio}
+#     id: light_output
 
 

@@ -3,6 +3,7 @@
 ####################################
 
 substitutions:
+<<<<<<< HEAD
   # UART pins - ESP32-S3 Zero default UART pins
   # These use the on-board USB serial connection and can be changed if needed
   tx_pin_uart: GPIO43  # Hardware UART TX
@@ -35,6 +36,74 @@ substitutions:
   # GPIO43, GPIO44 - UART0 (USB serial/programming)
   # GPIO19, GPIO20 - USB D+/D- pins (if using native USB)
   # GPIO26-GPIO32 - May be used for flash/PSRAM on some boards
+=======
+  # UART pins - ESP32-S3 Zero UART pins
+  # Using safe GPIO pins that don't conflict with USB programming
+  # GPIO43/44 are reserved for USB serial programming interface
+  tx_pin_uart: GPIO17  # Safe UART TX pin (any GPIO can be UART)
+  rx_pin_uart: GPIO18  # Safe UART RX pin (any GPIO can be UART)
+  
+  # LED/Light GPIO - ESP32-S3 Zero typically has simple LED
+  # Most S3 Zero boards have a simple status LED rather than RGB
+  light_gpio: GPIO21   # Simple LED pin (commonly used on S3 Zero)
+  
+  # ADC pin - ESP32-S3 Zero ADC-capable pins
+  # Using one of the available ADC pins for analog sensor input
+  # GPIO36 doesn't exist on ESP32-S3 (only on original ESP32)
+  mic_adc: GPIO1       # ADC1_CH0 - Safe ADC pin on ESP32-S3
+  
+  # Motion sensor GPIO - Using available GPIO pin
+  # Dedicated pin for motion sensor or radar GPIO output
+  motion_gpio: GPIO8   # Available GPIO pin for motion detection
+  
+  # I2C pins - ESP32-S3 Zero I2C pin assignment
+  sda_pin_i2c: GPIO4   # I2C SDA pin (data line)
+  scl_pin_i2c: GPIO5   # I2C SCL pin (clock line)
+  
+  # ESP32-S3 Zero GPIO pin availability:
+  # Safe GPIO pins: GPIO1-GPIO21, GPIO33-GPIO48 (board dependent)
+  # Note: Not all pins may be broken out on every ESP32-S3 Zero variant
+  
+  # ADC-capable input pins on ESP32-S3:
+  # ADC1: GPIO1-GPIO10 (preferred - doesn't conflict with WiFi)
+  # ADC2: GPIO11-GPIO20 (avoid when using WiFi - causes conflicts)
+  
+  # Pins to avoid or use with caution on ESP32-S3:
+  # GPIO0 - Boot/Programming mode (has pull-up, affects boot sequence)
+  # GPIO3 - Boot strapping pin (may affect boot sequence)
+  # GPIO19, GPIO20 - Native USB D-/D+ pins (if using USB CDC)
+  # GPIO26-GPIO32 - Often used for SPI flash/PSRAM (board dependent)
+  # GPIO43, GPIO44 - USB serial programming interface (avoid for user UART)
+  # GPIO45, GPIO46 - Boot strapping pins (may affect boot sequence)
+  
+  # Alternative UART pin configurations (any GPIO can be UART on ESP32-S3):
+  # tx_pin_uart: GPIO1   # Alternative UART TX (also ADC capable)
+  # rx_pin_uart: GPIO2   # Alternative UART RX (also ADC capable)
+  # tx_pin_uart: GPIO9   # Alternative UART TX
+  # rx_pin_uart: GPIO10  # Alternative UART RX
+  
+  # Alternative I2C pins (any GPIO can be configured as I2C on ESP32-S3):
+  # sda_pin_i2c: GPIO6   # Alternative I2C SDA
+  # scl_pin_i2c: GPIO7   # Alternative I2C SCL
+  # sda_pin_i2c: GPIO8   # Alternative I2C SDA
+  # scl_pin_i2c: GPIO9   # Alternative I2C SCL
+  
+  # If your board has WS2812 RGB LED instead of simple LED:
+  # light_gpio: GPIO48   # WS2812 RGB LED pin (common on S3 Zero variants)
+  # light_gpio: GPIO38   # Alternative WS2812 pin on some variants
+  
+  # SPI pins configuration (if needed for SPI sensors):
+  # Any GPIO can be configured as SPI on ESP32-S3
+  # mosi_pin: GPIO11  # SPI MOSI (Master Out Slave In)
+  # miso_pin: GPIO13  # SPI MISO (Master In Slave Out)
+  # sck_pin: GPIO12   # SPI SCK (Serial Clock)
+  # cs_pin: GPIO10    # SPI CS (Chip Select)
+  
+  # Native USB pins (for CDC serial communication on ESP32-S3):
+  # These are fixed hardware pins for native USB
+  # USB_D_PLUS: GPIO20   # USB Data Plus (fixed hardware pin)
+  # USB_D_MINUS: GPIO19  # USB Data Minus (fixed hardware pin)
+>>>>>>> origin/main
 
 ####################################
 # End Substitutions
@@ -42,61 +111,267 @@ substitutions:
 
 esphome:
   platformio_options:
-    board_build.flash_mode: qio
-    board_build.flash_size: 4MB
-    board_build.f_flash: 80000000L
+    # ESP32-S3 Zero build optimizations
+    board_build.flash_mode: qio      # Quad I/O mode for faster flash access
+    board_build.flash_size: 4MB      # Adjust if your board has different flash size
+    board_build.f_flash: 80000000L   # 80MHz flash frequency for better performance
+  on_boot:
+    priority: 600
+    then:
+      - delay: 500ms  # Boot delay for sensor stabilization
 
 esp32:
-  # Because the ESP32‑S3 Zero/Mini isn’t yet defined as its own board,
-  # many users have successfully used the esp32‑s3‑devkitc‑1 profile.
+  # ESP32-S3 Zero uses esp32-s3-devkitc-1 profile for compatibility
+  # Many S3 Zero boards use this profile as they're not specifically defined
   board: esp32-s3-devkitc-1
   variant: esp32s3
-  flash_size: 4MB
+  flash_size: 4MB  # Common flash size (some variants may have 8MB or 16MB)
   framework:
     type: esp-idf
     version: recommended
     sdkconfig_options:
-      # Performance optimizations
-      CONFIG_COMPILER_OPTIMIZATION_PERF: y
-      CONFIG_COMPILER_OPTIMIZATION_SIZE: y
-      CONFIG_ESPTOOLPY_FLASHSIZE_4MB: y
-      # BLE 4.2 is supported by ALL ESP32 boards that have bluetooth, the original and derivatives.
-      CONFIG_BT_BLE_42_FEATURES_SUPPORTED: y
-      # Also enable this on any derivative boards (S2, C3 etc) but not the original ESP32.
-      CONFIG_BT_BLE_50_FEATURES_SUPPORTED: y
-      # Extend the watchdog timeout, so the device reboots if the device appears locked up for over 10 seconds.
-      CONFIG_ESP_TASK_WDT_TIMEOUT_S: "10"
-      # WiFi compatibility options for WPA3/mesh networks
-      CONFIG_ESP32_WIFI_ENABLE_WPA3_SAE: n
-      CONFIG_ESP32_WIFI_ENABLE_WPA3_OWE_STA: n
-      CONFIG_ESP32_WIFI_SOFTAP_SAE_SUPPORT: n
-      # Disable power management features that can cause auth issues
-      CONFIG_ESP32_WIFI_AMPDU_TX_ENABLED: n
-      CONFIG_ESP32_WIFI_AMPDU_RX_ENABLED: n
+      # Performance optimizations for ESP32-S3
+      CONFIG_COMPILER_OPTIMIZATION_PERF: y        # Optimize for performance over size
+      CONFIG_COMPILER_OPTIMIZATION_SIZE: y        # Also optimize for size where possible
+      CONFIG_ESPTOOLPY_FLASHSIZE_4MB: y          # Match your board's flash size
+      
+      # Bluetooth Low Energy support (ESP32-S3 supports both BLE 4.2 and 5.0)
+      CONFIG_BT_BLE_42_FEATURES_SUPPORTED: y      # BLE 4.2 compatibility
+      CONFIG_BT_BLE_50_FEATURES_SUPPORTED: y      # BLE 5.0 features (advanced)
+      
+      # System stability and watchdog configuration
+      CONFIG_ESP_TASK_WDT_TIMEOUT_S: "10"        # 10-second watchdog timeout
+      
+      # WiFi compatibility and network optimizations
+      CONFIG_ESP32_WIFI_ENABLE_WPA3_SAE: n       # Disable WPA3 SAE (compatibility)
+      CONFIG_ESP32_WIFI_ENABLE_WPA3_OWE_STA: n   # Disable WPA3 OWE (compatibility)
+      CONFIG_ESP32_WIFI_SOFTAP_SAE_SUPPORT: n    # Disable SAE in SoftAP mode
+      
+      # WiFi power management (disabled for stability)
+      CONFIG_ESP32_WIFI_AMPDU_TX_ENABLED: n      # Disable WiFi TX aggregation
+      CONFIG_ESP32_WIFI_AMPDU_RX_ENABLED: n      # Disable WiFi RX aggregation
 
+# ESP32-S3 Zero supports PSRAM (Pseudo Static RAM) for additional memory
+# Most S3 Zero boards include PSRAM for enhanced performance with memory-intensive applications
 psram:
-  mode: quad
-  speed: 80MHz
+  mode: quad      # Quad SPI mode for PSRAM access
+  speed: 80MHz    # PSRAM operating frequency
     
 uart:
   id: uart_bus
   tx_pin: ${tx_pin_uart}
   rx_pin: ${rx_pin_uart}
-  baud_rate: 256000
+  baud_rate: 256000  # Standard baud rate for most sensors
   parity: NONE
   stop_bits: 1
-#  data_bits: 8
+#  data_bits: 8      # Default value, can be uncommented if needed
 
+# I2C bus configuration (optional - uncomment if using I2C sensors)
+# i2c:
+#   sda: ${sda_pin_i2c}
+#   scl: ${scl_pin_i2c}
+#   scan: true          # Scan for I2C devices on startup
+#   frequency: 400kHz   # Standard I2C frequency
+
+# ADC sensor configuration example (uncomment if using analog sensors)
+# sensor:
+#   - platform: adc
+#     pin: ${mic_adc}
+#     name: "Analog Input"
+#     update_interval: 60s
+#     attenuation: auto  # Automatic attenuation selection
+
+# GPIO binary sensor example for motion detection (uncomment if needed)
+# binary_sensor:
+#   - platform: gpio
+#     pin: 
+#       number: ${motion_gpio}
+#       mode:
+#         input: true
+#         pullup: true    # Enable internal pull-up resistor
+#     name: "Motion Sensor"
+#     device_class: motion
+#     filters:
+#       - delayed_on: 50ms   # Debounce filter
+#       - delayed_off: 50ms
+
+# Light configuration for ESP32-S3 Zero
+# Option 1: For boards with simple LED (most common on S3 Zero)
 light:
   - platform: binary
-    name: "Blue Status Light"
+    name: "Status Light"
     output: light_output
     id: status_light
-    #restore_mode: ALWAYS_ON
-    restore_mode: RESTORE_DEFAULT_ON
-    #restore_mode: ALWAYS_OFF
- 
+    restore_mode: ALWAYS_OFF  # LED starts in OFF state after boot
+
 output:
   - platform: gpio
     pin: ${light_gpio}
     id: light_output
+
+# Option 2: For S3 Zero boards with WS2812 RGB LED (uncomment if applicable)
+# Note: Some S3 Zero variants include addressable RGB LEDs
+# light:
+#   - platform: esp32_rmt_led_strip
+#     rgb_order: GRB            # Color order for WS2812 LEDs
+#     pin: ${light_gpio}        # GPIO pin connected to LED data line
+#     num_leds: 1               # Single LED
+#     chipset: ws2812           # WS2812 LED chipset
+#     # rmt_channel auto-allocated in ESP-IDF v5.x
+#     id: status_light
+#     name: "Status Light"
+#     # internal: true          # Uncomment to hide from Home Assistant
+#     restore_mode: ALWAYS_OFF
+#     effects:
+#       - addressable_rainbow:
+#           name: "Rainbow"
+#           speed: 10
+#           width: 50
+#       - addressable_color_wipe:
+#           name: "Color Wipe"
+#           colors:
+#             - red: 100%
+#               green: 0%
+#               blue: 0%
+#               num_leds: 1
+#           add_led_interval: 100ms
+#       - addressable_scan:
+#           name: "Scanner"
+#           move_interval: 100ms
+#           scan_width: 1
+#       - pulse:
+#           name: "Pulse"
+#           transition_length: 1s
+#           update_interval: 1s
+#       - strobe:
+#           name: "Strobe"
+#           colors:
+#             - state: true
+#               brightness: 100%
+#               red: 100%
+#               green: 100%
+#               blue: 100%
+#               duration: 500ms
+#             - state: false
+#               duration: 250ms
+#       - random:
+#           name: "Random"
+#           transition_length: 5s
+#           update_interval: 7s
+
+# LED effect selection (uncomment if using RGB LED option above)
+# select:
+#   - platform: template
+#     name: "LED Effect"
+#     id: led_effect_select
+#     options:
+#       - "None"
+#       - "Rainbow"
+#       - "Color Wipe"
+#       - "Scanner"
+#       - "Pulse"
+#       - "Strobe"
+#       - "Random"
+#     initial_option: "None"
+#     set_action:
+#       - if:
+#           condition:
+#             lambda: 'return x == "None";'
+#           then:
+#             - light.turn_on:
+#                 id: status_light
+#                 effect: "None"
+#       - if:
+#           condition:
+#             lambda: 'return x == "Rainbow";'
+#           then:
+#             - light.turn_on:
+#                 id: status_light
+#                 effect: "Rainbow"
+#       # Additional effect conditions would continue here...
+
+
+
+# ####################################
+#  Old version. Will remove after additional testing.
+# ####################################
+# # Start Substitutions
+# ####################################
+
+# substitutions:
+# # Specify below pin numbers for UART, GPIO, and I2C connections
+# # Default values are set for the ESP32-S3 Zero
+# # Add superseding substitutions in your specific device configuration if these don't match the actual pins used.
+
+#   tx_pin_uart: GPIO43
+#   rx_pin_uart: GPIO44
+#   light_gpio: GPIO21
+#   mic_adc: GPIO36
+#   motion_gpio: GPIO8
+#   sda_pin_i2c: GPIO4
+#   scl_pin_i2c: GPIO5
+
+# ####################################
+# # End Substitutions
+# ####################################
+
+# esphome:
+#   platformio_options:
+#     board_build.flash_mode: qio
+#     board_build.flash_size: 4MB
+#     board_build.f_flash: 80000000L
+
+# esp32:
+#   # Because the ESP32‑S3 Zero/Mini isn’t yet defined as its own board,
+#   # many users have successfully used the esp32‑s3‑devkitc‑1 profile.
+#   board: esp32-s3-devkitc-1
+#   variant: esp32s3
+#   flash_size: 4MB
+#   framework:
+#     type: esp-idf
+#     version: recommended
+#     sdkconfig_options:
+#       # Performance optimizations
+#       CONFIG_COMPILER_OPTIMIZATION_PERF: y
+#       CONFIG_COMPILER_OPTIMIZATION_SIZE: y
+#       CONFIG_ESPTOOLPY_FLASHSIZE_4MB: y
+#       # BLE 4.2 is supported by ALL ESP32 boards that have bluetooth, the original and derivatives.
+#       CONFIG_BT_BLE_42_FEATURES_SUPPORTED: y
+#       # Also enable this on any derivative boards (S2, C3 etc) but not the original ESP32.
+#       CONFIG_BT_BLE_50_FEATURES_SUPPORTED: y
+#       # Extend the watchdog timeout, so the device reboots if the device appears locked up for over 10 seconds.
+#       CONFIG_ESP_TASK_WDT_TIMEOUT_S: "10"
+#       # WiFi compatibility options for WPA3/mesh networks
+#       CONFIG_ESP32_WIFI_ENABLE_WPA3_SAE: n
+#       CONFIG_ESP32_WIFI_ENABLE_WPA3_OWE_STA: n
+#       CONFIG_ESP32_WIFI_SOFTAP_SAE_SUPPORT: n
+#       # Disable power management features that can cause auth issues
+#       CONFIG_ESP32_WIFI_AMPDU_TX_ENABLED: n
+#       CONFIG_ESP32_WIFI_AMPDU_RX_ENABLED: n
+
+# psram:
+#   mode: quad
+#   speed: 80MHz
+    
+# uart:
+#   id: uart_bus
+#   tx_pin: ${tx_pin_uart}
+#   rx_pin: ${rx_pin_uart}
+#   baud_rate: 256000
+#   parity: NONE
+#   stop_bits: 1
+# #  data_bits: 8
+
+# light:
+#   - platform: binary
+#     name: "Blue Status Light"
+#     output: light_output
+#     id: status_light
+#     #restore_mode: ALWAYS_ON
+#     restore_mode: RESTORE_DEFAULT_ON
+#     #restore_mode: ALWAYS_OFF
+ 
+# output:
+#   - platform: gpio
+#     pin: ${light_gpio}
+#     id: light_output

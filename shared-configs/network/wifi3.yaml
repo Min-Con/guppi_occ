@@ -43,3 +43,38 @@ wifi:
 #   version: 3
 
 captive_portal:
+
+sensor:
+  # WiFi signal strength sensor
+  - platform: wifi_signal
+    name: RSSI
+    id: wifi_signal_db
+    update_interval: 60s
+    entity_category: "diagnostic"
+
+text_sensor:
+  # Device IP Address
+  - platform: wifi_info
+    ip_address:
+      name: "IP Address"
+#      id: "ip"
+      icon: "mdi:ip-network"
+      entity_category: diagnostic
+    mac_address:
+      name: "MAC Address"
+#      id: "mac_address"
+      entity_category: "diagnostic"
+      icon: mdi:ip-network
+    ssid:
+      name: Connected SSID
+      entity_category: diagnostic
+    bssid:
+      name: Connected BSSID
+      entity_category: diagnostic
+    scan_results:
+      name: Latest Scan Results
+      entity_category: diagnostic
+    dns_address:
+      name: DNS Address  
+      entity_category: diagnostic
+  

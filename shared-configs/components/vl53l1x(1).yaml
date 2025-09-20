@@ -1,0 +1,140 @@
+i2c:
+  sda: ${sda_pin_i2c}
+  scl: ${scl_pin_i2c}
+  id: bus_a
+  scan: true
+  frequency: 400khz
+
+# VL53L1X Time of Flight Distance Sensor
+sensor:
+  - platform: vl53l1x
+    name: "VL53L1X Distance"
+    id: distance_sensor
+    i2c_id: bus_a
+    address: 0x29  # Default I2C address
+    update_interval: 1s
+    
+    # Optional configuration parameters
+    timeout: 200ms
+    ranging_mode: auto  # Options: auto, short, medium, long
+    
+    # Distance accuracy and unit
+    unit_of_measurement: "mm"
+    accuracy_decimals: 0
+    
+    # Optional filters
+    filters:
+      - sliding_window_moving_average:
+          window_size: 5
+          send_every: 1
+      - or:
+          - throttle: 1s
+          - delta: 10  # Only send if distance changed by 10mm
+    
+    # Optional lambda for custom processing
+    # lambda: |-
+    #   if (x > 4000) {
+    #     return {};  // Return empty optional for out-of-range readings
+    #   }
+    #   return x;
+
+# User configurable detection threshold
+number:
+  - platform: template
+    name: "Object Detection Threshold"
+    id: detection_threshold
+    optimistic: true
+    min_value: 50
+    max_value: 4000
+    initial_value: 500
+    step: 10
+    unit_of_measurement: "mm"
+    mode: box
+    restore_value: true
+
+# User configurable ranging mode
+select:
+  - platform: template
+    name: "Ranging Mode"
+    id: ranging_mode_select
+    optimistic: true
+    options:
+      - "auto"
+      - "short"
+      - "medium" 
+      - "long"
+    initial_option: "auto"
+    restore_value: true
+    on_value:
+      then:
+        - logger.log:
+            format: "Ranging mode changed to: %s"
+            args: ["x.c_str()"]
+
+# LED control switch
+switch:
+  - platform: template
+    name: "Status LED Enable"
+    id: led_enable
+    optimistic: true
+    restore_value: true
+    initial_state: true
+
+# Binary sensor for proximity detection (now user configurable)
+binary_sensor:
+  - platform: template
+    name: "Object Detected"
+    id: object_detected
+    lambda: |-
+      float threshold = id(detection_threshold).state;
+      if (id(distance_sensor).state < threshold && id(distance_sensor).state > 0) {
+        return true;
+      } else {
+        return false;
+      }
+
+# Text sensor for ranging mode and detection status
+text_sensor:
+  - platform: template
+    name: "VL53L1X Status"
+    id: sensor_status
+    lambda: |-
+      float distance = id(distance_sensor).state;
+      float threshold = id(detection_threshold).state;
+      std::string mode = id(ranging_mode_select).state;
+      
+      if (distance > 0 && distance < 4000) {
+        if (distance < threshold) {
+          return {"Measuring - Object Detected (" + mode + ")"};
+        } else {
+          return {"Measuring - Clear (" + mode + ")"};
+        }
+      } else {
+        return {"Out of Range (" + mode + ")"};
+      }
+    update_interval: 2s
+
+# Configurable LED indicator
+light:
+  - platform: binary
+    name: "Status LED"
+    id: status_led
+    output: led_output
+    lambda: |-
+      if (id(led_enable).state) {
+        // LED follows object detection when enabled
+        if (id(object_detected).state) {
+          return light::LightState::ON;
+        } else {
+          return light::LightState::OFF;
+        }
+      } else {
+        return light::LightState::OFF;
+      }
+
+# LED output pin
+output:
+  - platform: gpio
+    pin: GPIO2
+    id: led_output
+

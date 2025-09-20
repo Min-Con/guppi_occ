@@ -141,23 +141,37 @@ sensor:
     moving_distance:
       name: "Moving Distance"
       id: moving_distance
-#      icon: mdi:radar
       unit_of_measurement: "cm"
+      filters:
+        - median:
+            window_size: 5
+            send_every: 1
+        - delta: 5        # only publish if change >= 5 cm
+        - throttle: 1s    # and no more than once per second
+        - heartbeat: 60s  # send a heartbeat every 60 seconds
     still_distance:
       name: "Still Distance"
       id: still_distance
-#      icon: mdi:radar
       unit_of_measurement: "cm"
+      filters:
+        - median:
+            window_size: 5
+            send_every: 1
+        - delta: 5        # only publish if change >= 5 cm
+        - throttle: 1s    # and no more than once per second
+        - heartbeat: 60s  # send a heartbeat every 60 seconds
     moving_energy:
       name: "Move Energy"
       id: moving_energy
 #      icon: mdi:radar
       unit_of_measurement: "mJ"
+      internal: true
     still_energy:
       name: "Still Energy"
       id: still_energy
 #      icon: mdi:radar
       unit_of_measurement: "mJ"
+      internal: true
     detection_distance:
       name: "Detection Distance"
       id: detection_distance
