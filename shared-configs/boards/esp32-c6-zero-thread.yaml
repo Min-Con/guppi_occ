@@ -119,34 +119,60 @@ esp32:
   board: esp32-c6-devkitc-1
   variant: esp32c6
   flash_size: 4MB  # Standard size - ESP32-C6 Zero typically has 4MB flash
-  framework:
-    type: esp-idf
-    version: recommended  # ESP32-C6 requires recent ESP-IDF for full feature support
-    sdkconfig_options:
-      # Performance optimizations
-      CONFIG_COMPILER_OPTIMIZATION_PERF: y      # Performance optimization
-      # CONFIG_COMPILER_OPTIMIZATION_SIZE: y    # (mutually exclusive with PERF; do not set both)
-      CONFIG_ESPTOOLPY_FLASHSIZE_4MB: y        # Match flash_size above
+    framework:
+      type: esp-idf
+      version: recommended  # ESP32-C6 requires recent ESP-IDF for full feature support
+      sdkconfig_options:
+        # Performance optimizations
+        CONFIG_COMPILER_OPTIMIZATION_PERF: y      # Performance optimization
+        CONFIG_COMPILER_OPTIMIZATION_SIZE: y      # Size optimization (balanced)
+        CONFIG_ESPTOOLPY_FLASHSIZE_4MB: y        # Match flash_size above
 
-      # Robustness / console
-      CONFIG_ESP_SYSTEM_PANIC_PRINT_REBOOT: y  # Print panic info before reboot
-      CONFIG_ESP_TASK_WDT_TIMEOUT_S: "10"      # 10 second watchdog timeout
-      CONFIG_ESP_TASK_WDT_CHECK_IDLE_TASK_CPU0: y  # Monitor idle task
-      CONFIG_ESP_INT_WDT_TIMEOUT_MS: "800"     # Interrupt watchdog timeout
+        # ESP32-C6 specific optimizations
+        CONFIG_ESP32C6_DEFAULT_CPU_FREQ_160: y    # Set CPU to 160MHz (maximum)
+        CONFIG_ESP32C6_REV_MIN: "0"              # Support all chip revisions
+        CONFIG_ESP_PHY_ENABLE_USB: y             # Enable USB PHY support
+        CONFIG_ESP_SYSTEM_PANIC_PRINT_REBOOT: y  # Print panic info before reboot
 
-      # USB Serial/JTAG configuration - ESP32-C6 has native USB Serial/JTAG
-      CONFIG_ESP_CONSOLE_USB_SERIAL_JTAG: y           # Use USB Serial/JTAG console
-      CONFIG_ESP_CONSOLE_USB_SERIAL_JTAG_ENABLED: y   # Enable USB Serial/JTAG
-      CONFIG_ESP_CONSOLE_SECONDARY_NONE: y            # No secondary console
+        # Boot time optimizations (for faster startup)
+        CONFIG_BOOTLOADER_SKIP_VALIDATE_IN_DEEP_SLEEP: y  # Skip validation after deep sleep
+        CONFIG_BOOTLOADER_SKIP_VALIDATE_ON_POWER_ON: y    # Skip validation on power on
+        CONFIG_BOOTLOADER_LOG_LEVEL_NONE: n              # Keep boot logs for debugging
 
-      # WiFi / Coexistence (C6 is Wi-Fi 6 capable; feature enablement is target-driven)
-      CONFIG_ESP_WIFI_ENABLE_WPA3_SAE: y         # Enable WPA3-SAE
-      CONFIG_ESP_WIFI_SOFTAP_SAE_SUPPORT: y      # WPA3-SAE in AP mode
-      CONFIG_ESP_WIFI_ENABLE_WPA3_OWE_STA: y     # Enable OWE (Enhanced Open)
-      CONFIG_ESP_WIFI_SW_COEXIST_ENABLE: y       # Software coexistence for BLE+WiFi
+        # Bluetooth/BLE support - ESP32-C6 supports BLE 5.3
+        CONFIG_BT_ENABLED: y
+        CONFIG_BT_BLE_ENABLED: y
+        CONFIG_BT_BLE_42_FEATURES_SUPPORTED: y
+        CONFIG_BT_BLE_50_FEATURES_SUPPORTED: y
 
-      # Power management - disabled for stability
-      CONFIG_PM_ENABLE: n                        # Disable dynamic power management
+        # IEEE 802.15.4 / Thread support
+        CONFIG_IEEE802154_ENABLED: y
+        CONFIG_IEEE802154_RX_BUFFER_SIZE: "20"
+        CONFIG_OPENTHREAD_ENABLED: y
+
+        # Watchdog configuration
+        CONFIG_ESP_TASK_WDT_TIMEOUT_S: "10"      # 10 second watchdog timeout
+        CONFIG_ESP_TASK_WDT_CHECK_IDLE_TASK_CPU0: y  # Monitor idle task
+        CONFIG_ESP_INT_WDT_TIMEOUT_MS: "800"     # Interrupt watchdog timeout
+
+        # USB Serial/JTAG configuration - ESP32-C6 has native USB Serial/JTAG
+        CONFIG_ESP_CONSOLE_USB_SERIAL_JTAG: y           # Use USB Serial/JTAG console
+        CONFIG_ESP_CONSOLE_USB_SERIAL_JTAG_ENABLED: y   # Enable USB Serial/JTAG
+        CONFIG_ESP_CONSOLE_SECONDARY_NONE: y            # No secondary console
+
+        # Power management - disabled for stability
+        CONFIG_PM_ENABLE: n                        # Disable dynamic power management
+
+        # Low power coprocessor configuration
+        CONFIG_ULP_COPROC_ENABLED: y
+        CONFIG_ULP_COPROC_TYPE_LP_CORE: y
+        CONFIG_ULP_COPROC_RESERVE_MEM: "4096"
+
+        # Network stack optimizations
+        CONFIG_LWIP_TCP_MSS: "1436"
+        CONFIG_LWIP_TCP_RECVMBOX_SIZE: "32"
+        CONFIG_LWIP_UDP_RECVMBOX_SIZE: "32"
+        CONFIG_LWIP_TCPIP_RECVMBOX_SIZE: "32"
 
 # UART bus configuration - for external device communication
 # Using hardware UART1 on safe GPIO pins
