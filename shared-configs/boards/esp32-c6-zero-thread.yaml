@@ -239,7 +239,7 @@ light:
     pin: ${light_gpio}          # Onboard RGB LED pin (GPIO8)
     num_leds: 1                 # Single onboard LED
     chipset: ws2812             # WS2812B chipset
-    id: rgb_status_light
+    id: status_light
     name: "RGB Status Light"
     restore_mode: ALWAYS_OFF
     effects:
@@ -327,70 +327,3 @@ light:
 # - 6 LEDC PWM channels with 20-bit resolution
 # - 2 I2C, 2 SPI, 2 UART (plus LP_UART) interfaces
 # - USB Serial/JTAG for programming and debugging
-
-
-####################################
-# OLD - REMOVE AFTER TESTING
-####################################
-
-# (kept unchanged, for reference/testing)
-# ####################################
-# # Start Substitutions
-# ####################################
-# substitutions:
-#   tx_pin_uart: GPIO5
-#   rx_pin_uart: GPIO4
-#   light_gpio: GPIO8
-#   mic_adc: GPIO2
-#   motion_gpio: GPIO7
-#   sda_pin_i2c: GPIO21
-#   scl_pin_i2c: GPIO22
-# ####################################
-# # End Substitutions
-# ####################################
-# esphome:
-#   platformio_options:
-#     board_build.flash_mode: qio
-#     board_build.f_flash: 80000000L
-# esp32:
-#   board: esp32-c6-devkitc-1
-#   variant: esp32c6
-#   flash_size: 4MB
-#   framework:
-#     type: esp-idf
-#     version: latest
-#     sdkconfig_options:
-#       CONFIG_COMPILER_OPTIMIZATION_PERF: y
-#       CONFIG_COMPILER_OPTIMIZATION_SIZE: y
-#       CONFIG_ESPTOOLPY_FLASHSIZE_4MB: y
-#       CONFIG_BT_ENABLED: y
-#       CONFIG_BT_BLE_ENABLED: y
-#       CONFIG_BT_BLE_42_FEATURES_SUPPORTED: y
-#       CONFIG_BT_BLE_50_FEATURES_SUPPORTED: y
-#       CONFIG_ESP_TASK_WDT_TIMEOUT_S: "10"
-#       CONFIG_ESP_CONSOLE_USB_SERIAL_JTAG: y
-#       CONFIG_ESP_CONSOLE_USB_SERIAL_JTAG_ENABLED: y
-#       CONFIG_ESP_WIFI_ENABLE_WPA3_SAE: y
-#       CONFIG_ESP_WIFI_SOFTAP_SAE_SUPPORT: y
-#       CONFIG_ESP_WIFI_ENABLE_WPA3_OWE_STA: y
-#       CONFIG_ESP_WIFI_SW_COEXIST_ENABLE: y
-#       CONFIG_PM_ENABLE: n
-#       CONFIG_ESP_PHY_ENABLE_USB: y
-#       CONFIG_ESP_SYSTEM_PANIC_PRINT_REBOOT: y
-# uart:
-#   id: uart_bus
-#   tx_pin: ${tx_pin_uart}
-#   rx_pin: ${rx_pin_uart}
-#   baud_rate: 256000
-#   parity: NONE
-#   stop_bits: 1
-# light:
-#   - platform: binary
-#     name: "Blue Status Light"
-#     output: light_output
-#     id: status_light
-#     restore_mode: RESTORE_DEFAULT_ON
-# output:
-#   - platform: gpio
-#     pin: ${light_gpio}
-#     id: light_output
