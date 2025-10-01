@@ -1,0 +1,200 @@
+# Auto detect text files and normalize line endings to LF on check-in
+* text=auto eol=lf
+
+# ====================
+# Text Files
+# ====================
+
+# Web Development
+*.html text eol=lf
+*.htm text eol=lf
+*.css text eol=lf
+*.scss text eol=lf
+*.sass text eol=lf
+*.less text eol=lf
+*.js text eol=lf
+*.mjs text eol=lf
+*.cjs text eol=lf
+*.jsx text eol=lf
+*.ts text eol=lf
+*.tsx text eol=lf
+*.vue text eol=lf
+*.svelte text eol=lf
+
+# Programming Languages
+*.c text eol=lf
+*.cpp text eol=lf
+*.cc text eol=lf
+*.cxx text eol=lf
+*.h text eol=lf
+*.hpp text eol=lf
+*.cs text eol=lf
+*.java text eol=lf
+*.py text eol=lf
+*.rb text eol=lf
+*.go text eol=lf
+*.rs text eol=lf
+*.php text eol=lf
+*.pl text eol=lf
+*.pm text eol=lf
+*.swift text eol=lf
+*.kt text eol=lf
+*.kts text eol=lf
+*.scala text eol=lf
+*.lua text eol=lf
+*.r text eol=lf
+
+# Shell Scripts
+*.sh text eol=lf
+*.bash text eol=lf
+*.zsh text eol=lf
+*.fish text eol=lf
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.ps1 text eol=crlf
+
+# Data & Configuration
+*.json text eol=lf
+*.xml text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.toml text eol=lf
+*.ini text eol=lf
+*.cfg text eol=lf
+*.conf text eol=lf
+*.config text eol=lf
+*.properties text eol=lf
+*.env text eol=lf
+
+# Documentation & Markup
+*.md text eol=lf
+*.markdown text eol=lf
+*.txt text eol=lf
+*.rst text eol=lf
+*.tex text eol=lf
+*.adoc text eol=lf
+*.textile text eol=lf
+*.csv text eol=lf
+*.tsv text eol=lf
+*.svg text eol=lf
+
+# Build & Package Files
+*.gradle text eol=lf
+*.maven text eol=lf
+*.sbt text eol=lf
+Makefile text eol=lf
+Dockerfile text eol=lf
+*.dockerfile text eol=lf
+CMakeLists.txt text eol=lf
+*.cmake text eol=lf
+
+# Config Files (dotfiles)
+.gitignore text eol=lf
+.gitattributes text eol=lf
+.editorconfig text eol=lf
+.dockerignore text eol=lf
+.eslintrc text eol=lf
+.prettierrc text eol=lf
+.babelrc text eol=lf
+.browserslistrc text eol=lf
+
+# SQL
+*.sql text eol=lf
+
+# ====================
+# Binary Files
+# ====================
+
+# Images
+*.jpg binary
+*.jpeg binary
+*.png binary
+*.gif binary
+*.bmp binary
+*.ico binary
+*.webp binary
+*.tiff binary
+*.tif binary
+*.psd binary
+*.ai binary
+*.eps binary
+*.raw binary
+
+# Documents
+*.pdf binary
+*.doc binary
+*.docx binary
+*.xls binary
+*.xlsx binary
+*.ppt binary
+*.pptx binary
+*.odt binary
+*.ods binary
+*.odp binary
+
+# Archives & Compressed
+*.zip binary
+*.tar binary
+*.gz binary
+*.bz2 binary
+*.7z binary
+*.rar binary
+*.tgz binary
+*.xz binary
+*.tar.gz binary
+
+# Databases
+*.db binary
+*.sqlite binary
+*.sqlite3 binary
+*.mdb binary
+
+# Executables & Libraries
+*.exe binary
+*.dll binary
+*.so binary
+*.dylib binary
+*.app binary
+*.dmg binary
+*.pkg binary
+*.deb binary
+*.rpm binary
+*.msi binary
+*.a binary
+*.lib binary
+*.o binary
+*.obj binary
+
+# Compiled & Bytecode
+*.class binary
+*.jar binary
+*.war binary
+*.ear binary
+*.pyc binary
+*.pyo binary
+*.wasm binary
+
+# Media Files
+*.mp3 binary
+*.mp4 binary
+*.avi binary
+*.mov binary
+*.wmv binary
+*.flv binary
+*.mkv binary
+*.wav binary
+*.ogg binary
+*.webm binary
+*.m4a binary
+*.m4v binary
+
+# Fonts
+*.ttf binary
+*.otf binary
+*.woff binary
+*.woff2 binary
+*.eot binary
+
+# Other Binary
+*.swf binary
+*.fla binary
